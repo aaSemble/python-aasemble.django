@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+export PBR_VERSION=$(shell dpkg-parsechangelog --show-field Version | sed -e 's/.*://g')
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+%:
+	dh $@ {% if source.is_python %} --with python2{% endif %}

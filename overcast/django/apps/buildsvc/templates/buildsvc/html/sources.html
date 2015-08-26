@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}Package Sources{% endblock %}
+{% block overcast_content %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th>Repository</th>
+          <th>Branch</th>
+          <th>Destination APT repo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for source in sources %}
+        <tr>
+          <td><small><a href="{% url "buildsvc:package_source" source_id=source.id %}">{% bootstrap_icon "pencil" %}</a></small></td>
+          <td><a href="{{ source.github_repository.url }}">{{ source.github_repository.repo_owner }}/{{ source.github_repository.repo_name }}</a></td>
+          <td><a href="{{ source.github_repository.url }}/tree/{{ source.branch }}">{{ source.branch }}</a></td>
+          <td><a href="#">{{ source.series }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <a class="btn btn-primary" href="{% url "buildsvc:package_source" source_id='new' %}" role="button">{% bootstrap_icon "plus" %} New</a>
+{% endblock %}
