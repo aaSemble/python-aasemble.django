@@ -1,0 +1,7 @@
+{{ pkgname }} ({{ version }}) {{ distribution }}; urgency=medium
+
+  * Automatically built.
+    SHA: {{ sha }}
+
+ -- {{ full_name }} <{{ email }}>  {{ timestamp }}
+

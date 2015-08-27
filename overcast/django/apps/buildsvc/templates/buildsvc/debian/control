@@ -2,14 +2,16 @@ Source: {{ pkgname }}
 Section: misc
 Priority: optional
 Maintainer: Overcast Pkgbuild Service <pkgbuild@overcastcloud.com>
-Build-Depends: debhelper (>= 9.0.0), python-all, dh-python, python-setuptools
+Build-Depends: debhelper (>= 9.0.0){% for dependency in builder.build_dependencies %},
+  {{ dependency }}{% endfor %}
 Standards-Version: 3.9.4
-Vcs-Git: {{ source.github_repository.url }}
-Vcs-Browser: {{ source.github_repository.url }}
+Vcs-Git: {{ builder.package_source.github_repository.url }}
+Vcs-Browser: {{ builder.package_source.github_repository.url }}
 
 Package: {{ pkgname }}
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}{% if source.is_python %}, ${python:Depends}{% endif %}
+Depends: ${shlibs:Depends}, ${misc:Depends}{% for dependency in builder.runtime_dependencies %},
+  {{ dependency }}{% endfor %}
 Description: Automatically built {{ pkgname }} package
  This package was built by Overcast package building service using
- code from the {{ source.branch }} branch at {{ source.github_repository.url }}.
+ code from the {{ builder.package_source.branch }} branch at {{ builder.package_source.github_repository.url }}.

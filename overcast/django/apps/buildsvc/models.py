@@ -145,6 +145,7 @@ class PackageSource(models.Model):
     branch = models.CharField(max_length=100)
     series = models.ForeignKey(Series)
     last_seen_revision = models.CharField(max_length=64, null=True, blank=True)
+    last_built_version = models.CharField(max_length=64, null=True, blank=True)
     build_counter = models.IntegerField(default=0)
 
     def __unicode__(self):
@@ -190,13 +191,6 @@ class PackageSource(models.Model):
     def name(self):
         return self.url.split('/')[-1].replace('_', '-')
         
-
-    def is_python(self):
-        if hasattr(self, 'builddir'):
-            if os.path.exists(os.path.join(self.builddir, 'setup.py')):
-                return True
-        return False
-
     def build(self):
         tasks.build.delay(self.id)
 
@@ -206,55 +200,11 @@ class PackageSource(models.Model):
             self.build_counter += 1
             self.save()
 
-            version = str(self.build_counter)
-
-            env = {'DEBEMAIL': 'pkgbuild@overcastcloud.com',
-                   'DEBFULLNAME': 'Overcast Package Building Service'}
-
-            if os.path.isdir(os.path.join(self.builddir, 'debian')):
-                # It already has packaging. Let's just use that. Now all we need to do is generate a new version string.
-                style = 'debian'
-                cmd = ['dch', '-v', version,
-                       '-D', self.series.name,
-                       '--allow-lower-version',
-                       '--force-distribution',
-                       'Automatically built package. SHA1: %s' % sha]
-                run_cmd(cmd, cwd=self.builddir, override_env=env)
-            else:
-                recursive_render(os.path.join(os.path.dirname(__file__), 'templates/buildsvc/debian'),
-                                 os.path.join(self.builddir, 'debian'),
-                                 {'pkgname': self.name, 'source': self})
-
-                cmd = ['dch', '-v', version,
-                       '--package', self.name,
-                       '--create',
-                       '-D', 'trusty',
-                       '--force-distribution',
-                       'Automatically built package. SHA1: %s' % sha]
-                run_cmd(cmd, cwd=self.builddir, override_env=env)
-    
-                # What kind of sorcery is this?
-                style = 'unknown'
-
-            br = BuildRecord.objects.create(source=self, version=version)
-
-            if os.path.exists(os.path.join(self.builddir, 'setup.py')):
-                stdout = run_cmd(['python', 'setup.py', '--version'],
-                                 cwd=self.builddir)
-                base_version = stdout.strip()
+            import pkgbuild
+            builder_cls = pkgbuild.choose_builder(self.builddir)
+            builder = builder_cls(tmpdir, self, self.build_counter)
             
-            run_cmd(['dpkg-buildpackage', '-S', '-nc', '-uc', '-us'],
-                    cwd=self.builddir, override_env=env)
-            dsc = filter(lambda s:s.endswith('.dsc'), os.listdir(tmpdir))[0]
-
-            with open(br.buildlog(), 'a+') as fp:
-                buildlog = run_cmd(['sbuild',
-                                    '-n',
-                                    '--extra-repository=%s' % (self.series.binary_source_list(),),
-                                    '-d', 'trusty',
-                                    '-A', dsc],
-                                    cwd=tmpdir,
-                                    stdout=fp)
+            builder.build()
 
             changes_files = filter(lambda s:s.endswith('.changes'), os.listdir(tmpdir))
 

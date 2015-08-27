@@ -26,6 +26,8 @@ def recursive_render(src, dst, context):
         for f in os.listdir(src):
             recursive_render(os.path.join(src, f), os.path.join(dst, f), context)
     else:
+        if src.endswith('.swp'):
+            return
         s = render_to_string(os.path.join(src), context)
         with open(dst, 'w') as fp_out:
             fp_out.write(s)
