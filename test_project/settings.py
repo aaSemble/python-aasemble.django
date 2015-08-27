@@ -89,14 +89,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles'
 
-SOCIAL_AUTH_GITHUB_KEY = None
-SOCIAL_AUTH_GITHUB_SECRET = None
+SOCIAL_AUTH_GITHUB_KEY = '6b506b92dd00942dcfc8'
+SOCIAL_AUTH_GITHUB_SECRET = '28f3e70926faa462c50ec5b5c238d5c8af547d72'
 SOCIAL_AUTH_GITHUB_SCOPE = ['read:org']
 
 BUILDSVC_REPOS_BASE_DIR = os.path.join(BASE_DIR, 'data', 'repos')
 BUILDSVC_REPOS_BASE_PUBLIC_DIR = os.path.join(BASE_DIR, 'data', 'public_repos')
-BUILDSVC_REPOS_BASE_URL = 'http://apt.overcastcloud.com'
+BUILDSVC_REPOS_BASE_URL = 'http://127.0.0.1:8000/apt/'
 BUILDSVC_DEFAULT_SERIES_NAME = 'overcast'
+BUILDSVC_DEBEMAIL = 'pkgbuild@overcastcloud.com'
+BUILDSVC_DEBFULLNAME = 'Overcast Package Building Service'
 
 LOGIN_URL = '/login/github/'
 LOGIN_REDIRECT_URL = '/'
@@ -114,9 +116,9 @@ CACHES = {
 }
 
 CELERYBEAT_SCHEDULE = {
-    'poll-every-X-minutes': {
+    'poll-very-frequently': {
         'task': 'overcast.django.apps.buildsvc.tasks.poll_all',
-        'schedule': timedelta(seconds=20),
+        'schedule': timedelta(seconds=10),
     },
 }
 
