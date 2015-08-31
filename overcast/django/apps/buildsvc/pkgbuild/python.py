@@ -11,12 +11,12 @@ class PythonBuilder(PackageBuilder):
     @property
     def native_version(self):
         cmd = ['python', 'setup.py', '--version']
-        return run_cmd(cmd, cwd=self.builddir).strip()
+        return run_cmd(cmd, cwd=self.builddir, discard_stderr=True).strip()
 
     @property
     def package_name(self):
         cmd = ['python', 'setup.py', '--name']
-        return run_cmd(cmd, cwd=self.builddir).strip()
+        return run_cmd(cmd, cwd=self.builddir, discard_stderr=True).strip()
 
     def detect_runtime_dependencies(self):
         return ['${python:Depends}']
