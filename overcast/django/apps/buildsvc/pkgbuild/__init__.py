@@ -70,7 +70,7 @@ class PackageBuilder(object):
     def populate_debian_dir(self):
         recursive_render(os.path.join(os.path.dirname(__file__), '../templates/buildsvc/debian'),
                          os.path.join(self.builddir, 'debian'),
-                         {'pkgname': self.name,
+                         {'pkgname': self.package_name,
                           'builder': self})
 
     @property
