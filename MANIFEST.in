@@ -1,2 +1,4 @@
 include requirements.txt
 include test_project/*.py
+recursive-include overcast/django/apps/main/templates *
+recursive-include overcast/django/apps/buildsvc/templates *
