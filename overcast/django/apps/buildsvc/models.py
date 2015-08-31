@@ -1,4 +1,5 @@
 from glob import glob
+import logging
 import os
 import os.path
 import shutil
@@ -19,7 +20,6 @@ def ensure_dir(d):
     if not os.path.isdir(d):
         os.makedirs(d)
     return d
-
 
 class Repository(models.Model):
     user = models.ForeignKey(auth_models.User)
@@ -222,6 +222,26 @@ class PackageSource(models.Model):
 class BuildRecord(models.Model):
     source = models.ForeignKey(PackageSource)
     version = models.CharField(max_length=50)
+
+    def __init__(self, *args, **kwargs):
+        self._logger = None
+        return super(BuildRecord, self).__init__(*args, **kwargs)
+
+    @property
+    def logger(self):
+        if not self._logger:
+            logger = logging.getLogger('%s_%s' % (self.source.name, self.version))
+            logger.setLevel(logging.DEBUG)
+
+            formatter = logging.Formatter('%(asctime)s: %(message)s')
+            logfp = logging.FileHandler(self.buildlog())
+            logfp.setLevel(logging.DEBUG)
+            logfp.setFormatter(formatter)
+
+            logger.addHandler(logfp)
+            self._logger = logger
+
+        return self._logger
 
     def buildlog(self):
         return os.path.join(self.source.series.repository.buildlogdir,

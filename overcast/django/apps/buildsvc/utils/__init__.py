@@ -19,7 +19,8 @@ def sync_sources_from_github(user):
     for new_repo in new_repos:
         GithubRepository.create_from_github_repo(user, sources_on_github[new_repo])
 
-def recursive_render(src, dst, context):
+def recursive_render(src, dst, context, logger=LOG):
+    logger.debug('Processing %s' % (src,))
     if os.path.isdir(src):
         if not os.path.isdir(dst):
             os.mkdir(dst)
@@ -28,15 +29,18 @@ def recursive_render(src, dst, context):
     else:
         if src.endswith('.swp'):
             return
-        s = render_to_string(os.path.join(src), context)
+        logger.debug('Rendering %s' % (src,))
+        s = render_to_string(src, context)
+        logger.debug('Result: %r' % (s,))
         with open(dst, 'w') as fp_out:
             fp_out.write(s)
 
 
 def run_cmd(cmd, input=None, cwd=None, override_env=None,
-            discard_stderr=False, stdout=None):
-    LOG.critical("%r, input=%r, cwd=%r, override_env=%r, discard_stderr=%r" %
-              (cmd, input, cwd, override_env, discard_stderr))
+            discard_stderr=False, stdout=None, logger=LOG):
+    logger.debug("%r, input=%r, cwd=%r, override_env=%r, discard_stderr=%r" %
+                    (cmd, input, cwd, override_env, discard_stderr))
+
     environ = dict(os.environ)
 
     for k in override_env or []:
@@ -58,6 +62,10 @@ def run_cmd(cmd, input=None, cwd=None, override_env=None,
     proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=stdout_arg,
                             stderr=stderr_arg, cwd=cwd, env=environ)
     stdout, stderr = proc.communicate(input)
+
+    logger.info("%r returned with returncode %d." % (cmd, proc.returncode))
+    logger.info("%r gave stdout: %s." % (cmd, stdout))
+    logger.info("%r gave stderr: %s." % (cmd, stderr))
 
     if proc.returncode != 0:
         raise CommandFailed('%r returned %d. Output: %s (stderr: %s)' %

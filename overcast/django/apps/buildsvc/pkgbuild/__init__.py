@@ -32,15 +32,24 @@ class PackageBuilder(object):
         package_version = self.package_version
         self.br = BuildRecord(source=self.package_source,
                               version=package_version)
+        self.br.logger.debug('Created build record: %s' % (self.br,))
+        self.br.logger.debug('Using %s to build' % (type(self)))
 
         if self.save_build_record:
             self.package_source.last_built_version = package_version
             self.package_source.save()
             self.br.save()
 
+        self.br.logger.debug('Detecting Build dependencies')
         self.build_dependencies += self.detect_build_dependencies()
+        self.br.logger.info('Build dependencies: %s' % (', '.join(self.build_dependencies)))
+
+        self.br.logger.debug('Detecting run-time dependencies')
         self.runtime_dependencies += self.detect_runtime_dependencies()
+        self.br.logger.info('Runtime dependencies: %s' % (', '.join(self.runtime_dependencies)))
+
         self.populate_debian_dir()
+
         self.add_changelog_entry()
         self.build_source_package()
         self.build_binary_packages()
@@ -65,13 +74,14 @@ class PackageBuilder(object):
 
     def build_source_package(self):
         run_cmd(['dpkg-buildpackage', '-S', '-nc', '-uc', '-us'],
-                cwd=self.builddir, override_env=self.env)
+                cwd=self.builddir, override_env=self.env, logger=self.br.logger)
 
     def populate_debian_dir(self):
+        self.br.logger.debug('Populating debian dir')
         recursive_render(os.path.join(os.path.dirname(__file__), '../templates/buildsvc/debian'),
                          os.path.join(self.builddir, 'debian'),
                          {'pkgname': self.package_name,
-                          'builder': self})
+                          'builder': self}, logger=self.br.logger)
 
     @property
     def env(self):
@@ -88,6 +98,7 @@ class PackageBuilder(object):
                                      'email': self.env['DEBEMAIL'],
                                      'timestamp': timezone.now().strftime(fmt)})
 
+        self.br.logger.info('New changelog entry: %s' % (rendered,))
         changelog = os.path.join(self.builddir, 'debian', 'changelog')
 
         if os.path.exists(changelog):
