@@ -8,15 +8,25 @@ class PythonBuilder(PackageBuilder):
     def is_suitable(cls, path):
         return os.path.exists(os.path.join(path, 'setup.py'))
 
+    def retry_if_has_newlines(self, cmd):
+        """Sometimes the first run will have noise in it"""
+        def run_it():
+            return run_cmd(cmd, cwd=self.builddir, discard_stderr=True).strip()
+
+        out = run_it()
+
+        if '\n' in out:
+            out = run_it()
+
+        return out
+
     @property
     def native_version(self):
-        cmd = ['python', 'setup.py', '--version']
-        return run_cmd(cmd, cwd=self.builddir, discard_stderr=True).strip()
+        return self.retry_if_has_newlines(['python', 'setup.py', '--version'])
 
     @property
     def package_name(self):
-        cmd = ['python', 'setup.py', '--name']
-        return run_cmd(cmd, cwd=self.builddir, discard_stderr=True).strip()
+        return self.retry_if_has_newlines(['python', 'setup.py', '--name'])
 
     def detect_runtime_dependencies(self):
         return ['${python:Depends}']
