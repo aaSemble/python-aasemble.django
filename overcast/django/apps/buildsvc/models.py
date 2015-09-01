@@ -262,6 +262,7 @@ class GithubRepository(models.Model):
     class Meta:
         verbose_name_plural = 'Github repositories'
         ordering = ['repo_owner', 'repo_name']
+        unique_together = ('user', 'repo_owner', 'repo_name')
 
     @property
     def url(self):
