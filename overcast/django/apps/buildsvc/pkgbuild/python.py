@@ -34,7 +34,7 @@ class PythonBuilder(PackageBuilder):
         return ['${python:Depends}']
 
     def detect_build_dependencies(self):
-        return ['python-all', 'dh-python', 'python-setuptools']
+        return ['python-all', 'dh-python', 'python-setuptools', 'python-all-dev']
 
     def extra_dh_args(self):
         return ' --with python2'
