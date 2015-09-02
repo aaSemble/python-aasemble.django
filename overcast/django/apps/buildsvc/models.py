@@ -54,9 +54,8 @@ class Repository(models.Model):
     @property
     def basedir(self):
         basedir = os.path.join(settings.BUILDSVC_REPOS_BASE_DIR, self.user.username, self.name)
-        if not os.path.isdir(basedir):
-            os.makedirs(basedir)
-        return basedir
+
+        return ensure_dir(basedir)
 
     def confdir(self):
         return os.path.join(self.basedir, 'conf')
@@ -87,9 +86,6 @@ class Repository(models.Model):
         self.ensure_directory_structure()
         self._reprepro('export')
         
-    def save(self, *args, **kwargs):
-        retval = super(Repository, self).save(*args, **kwargs)
-
     def process_changes(self, series_name, changes_file):
         self.ensure_directory_structure()
         self._reprepro('--ignore=wrongdistribution', 'include', series_name, changes_file)
