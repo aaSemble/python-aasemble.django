@@ -8,7 +8,7 @@ Standards-Version: 3.9.4
 Vcs-Git: {{ builder.package_source.github_repository.url }}
 Vcs-Browser: {{ builder.package_source.github_repository.url }}
 
-Package: {{ pkgname }}
+Package: {{ builder.binary_pkg_name }}
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}{% for dependency in builder.runtime_dependencies %},
   {{ dependency }}{% endfor %}

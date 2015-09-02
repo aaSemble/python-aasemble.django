@@ -30,6 +30,14 @@ class PythonBuilder(PackageBuilder):
         return self.retry_if_has_newlines(['python', 'setup.py', '--name'],
                                           logger=self.build_record.logger)
 
+    @property
+    def binary_pkg_name(self):
+        pkgname = self.package_name
+        if pkgname.startswith('python-'):
+            return pkgname
+        else:
+            return 'python-%s' % (pkgname,)
+
     def detect_runtime_dependencies(self):
         return ['${python:Depends}']
 

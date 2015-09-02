@@ -118,6 +118,10 @@ class PackageBuilder(object):
         return self.name
 
     @property
+    def binary_pkg_name(self):
+        return self.package_name
+
+    @property
     def name(self):
         return self.package_source.name
 
