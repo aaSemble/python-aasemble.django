@@ -35,8 +35,10 @@ class PythonBuilder(PackageBuilder):
         pkgname = self.package_name
         if pkgname.startswith('python-'):
             return pkgname
-        else:
-            return 'python-%s' % (pkgname,)
+        elif pkgname.endswith('-python'):
+            pkgname = pkgname[:-len('-python')]
+
+        return 'python-%s' % (pkgname,)
 
     def detect_runtime_dependencies(self):
         return ['${python:Depends}']
