@@ -61,7 +61,8 @@ class PackageBuilder(object):
                                 '-d', 'trusty',
                                 '-A', dsc],
                                 cwd=self.basedir,
-                                stdout=fp)
+                                stdout=fp,
+                                logger=self.build_record.logger)
 
     def detect_runtime_dependencies(self):
         return []
