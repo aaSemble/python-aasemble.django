@@ -132,16 +132,21 @@ class Series(models.Model):
     def __unicode__(self):
         return '%s/%s' % (self.repository.name, self.name)
 
-    def binary_source_list(self):
-        return self._source_list(prefix='deb')
+    def binary_source_list(self, force_trusted=False):
+        return self._source_list(prefix='deb', force_trusted=force_trusted)
 
-    def source_source_list(self):
-        return self._source_list(prefix='deb-src')
+    def source_source_list(self, force_trusted=False):
+        return self._source_list(prefix='deb-src', force_trusted=force_trusted)
 
-    def _source_list(self, prefix):
-        return '%s %s %s main' % (prefix,
-                                        self.repository.base_url,
-                                        self.name)
+    def _source_list(self, prefix, force_trusted=False):
+        if force_trusted:
+            option = ' [trusted=yes]'
+        else:
+            option = ''
+        return '%s%s %s %s main' % (prefix,
+                                    option,
+                                    self.repository.base_url,
+                                    self.name)
 
     class Meta:
         verbose_name_plural = 'series'

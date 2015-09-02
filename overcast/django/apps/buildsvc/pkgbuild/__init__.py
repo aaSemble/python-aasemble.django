@@ -57,7 +57,7 @@ class PackageBuilder(object):
         with open(self.build_record.buildlog(), 'a+') as fp:
             buildlog = run_cmd(['sbuild',
                                 '-n',
-                                '--extra-repository=%s' % (self.package_source.series.binary_source_list(),),
+                                '--extra-repository=%s' % (self.package_source.series.binary_source_list(force_trusted=True),),
                                 '-d', 'trusty',
                                 '-A', dsc],
                                 cwd=self.basedir,
