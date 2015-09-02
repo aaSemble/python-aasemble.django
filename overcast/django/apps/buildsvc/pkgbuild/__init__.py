@@ -68,7 +68,7 @@ class PackageBuilder(object):
         return []
 
     def detect_build_dependencies(self):
-        reqfile = os.path.join(self.builddir, '.extra_build_packages'),
+        reqfile = os.path.join(self.builddir, '.extra_build_packages')
         if os.path.exists(reqfile):
             with open(reqfile, 'r') as fp:
                 return filter(lambda s:s, fp.read().split('\n'))
