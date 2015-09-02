@@ -12,13 +12,12 @@ from ..utils import run_cmd, recursive_render
 from ..models import BuildRecord
 
 class PackageBuilder(object):
-    def __init__(self, basedir, package_source, build_counter=0, save_build_record=True):
+    def __init__(self, basedir, package_source, build_record):
         self.basedir = basedir
         self.build_dependencies = []
         self.runtime_dependencies = []
         self.package_source = package_source
-        self.build_counter = build_counter
-        self.save_build_record = save_build_record
+        self.build_record = build_record
 
     @property
     def builddir(self):
@@ -26,27 +25,25 @@ class PackageBuilder(object):
 
     def get_version(self):
         """Derive version from code, fallback to build_counter"""
-        return self.build_counter
+        return self.build_record.build_counter
 
     def build(self):
+        self.build_record.logger.debug('Using %s to build' % (type(self)))
         package_version = self.package_version
-        self.br = BuildRecord(source=self.package_source,
-                              version=package_version)
-        self.br.logger.debug('Created build record: %s' % (self.br,))
-        self.br.logger.debug('Using %s to build' % (type(self)))
 
-        if self.save_build_record:
-            self.package_source.last_built_version = package_version
-            self.package_source.save()
-            self.br.save()
+        self.build_record.version = package_version
+        self.build_record.save()
 
-        self.br.logger.debug('Detecting Build dependencies')
+        self.package_source.last_built_version = package_version
+        self.package_source.save()
+
+        self.build_record.logger.debug('Detecting Build dependencies')
         self.build_dependencies += self.detect_build_dependencies()
-        self.br.logger.info('Build dependencies: %s' % (', '.join(self.build_dependencies)))
+        self.build_record.logger.info('Build dependencies: %s' % (', '.join(self.build_dependencies)))
 
-        self.br.logger.debug('Detecting run-time dependencies')
+        self.build_record.logger.debug('Detecting run-time dependencies')
         self.runtime_dependencies += self.detect_runtime_dependencies()
-        self.br.logger.info('Runtime dependencies: %s' % (', '.join(self.runtime_dependencies)))
+        self.build_record.logger.info('Runtime dependencies: %s' % (', '.join(self.runtime_dependencies)))
 
         self.populate_debian_dir()
 
@@ -57,7 +54,7 @@ class PackageBuilder(object):
     def build_binary_packages(self):
         dsc = filter(lambda s:s.endswith('.dsc'), os.listdir(self.basedir))[0]
 
-        with open(self.br.buildlog(), 'a+') as fp:
+        with open(self.build_record.buildlog(), 'a+') as fp:
             buildlog = run_cmd(['sbuild',
                                 '-n',
                                 '--extra-repository=%s' % (self.package_source.series.binary_source_list(),),
@@ -74,14 +71,14 @@ class PackageBuilder(object):
 
     def build_source_package(self):
         run_cmd(['dpkg-buildpackage', '-S', '-nc', '-uc', '-us'],
-                cwd=self.builddir, override_env=self.env, logger=self.br.logger)
+                cwd=self.builddir, override_env=self.env, logger=self.build_record.logger)
 
     def populate_debian_dir(self):
-        self.br.logger.debug('Populating debian dir')
+        self.build_record.logger.debug('Populating debian dir')
         recursive_render(os.path.join(os.path.dirname(__file__), '../templates/buildsvc/debian'),
                          os.path.join(self.builddir, 'debian'),
                          {'pkgname': self.package_name,
-                          'builder': self}, logger=self.br.logger)
+                          'builder': self}, logger=self.build_record.logger)
 
     @property
     def env(self):
@@ -98,7 +95,7 @@ class PackageBuilder(object):
                                      'email': self.env['DEBEMAIL'],
                                      'timestamp': timezone.now().strftime(fmt)})
 
-        self.br.logger.info('New changelog entry: %s' % (rendered,))
+        self.build_record.logger.info('New changelog entry: %s' % (rendered,))
         changelog = os.path.join(self.builddir, 'debian', 'changelog')
 
         if os.path.exists(changelog):
@@ -123,9 +120,9 @@ class PackageBuilder(object):
     def package_version(self):
         native_version = self.native_version
         if native_version:
-            version = '%s+%d' % (native_version, self.build_counter)
+            version = '%s+%d' % (native_version, self.build_record.build_counter)
         else:
-            version = '%d' % (self.build_counter,)
+            version = '%d' % (self.build_record.build_counter,)
 
         epoch = 0
 

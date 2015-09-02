@@ -16,6 +16,8 @@ from utils import run_cmd, recursive_render
 
 import tasks
 
+LOG = logging.getLogger(__name__)
+
 def ensure_dir(d):
     if not os.path.isdir(d):
         os.makedirs(d)
@@ -39,6 +41,7 @@ class Repository(models.Model):
 
     def ensure_key(self):
         if not self.key_id:
+            LOG.info('Generating key for %s' % (self))
             gpg_input = render_to_string('buildsvc/gpg-keygen-input.tmpl',
                                          {'repository': self})
             output = run_cmd(['gpg', '--batch', '--gen-key'],input=gpg_input)
@@ -164,7 +167,7 @@ class PackageSource(models.Model):
         self.save()
         return True
 
-    def checkout(self, sha=None):
+    def checkout(self, sha=None, logger=LOG):
         tmpdir = tempfile.mkdtemp()
         builddir = os.path.join(tmpdir, 'build')
         try:
@@ -172,16 +175,21 @@ class PackageSource(models.Model):
                      'clone', self.github_repository.url,
                      '-b', self.branch,
                      'build'],
-                    cwd=tmpdir)
+                    cwd=tmpdir, logger=logger)
 
             if sha:
-                run_cmd(['git', 'reset', '--hard', sha], cwd=builddir)
+                run_cmd(['git', 'reset', '--hard', sha], cwd=builddir, logger=logger)
 
-            stdout = run_cmd(['git', 'rev-parse', 'HEAD'], cwd=builddir)
+            stdout = run_cmd(['git', 'rev-parse', 'HEAD'], cwd=builddir, logger=logger)
             return tmpdir, builddir, stdout.strip()
         except:
             shutil.rmtree(tmpdir)
             raise
+
+    @property
+    def long_name(self):
+        return '%s_%s' % (self.github_repository.repo_owner,
+                          self.github_repository.repo_name)
 
     @property
     def name(self):
@@ -191,14 +199,18 @@ class PackageSource(models.Model):
         tasks.build.delay(self.id)
 
     def build_real(self):
-        tmpdir, self.builddir, sha = self.checkout()
-        try:
-            self.build_counter += 1
-            self.save()
+        self.build_counter += 1
+        self.save()
 
+        br = BuildRecord(source=self, build_counter=self.build_counter)
+        br.save()
+
+        tmpdir, self.builddir, br.sha = self.checkout(logger=br.logger)
+        br.save()
+        try:
             import pkgbuild
             builder_cls = pkgbuild.choose_builder(self.builddir)
-            builder = builder_cls(tmpdir, self, self.build_counter)
+            builder = builder_cls(tmpdir, self, br)
             
             builder.build()
 
@@ -218,34 +230,65 @@ class PackageSource(models.Model):
 class BuildRecord(models.Model):
     source = models.ForeignKey(PackageSource)
     version = models.CharField(max_length=50)
+    build_counter = models.IntegerField(default=0)
+    build_started = models.DateTimeField(auto_now_add=True)
+    sha = models.CharField(max_length=100, null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         self._logger = None
+        self._saved_logpath = None
         return super(BuildRecord, self).__init__(*args, **kwargs)
 
     @property
     def logger(self):
-        if not self._logger:
-            logger = logging.getLogger('%s_%s' % (self.source.name, self.version))
+        logpath = self.buildlog()
+
+        if not logpath == self._saved_logpath:
+            LOG.debug('logpath changed from %r to %r' % (self._saved_logpath, logpath))
+
+            # buildlog path changed, move it
+            if self._saved_logpath and os.path.exists(self._saved_logpath):
+                LOG.debug('Existing logfile found. Renaming')
+                os.rename(self._saved_logpath, self.buildlog())
+
+            logger = logging.getLogger('buildsvc.pkgbuild.%s_%s' % (self.source.name, self.build_counter))
             logger.setLevel(logging.DEBUG)
 
+            for handler in logger.handlers:
+                logger.removeHandler(handler)
+
             formatter = logging.Formatter('%(asctime)s: %(message)s')
-            logfp = logging.FileHandler(self.buildlog())
+            logfp = logging.FileHandler(logpath)
             logfp.setLevel(logging.DEBUG)
             logfp.setFormatter(formatter)
 
             logger.addHandler(logfp)
             self._logger = logger
+            self._saved_logpath = logpath
 
         return self._logger
 
+    def logpath(self):
+        LOG.debug('Determining logpath for %s. version = %r' % (self, self.version))
+        if self.version:
+           return os.path.join(self.source.long_name, '%s_%s.log' % (self.source.long_name, self.version))
+        else:
+           return os.path.join(self.source.long_name, '%s_%s.tmp.log' % (self.source.long_name, self.build_counter))
+
     def buildlog(self):
-        return os.path.join(self.source.series.repository.buildlogdir,
-                            '%s_%s.log' % (self.source.name, self.version))
+        path = os.path.join(self.source.series.repository.buildlogdir,
+                            self.logpath())
+
+        dirpath = os.path.dirname(path)
+
+        if not os.path.isdir(dirpath):
+            os.makedirs(dirpath)
+
+        return path
 
     def buildlog_url(self):
-        return '%s/buildlogs/%s_%s.log' % (self.source.series.repository.base_url,
-                                           self.source.name, self.version)
+        return '%s/buildlogs/%s' % (self.source.series.repository.base_url,
+                                    self.logpath())
 
 class GithubRepository(models.Model):
     user = models.ForeignKey(auth_models.User)
