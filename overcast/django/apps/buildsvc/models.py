@@ -32,7 +32,7 @@ def remove_ddebs_from_changes(changes_file):
     for section in ('Checksums-Sha1', 'Checksums-Sha256', 'Files'):
         if section not in changes:
             continue
-        new_section = [f for f in changes[section] if not f.endswith('.ddeb')]
+        new_section = [f for f in changes[section] if not f['name'].endswith('.ddeb')]
         changes[section] = new_section
 
     with open(changes_file, 'w') as fp:
