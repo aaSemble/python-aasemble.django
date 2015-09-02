@@ -36,7 +36,7 @@ def remove_ddebs_from_changes(changes_file):
         changes[section] = new_section
 
     with open(changes_file, 'w') as fp:
-        fp.write(change.dump())
+        fp.write(changes.dump())
 
 
 class Repository(models.Model):
