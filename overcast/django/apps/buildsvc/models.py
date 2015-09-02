@@ -12,6 +12,8 @@ from django.forms import ModelForm
 from django.contrib.auth import models as auth_models
 from django.template.loader import render_to_string
 
+import deb822
+
 from utils import run_cmd, recursive_render
 
 import tasks
@@ -22,6 +24,20 @@ def ensure_dir(d):
     if not os.path.isdir(d):
         os.makedirs(d)
     return d
+
+def remove_ddebs_from_changes(changes_file):
+    with open(changes_file, 'r') as fp:
+        changes = deb822.Changes(fp)
+
+    for section in ('Checksums-Sha1', 'Checksums-Sha256', 'Files'):
+        if section not in changes:
+            continue
+        new_section = [f for f in changes[section] if not f.endswith('.ddeb')]
+        changes[section] = new_section
+
+    with open(changes_file, 'w') as fp:
+        fp.write(change.dump())
+
 
 class Repository(models.Model):
     user = models.ForeignKey(auth_models.User)
@@ -91,6 +107,7 @@ class Repository(models.Model):
         
     def process_changes(self, series_name, changes_file):
         self.ensure_directory_structure()
+        remove_ddebs_from_changes(changes_file)
         self._reprepro('--ignore=wrongdistribution', 'include', series_name, changes_file)
         self.export()
 
