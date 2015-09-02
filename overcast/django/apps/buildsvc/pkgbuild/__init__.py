@@ -82,7 +82,7 @@ class PackageBuilder(object):
         self.build_record.logger.debug('Populating debian dir')
         recursive_render(os.path.join(os.path.dirname(__file__), '../templates/buildsvc/debian'),
                          os.path.join(self.builddir, 'debian'),
-                         {'pkgname': self.package_name,
+                         {'pkgname': self.sanitized_package_name,
                           'builder': self}, logger=self.build_record.logger)
 
     @property
@@ -93,7 +93,7 @@ class PackageBuilder(object):
     def add_changelog_entry(self):
         fmt = '%a, %d %b %Y %H:%M:%S %z'
         rendered = render_to_string('buildsvc/changelog.deb',
-                                    {'pkgname': self.package_name,
+                                    {'pkgname': self.sanitized_package_name,
                                      'version': self.package_version,
                                      'distribution': self.package_source.series.name,
                                      'full_name': self.env['DEBFULLNAME'],
@@ -113,6 +113,10 @@ class PackageBuilder(object):
             fp.write(rendered)
             fp.write(current_changelog)
   
+    @property
+    def sanitized_package_name(self):
+        return self.package_name.replace('_', '-')
+
     @property
     def package_name(self):
         return self.name
