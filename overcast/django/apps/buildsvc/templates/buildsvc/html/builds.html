@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load bootstrap3 %}
+{% load humanize %}
 
 {% block title %}Builds{% endblock %}
 {% block overcast_content %}
@@ -10,6 +11,7 @@
           <th>Repository</th>
           <th>Source</th>
           <th>Version</th>
+          <th>Build started</th>
           <th>Build log</th>
         </tr>
       </thead>
@@ -19,6 +21,7 @@
           <td><a href="#">{{ build.source.series.repository.name }}</a></td>
           <td><a href="#">{{ build.source.name }}</a></td>
           <td><a href="#">{{ build.version }}</a></td>
+          <td><a href="#">{{ build.build_started|naturaltime }}</a></td>
           <td><a href="{{ build.buildlog_url }}">Build log</a></td>
         </tr>
         {% endfor %}

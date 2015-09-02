@@ -24,6 +24,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django.contrib.humanize',
     'social.apps.django_app.default',
     'overcast.django.apps.main',
     'overcast.django.apps.buildsvc',

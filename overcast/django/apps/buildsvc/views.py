@@ -54,7 +54,7 @@ def sources(request):
 
 @login_required
 def builds(request):
-    builds = BuildRecord.objects.filter(source__series__repository__in=Repository.lookup_by_user(request.user))
+    builds = BuildRecord.objects.filter(source__series__repository__in=Repository.lookup_by_user(request.user)).order_by('build_started')
     return render(request, 'buildsvc/html/builds.html', {'builds': builds})
 
 @login_required
