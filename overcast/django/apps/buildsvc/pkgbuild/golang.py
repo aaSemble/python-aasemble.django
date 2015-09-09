@@ -4,7 +4,7 @@ from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
 
 class GolangBuilder(PackageBuilder):
     def detect_build_dependencies(self):
-        return ['golang-go'] + super(PythonBuilder, self).detect_build_dependencies()
+        return ['golang-go'] + super(GolangBuilder, self).detect_build_dependencies()
 
     @classmethod
     def is_suitable(cls, path):
