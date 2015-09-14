@@ -53,6 +53,8 @@ class Repository(models.Model):
 
     @classmethod
     def lookup_by_user(cls, user):
+        if user.is_superuser:
+            return cls.objects.all()
         return cls.objects.filter(user=user) | cls.objects.filter(extra_admins=user.groups.all())
 
     def ensure_key(self):
@@ -119,11 +121,12 @@ class Repository(models.Model):
 
 
     def user_can_modify(self, user):
-        if user == self.user:
+        if user == self.user or user.is_superuser:
             return True
         if self.extra_admins.filter(user=user).exists():
             return True
         return False
+
 
 class Series(models.Model):
     name = models.CharField(max_length=100)
