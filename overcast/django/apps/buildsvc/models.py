@@ -123,6 +123,8 @@ class Repository(models.Model):
     def user_can_modify(self, user):
         if user == self.user or user.is_superuser:
             return True
+        if not user.is_active:
+            return False
         if self.extra_admins.filter(user=user).exists():
             return True
         return False
