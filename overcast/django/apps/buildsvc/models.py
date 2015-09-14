@@ -167,17 +167,13 @@ class Series(models.Model):
 class PackageSource(models.Model):
     github_repository = models.ForeignKey("GithubRepository")
     branch = models.CharField(max_length=100)
-    series = models.ForeignKey(Series)
+    series = models.ForeignKey(Series, related_name='sources')
     last_seen_revision = models.CharField(max_length=64, null=True, blank=True)
     last_built_version = models.CharField(max_length=64, null=True, blank=True)
     build_counter = models.IntegerField(default=0)
 
     def __unicode__(self):
         return '%s/%s' % (self.github_repository, self.branch)
-
-    @property
-    def url(self):
-        return self.github_repository.url
 
     def poll(self):
         cmd = ['git', 'ls-remote', self.github_repository.url,
