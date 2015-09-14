@@ -26,6 +26,18 @@ class RepositoryTestCase(TestCase):
         alterego = auth_models.User.objects.get(id=2)
         self.assertEquals(set([3]), set([repo.id for repo in Repository.lookup_by_user(alterego)]))
 
+    def test_user_can_modify_own_repo(self):
+        sorenh = auth_models.User.objects.get(id=1)
+        self.assertTrue(Repository.objects.get(id=1).user_can_modify(sorenh))
+        self.assertTrue(Repository.objects.get(id=2).user_can_modify(sorenh))
+
+    def test_user_can_modify_other_repo(self):
+        sorenh = auth_models.User.objects.get(id=1)
+        self.assertTrue(Repository.objects.get(id=3).user_can_modify(sorenh))
+
+    def test_user_can_not_modify_other_repo(self):
+        alterego = auth_models.User.objects.get(id=2)
+        self.assertFalse(Repository.objects.get(id=1).user_can_modify(alterego))
 
     def test_ensure_key_noop_when_key_id_set(self):
         repo = Repository.objects.get(id=1)
@@ -110,20 +122,22 @@ class RepositoryTestCase(TestCase):
             mocks['ensure_directory_structure'].ensure_called_with()
             mocks['_reprepro'].ensure_called_with('export')
 
-    def test_process_changes(self):
+    @mock.patch('overcast.django.apps.buildsvc.models.remove_ddebs_from_changes')
+    def test_process_changes(self, remove_ddebs_from_changes):
         repo = Repository.objects.get(id=2)
         with mock.patch.multiple(repo, export=mock.DEFAULT,
                                        ensure_directory_structure=mock.DEFAULT,
                                        _reprepro=mock.DEFAULT) as mocks:
 
-            # Ensure that ensure_directory_structure() is called before _reprepro
-            mocks['_reprepro'].side_effect = lambda *args:self.assertTrue(mocks['ensure_directory_structure'].called)
+            # Ensure that ensure_directory_structure() is called and ddebs are removed before _reprepro
+            mocks['_reprepro'].side_effect = lambda *args:self.assertTrue(mocks['ensure_directory_structure'].called and remove_ddebs_from_changes.called)
 
             # Ensure that _reprepro() is called before export
             mocks['export'].side_effect = lambda:self.assertTrue(mocks['_reprepro'].called)
 
             repo.process_changes('myseries', '/path/to/changes')
 
+            remove_ddebs_from_changes.assert_called_with('/path/to/changes')
             mocks['export'].assert_called_with()
             mocks['ensure_directory_structure'].ensure_called_with()
             mocks['_reprepro'].ensure_called_with('--ignore=wrongdistribution', 'include', 'myseries', '/path/to/changes')

@@ -1,8 +1,12 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+
+from rest_framework import viewsets
+from .serializers import UserSerializer, GroupSerializer, RepositorySerializer, SeriesSerializer, PackageSourceSerializer
 
 
 from .models import BuildRecord, Repository, PackageSource, PackageSourceForm, Series, GithubRepository
@@ -62,3 +66,42 @@ def repositories(request):
     repositories = Repository.lookup_by_user(request.user)
     return render(request, 'buildsvc/html/repositories.html',
                   {'repositories': repositories, 'settings': settings})
+
+
+#############
+# API stuff #
+#############
+
+class RepositoryViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows repositories to be viewed or edited.
+    """
+    queryset = Repository.objects.all()
+
+    def get_queryset(self):
+        return Repository.lookup_by_user(self.request.user)
+
+    serializer_class = RepositorySerializer
+
+
+class SeriesViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows series to be viewed or edited.
+    """
+    queryset = Series.objects.all()
+    serializer_class = SeriesSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(repository=Repository.lookup_by_user(self.request.user))
+
+
+class PackageSourceViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows series to be viewed or edited.
+    """
+    queryset = PackageSource.objects.all()
+    serializer_class = PackageSourceSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(series__repository=Repository.lookup_by_user(self.request.user))
+
