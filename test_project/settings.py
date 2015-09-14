@@ -31,6 +31,7 @@ INSTALLED_APPS = (
     'overcast.django.apps.mirrorsvc',
     'kombu.transport.django',
     'djcelery',
+    'rest_framework',
     'bootstrap3',
 )
 
@@ -124,3 +125,8 @@ CELERYBEAT_SCHEDULE = {
 }
 
 CELERY_TIMEZONE = TIME_ZONE
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'PAGE_SIZE': 10
+}
