@@ -1,4 +1,7 @@
 class BuildSvcAuthzBackend(object):
+    def authenticate(self, *args, **kwargs):
+        return None
+
     def has_perm(self, user, perm, obj=None):
         if not user.is_active():
             return False
