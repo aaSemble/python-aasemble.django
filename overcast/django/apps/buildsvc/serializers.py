@@ -20,10 +20,11 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
     git_repository = serializers.ReadOnlyField(source='github_repository.url')
     git_branch = serializers.ReadOnlyField(source='branch')
+    repository = serializers.HyperlinkedRelatedField(view_name='repository-detail', source='series.repository', read_only=True)
 
     class Meta:
         model = models.PackageSource
-        fields = ('url', 'git_repository', 'git_branch', 'series')
+        fields = ('url', 'git_repository', 'git_branch', 'repository')
 
 
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
@@ -34,8 +35,9 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
-    series = relations.HyperlinkedRouterField(view_name='series-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
+#    series = relations.HyperlinkedRouterField(view_name='series-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
+    sources = relations.HyperlinkedRouterField(view_name='packagesource-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
 
     class Meta:
         model = models.Repository
-        fields = ('url', 'user', 'name', 'key_id', 'series')
+        fields = ('url', 'user', 'name', 'key_id', 'sources') # 'series', 

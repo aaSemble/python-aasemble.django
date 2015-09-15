@@ -51,6 +51,10 @@ class Repository(models.Model):
     def __unicode__(self):
         return '%s/%s' % (self.user.username, self.name)
 
+    @property
+    def sources(self):
+        return PackageSource.objects.filter(series__repository=self)
+
     @classmethod
     def lookup_by_user(cls, user):
         if not user.is_active:
@@ -72,7 +76,7 @@ class Repository(models.Model):
                     self.save()
 
     def first_series(self):
-        return self.series_set.all()[0:1].get()
+        return self.series.all()[0:1].get()
 
     @property
     def basedir(self):
