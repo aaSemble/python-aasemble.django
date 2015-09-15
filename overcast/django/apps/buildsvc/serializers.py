@@ -38,4 +38,4 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Repository
-        fields = ('url', 'user', 'name', 'key_id', 'series_set')
+        fields = ('url', 'user', 'name', 'key_id', 'series')
