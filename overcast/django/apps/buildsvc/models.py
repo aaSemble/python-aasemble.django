@@ -134,7 +134,7 @@ class Repository(models.Model):
 
 class Series(models.Model):
     name = models.CharField(max_length=100)
-    repository = models.ForeignKey(Repository)
+    repository = models.ForeignKey(Repository, related_name='series')
     
     def __unicode__(self):
         return '%s/%s' % (self.repository.name, self.name)
