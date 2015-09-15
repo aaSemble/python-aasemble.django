@@ -218,7 +218,7 @@ class PackageSource(models.Model):
 
     @property
     def name(self):
-        return self.url.split('/')[-1].replace('_', '-')
+        return self.github_repository.repo_name.replace('_', '-')
         
     def build(self):
         tasks.build.delay(self.id)
