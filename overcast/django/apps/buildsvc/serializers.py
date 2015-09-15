@@ -35,8 +35,7 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
-#    series = relations.HyperlinkedRouterField(view_name='series-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
-    sources = relations.HyperlinkedRouterField(view_name='packagesource-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
+    sources = serializers.HyperlinkedIdentityField(view_name='packagesource-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
 
     class Meta:
         model = models.Repository
