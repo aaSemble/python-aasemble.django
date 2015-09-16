@@ -1,1 +1,1 @@
-default_app_config = 'overcast.django.apps.buildsvc.apps.APIConfig'
+default_app_config = 'overcast.django.apps.api.apps.APIConfig'
