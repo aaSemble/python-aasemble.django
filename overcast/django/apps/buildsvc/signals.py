@@ -18,6 +18,6 @@ def user_save_handler(sender, **kwargs):
             repository.save()
 
         for repo in user.repository_set.all():
-            if not repo.series_set.exists():
+            if not repo.series.exists():
                 series = models.Series(repository=repo, name=settings.BUILDSVC_DEFAULT_SERIES_NAME)
                 series.save()
