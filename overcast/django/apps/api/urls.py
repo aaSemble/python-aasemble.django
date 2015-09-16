@@ -3,6 +3,7 @@ from django.conf.urls import include, url
 from rest_framework_nested import routers
 
 from overcast.django.apps.buildsvc import views
+from overcast.django.apps.api.views import GithubLogin
 
 router = routers.DefaultRouter()
 router.register(r'repositories', views.RepositoryViewSet)
@@ -16,4 +17,6 @@ repository_router.register(r'sources', views.PackageSourceViewSet, base_name='pa
 urlpatterns = [
     url(r'^v1/', include(router.urls)),
     url(r'^v1/', include(repository_router.urls)),
+    url(r'^v1/auth/', include('rest_auth.urls')),
+    url(r'^v1/auth/github/$', GithubLogin.as_view(), name='github_login')
 ] 

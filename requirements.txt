@@ -7,3 +7,5 @@ dj-static
 python-debian
 djangorestframework
 drf-nested-routers
+django-rest-auth
+django-allauth
