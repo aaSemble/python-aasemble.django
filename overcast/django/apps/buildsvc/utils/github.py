@@ -2,7 +2,7 @@ import requests
 
 
 def api_req(path, user):
-    access_token = user.social_auth.all()[0].extra_data['access_token']
+    access_token = user.socialaccount_auth.all()[0].socialtoken_set.all()[0]
     headers = {'Authorization': 'token %s' % access_token}
     resp = requests.get('https://api.github.com%s' % path,
                         headers=headers)

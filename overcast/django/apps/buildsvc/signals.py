@@ -9,7 +9,7 @@ from . import utils, models
 def user_save_handler(sender, **kwargs):
     """This method gets called each time the user logs in!"""
     user = kwargs['instance']
-    if user.social_auth.exists():
+    if user.socialaccount_set.exists():
 
         utils.sync_sources_from_github(user)
 
