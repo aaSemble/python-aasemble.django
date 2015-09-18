@@ -1,4 +1,4 @@
-{% for series in repository.series_set.all %}Origin: {{ repository.name.capitalize }}
+{% for series in repository.series.all %}Origin: {{ repository.name.capitalize }}
 Label: {{ repository.name.capitalize }}
 Suite: {{ series.name }}
 Codename: {{ series.name }}
