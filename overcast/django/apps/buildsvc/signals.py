@@ -11,7 +11,8 @@ def user_save_handler(sender, **kwargs):
     user = kwargs['instance']
     if user.socialaccount_set.exists():
 
-        utils.sync_sources_from_github(user)
+        # Too heavy weight
+#        utils.sync_sources_from_github(user)
 
         if not user.repository_set.exists():
             repository = models.Repository(user=user, name=user.username)
