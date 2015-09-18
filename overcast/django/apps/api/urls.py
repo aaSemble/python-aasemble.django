@@ -18,5 +18,6 @@ urlpatterns = [
     url(r'^v1/', include(router.urls)),
     url(r'^v1/', include(repository_router.urls)),
     url(r'^v1/auth/', include('rest_auth.urls')),
+    url(r'^v1/auth/registration/', include('rest_auth.registration.urls')),
     url(r'^v1/auth/github/$', GithubLogin.as_view(), name='github_login')
 ] 
