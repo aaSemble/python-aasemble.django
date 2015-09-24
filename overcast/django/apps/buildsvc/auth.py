@@ -3,7 +3,7 @@ class BuildSvcAuthzBackend(object):
         return None
 
     def has_perm(self, user, perm, obj=None):
-        if not user.is_active():
+        if not user.is_active:
             return False
 
         if obj is None:
