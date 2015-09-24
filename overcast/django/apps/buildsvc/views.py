@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.forms import ModelChoiceField
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
@@ -16,10 +17,8 @@ def get_package_source_form(request, *args, **kwargs):
 
     sqs = (Series.objects.filter(repository__user=request.user) |
            Series.objects.filter(repository__extra_admins=request.user.groups.all()))
-    grqs = GithubRepository.objects.filter(user=request.user).order_by('repo_owner', 'repo_name')
 
     form.fields['series'].queryset = sqs
-    form.fields['github_repository'].queryset = grqs
 
     return form
 
@@ -40,8 +39,7 @@ def package_source(request, source_id):
             return HttpResponseRedirect(reverse('buildsvc:sources'))
 
         if (form.is_valid() and
-            form.cleaned_data['series'].user_can_modify(request.user) and
-            form.cleaned_data['github_repository'].user == request.user):
+            form.cleaned_data['series'].user_can_modify(request.user)):
             form.save()
             return HttpResponseRedirect(reverse('buildsvc:sources'))
     else:

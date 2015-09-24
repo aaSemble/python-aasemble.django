@@ -5,6 +5,7 @@ import os.path
 import shutil
 import subprocess
 import tempfile
+from urlparse import urlparse
 
 from django.conf import settings
 from django.db import models
@@ -173,7 +174,7 @@ class Series(models.Model):
 
 
 class PackageSource(models.Model):
-    github_repository = models.ForeignKey("GithubRepository")
+    git_url = models.URLField()
     branch = models.CharField(max_length=100)
     series = models.ForeignKey(Series, related_name='sources')
     last_seen_revision = models.CharField(max_length=64, null=True, blank=True)
@@ -181,10 +182,10 @@ class PackageSource(models.Model):
     build_counter = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return '%s/%s' % (self.github_repository, self.branch)
+        return '%s/%s' % (self.git_url, self.branch)
 
     def poll(self):
-        cmd = ['git', 'ls-remote', self.github_repository.url,
+        cmd = ['git', 'ls-remote', self.git_url,
                'refs/heads/%s' % self.branch]
         stdout = run_cmd(cmd)
         sha = stdout.split('\t')[0]
@@ -201,7 +202,7 @@ class PackageSource(models.Model):
         builddir = os.path.join(tmpdir, 'build')
         try:
             run_cmd(['git',
-                     'clone', self.github_repository.url,
+                     'clone', self.git_url,
                      '-b', self.branch,
                      'build'],
                     cwd=tmpdir, logger=logger)
@@ -217,12 +218,11 @@ class PackageSource(models.Model):
 
     @property
     def long_name(self):
-        return '%s_%s' % (self.github_repository.repo_owner,
-                          self.github_repository.repo_name)
+        return '_'.join(filter(bool, urlparse(self.git_url).path.split('/')))
 
     @property
     def name(self):
-        return self.github_repository.repo_name.replace('_', '-')
+        return self.git_url.split('/')[-1].replace('_', '-')
         
     def build(self):
         tasks.build.delay(self.id)
@@ -348,4 +348,4 @@ class GithubRepository(models.Model):
 class PackageSourceForm(ModelForm):
     class Meta:
         model = PackageSource
-        fields = ['github_repository', 'branch', 'series']
+        fields = ['git_url', 'branch', 'series']

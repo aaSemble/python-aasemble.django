@@ -17,7 +17,7 @@
         {% for source in sources %}
         <tr>
           <td><small><a href="{% url "buildsvc:package_source" source_id=source.id %}">{% bootstrap_icon "pencil" %}</a></small></td>
-          <td><a href="{{ source.github_repository.url }}">{{ source.github_repository.repo_owner }}/{{ source.github_repository.repo_name }}</a></td>
+          <td><a href="{{ source.git_url }}">{{ source.git_url }}</a></td>
           <td><a href="{{ source.github_repository.url }}/tree/{{ source.branch }}">{{ source.branch }}</a></td>
           <td><a href="#">{{ source.series }}</a></td>
         </tr>

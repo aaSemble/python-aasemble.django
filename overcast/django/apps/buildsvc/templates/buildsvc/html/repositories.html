@@ -13,16 +13,14 @@ deb-src <a href="{{ repository.base_url }}">{{ repository.base_url }}</a> {{ rep
   <div class="table-responsive">
     <table class="table table-striped">
         <tr>
-          <th>Owner</th>
-          <th>Name</th>
+          <th>URL</th>
           <th>Branch</th>
         </tr>
       </thead>
       <tbody>
-        {% for source in repository.first_series.packagesource_set.all %}
+        {% for source in repository.first_series.sources.all %}
         <tr>
-          <td>{{ source.github_repository.repo_owner }}</td>
-          <td>{{ source.github_repository.repo_name }}</td>
+          <td><a href="{{ source.git_url }}">{{ source.git_url }}</a></td>
           <td>{{ source.branch }}</td>
         </tr>
         {% endfor %}
