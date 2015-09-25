@@ -253,7 +253,7 @@ class PackageSource(models.Model):
             shutil.rmtree(tmpdir)
 
     def user_can_modify(self, user):
-        return self.repository.user_can_modify(user)
+        return self.series.user_can_modify(user)
 
 
 class BuildRecord(models.Model):
