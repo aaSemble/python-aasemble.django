@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .serializers import UserSerializer, GroupSerializer, RepositorySerializer, SeriesSerializer, PackageSourceSerializer, ExternalDependencySerializer
+from .serializers import UserSerializer, GroupSerializer, RepositorySerializer, SeriesSerializer, PackageSourceSerializer, ExternalDependencySerializer, BuildRecordSerializer
 
 
 from .models import BuildRecord, Repository, PackageSource, PackageSourceForm, Series, GithubRepository, ExternalDependency
@@ -114,3 +114,13 @@ class ExternalDependencyViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(own_series__repository=Repository.lookup_by_user(self.request.user))
 
+
+class BuildViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows builds viewed
+    """
+    queryset = BuildRecord.objects.all()
+    serializer_class = BuildRecordSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(source__series__repository=Repository.lookup_by_user(self.request.user))

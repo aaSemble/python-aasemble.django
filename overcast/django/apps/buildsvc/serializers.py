@@ -48,6 +48,12 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('self', 'name', 'repository', 'binary_source_list', 'source_source_list')
 
 
+class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.BuildRecord
+        fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
+
+
 class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
     repository = RepositoryField(view_name='repository-detail', source='own_series.repository', queryset=models.Repository.objects.all())
 
@@ -59,9 +65,9 @@ class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
         return value.first_series()
 
     def validate(self, data):
-        print data
         res = super(ExternalDependencySerializer, self).validate(data)
-        res['own_series'] = res['own_series']['repository']
+        if 'own_series' in res:
+            res['own_series'] = res['own_series']['repository']
         return res
 
 
