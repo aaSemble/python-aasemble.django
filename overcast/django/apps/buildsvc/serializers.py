@@ -16,15 +16,30 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         model = Group
         fields = ('url', 'name')
 
+class RepositoryField(serializers.HyperlinkedRelatedField):
+    def get_queryset(self):
+        if hasattr(self, 'context') and 'request' in self.context:
+            return models.Repository.lookup_by_user(self.context['request'].user)
+
+        return super(RepositoryField, self).get_queryset()
+
 
 class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
-    git_repository = serializers.ReadOnlyField(source='github_repository.url')
-    git_branch = serializers.ReadOnlyField(source='branch')
-    repository = serializers.HyperlinkedRelatedField(view_name='repository-detail', source='series.repository', read_only=True)
+    git_repository = serializers.URLField(source='git_url', required=True)
+    git_branch = serializers.SlugField(source='branch', required=True)
+    repository = RepositoryField(view_name='repository-detail', source='series.repository', queryset=models.Repository.objects.all())
 
     class Meta:
         model = models.PackageSource
         fields = ('url', 'git_repository', 'git_branch', 'repository')
+
+    def validate_repository(self, value):
+        return value.first_series()
+
+    def validate(self, data):
+        res = super(PackageSourceSerializer, self).validate(data)
+        res['series'] = res['series']['repository']
+        return res
 
 
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
