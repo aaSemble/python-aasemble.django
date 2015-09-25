@@ -184,6 +184,9 @@ class ExternalDependency(models.Model):
     def deb_line(self):
         return 'deb %s %s %s' % (self.url, self.series, self.components)
 
+    def user_can_modify(self, user):
+        return self.own_series.user_can_modify(user)
+
 
 class PackageSource(models.Model):
     git_url = models.URLField()
