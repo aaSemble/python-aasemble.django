@@ -7,7 +7,7 @@ from overcast.django.apps.api.views import GithubLogin
 
 router = routers.DefaultRouter()
 router.register(r'repositories', views.RepositoryViewSet)
-#router.register(r'series', views.SeriesViewSet)
+router.register(r'externaldependencies', views.ExternalDependencyViewSet)
 router.register(r'sources', views.PackageSourceViewSet, base_name='packagesource')
 
 repository_router = routers.NestedSimpleRouter(router, r'repositories', lookup='repository')

@@ -7,10 +7,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .serializers import UserSerializer, GroupSerializer, RepositorySerializer, SeriesSerializer, PackageSourceSerializer
+from .serializers import UserSerializer, GroupSerializer, RepositorySerializer, SeriesSerializer, PackageSourceSerializer, ExternalDependencySerializer
 
 
-from .models import BuildRecord, Repository, PackageSource, PackageSourceForm, Series, GithubRepository
+from .models import BuildRecord, Repository, PackageSource, PackageSourceForm, Series, GithubRepository, ExternalDependency
 
 def get_package_source_form(request, *args, **kwargs):
     form = PackageSourceForm(*args, **kwargs)
@@ -99,6 +99,17 @@ class PackageSourceViewSet(viewsets.ModelViewSet):
     """
     queryset = PackageSource.objects.all()
     serializer_class = PackageSourceSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(series__repository=Repository.lookup_by_user(self.request.user))
+
+
+class ExternalDependencyViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows external dependencies to be viewed or edited.
+    """
+    queryset = ExternalDependency.objects.all()
+    serializer_class = ExternalDependencySerializer
 
     def get_queryset(self):
         return self.queryset.filter(series__repository=Repository.lookup_by_user(self.request.user))

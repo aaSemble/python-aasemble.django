@@ -8,13 +8,13 @@ from . import models
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email', 'groups')
+        fields = ('self', 'username', 'email', 'groups')
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
-        fields = ('url', 'name')
+        fields = ('self', 'name')
 
 class RepositoryField(serializers.HyperlinkedRelatedField):
     def get_queryset(self):
@@ -31,7 +31,7 @@ class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.PackageSource
-        fields = ('url', 'git_repository', 'git_branch', 'repository')
+        fields = ('self', 'git_repository', 'git_branch', 'repository')
 
     def validate_repository(self, value):
         return value.first_series()
@@ -45,7 +45,26 @@ class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Series
-        fields = ('url', 'name', 'repository', 'binary_source_list', 'source_source_list')
+        fields = ('self', 'name', 'repository', 'binary_source_list', 'source_source_list')
+
+
+class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
+    repository = RepositoryField(view_name='repository-detail', source='own_series.repository', queryset=models.Repository.objects.all())
+
+
+    class Meta:
+        model = models.ExternalDependency
+        fields = ('self', 'url', 'series', 'components', 'repository', 'key')
+
+    def validate_repository(self, value):
+        return value.first_series()
+
+    def validate(self, data):
+        print data
+        res = super(ExternalDependencySerializer, self).validate(data)
+        res['own_series'] = res['own_series']['repository']
+        return res
+
 
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
@@ -56,4 +75,4 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Repository
-        fields = ('url', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list') # 'series', 
+        fields = ('self', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list') # 'series', 

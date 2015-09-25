@@ -45,7 +45,7 @@ class Repository(models.Model):
     name = models.CharField(max_length=100)
     key_id = models.CharField(max_length=100)
     extra_admins = models.ManyToManyField(auth_models.Group)
-    
+
     class Meta:
         verbose_name_plural = 'repositories'
 
@@ -103,7 +103,7 @@ class Repository(models.Model):
         recursive_render(os.path.join(os.path.dirname(__file__),
                                       'templates/buildsvc/reprepro'),
                          self.basedir, {'repository': self})
-        
+
     def _reprepro(self, *args):
         env = {'GNUPG_HOME': self.gpghome()}
         return run_cmd(['reprepro', '-b', self.basedir] + list(args),
@@ -113,7 +113,7 @@ class Repository(models.Model):
         self.ensure_key()
         self.ensure_directory_structure()
         self._reprepro('export')
-        
+
     def process_changes(self, series_name, changes_file):
         self.ensure_directory_structure()
         remove_ddebs_from_changes(changes_file)
@@ -140,7 +140,7 @@ class Repository(models.Model):
 class Series(models.Model):
     name = models.CharField(max_length=100)
     repository = models.ForeignKey(Repository, related_name='series')
-    
+
     def __unicode__(self):
         return '%s/%s' % (self.repository.name, self.name)
 
@@ -162,7 +162,7 @@ class Series(models.Model):
 
     class Meta:
         verbose_name_plural = 'series'
-    
+
     def process_changes(self, changes_file):
         self.repository.process_changes(self.name, changes_file)
 
@@ -171,6 +171,14 @@ class Series(models.Model):
 
     def user_can_modify(self, user):
         return self.repository.user_can_modify(user)
+
+
+class ExternalDependency(models.Model):
+    url = models.URLField()
+    series = models.CharField(max_length=200)
+    components = models.CharField(max_length=200, null=True, blank=True)
+    own_series = models.ForeignKey(Series)
+    key = models.TextField()
 
 
 class PackageSource(models.Model):
@@ -223,7 +231,7 @@ class PackageSource(models.Model):
     @property
     def name(self):
         return self.git_url.split('/')[-1].replace('_', '-')
-        
+
     def build(self):
         tasks.build.delay(self.id)
 
@@ -240,7 +248,7 @@ class PackageSource(models.Model):
             import pkgbuild
             builder_cls = pkgbuild.choose_builder(self.builddir)
             builder = builder_cls(tmpdir, self, br)
-            
+
             builder.build()
 
             changes_files = filter(lambda s:s.endswith('.changes'), os.listdir(tmpdir))
