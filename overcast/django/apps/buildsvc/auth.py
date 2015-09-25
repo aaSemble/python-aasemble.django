@@ -17,6 +17,8 @@ class BuildSvcAuthzBackend(object):
         if obj is None:
             if perm == 'buildsvc.add_packagesource':
                 return True
+            if perm == 'buildsvc.add_externaldependency':
+                return True
             # Leave this case to the other backend(s)
             return False
 
