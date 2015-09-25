@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import os.path
+import tempfile
 
 from debian.debian_support import version_compare
 
@@ -54,15 +55,27 @@ class PackageBuilder(object):
     def build_binary_packages(self):
         dsc = filter(lambda s:s.endswith('.dsc'), os.listdir(self.basedir))[0]
 
-        with open(self.build_record.buildlog(), 'a+') as fp:
-            buildlog = run_cmd(['sbuild',
-                                '-n',
-                                '--extra-repository=%s' % (self.package_source.series.binary_source_list(force_trusted=True),),
-                                '-d', 'trusty',
-                                '-A', dsc],
-                                cwd=self.basedir,
-                                stdout=fp,
-                                logger=self.build_record.logger)
+        fd, fname = tempfile.mkstemp(dir='/var/lib/sbuild/build')
+
+        cmd = ['sbuild',
+               '-n',
+               '--chroot-setup-commands=apt-key add %s' % (fname.replace('/var/lib/sbuild/build', '/build'),),
+               '--extra-repository=%s' % (self.package_source.series.binary_source_list(force_trusted=True),)]
+
+        with os.fdopen(fd, 'w') as fp:
+            for extdep in self.package_source.series.externaldependency_set.all():
+                if extdep.key:
+                    fp.write(extdep.key)
+                cmd += ['--extra-repository=%s' % (extdep.deb_line,)]
+
+        cmd += ['-d', 'trusty', '-A', dsc]
+
+        try:
+            with open(self.build_record.buildlog(), 'a+') as fp:
+                run_cmd(cmd, cwd=self.basedir,
+                        stdout=fp, logger=self.build_record.logger)
+        finally:
+            os.unlink(fname)
 
     def detect_runtime_dependencies(self):
         return []

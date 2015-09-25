@@ -180,6 +180,10 @@ class ExternalDependency(models.Model):
     own_series = models.ForeignKey(Series)
     key = models.TextField()
 
+    @property
+    def deb_line(self):
+        return 'deb %s %s %s' % (self.url, self.series, self.components)
+
 
 class PackageSource(models.Model):
     git_url = models.URLField()
