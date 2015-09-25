@@ -112,5 +112,5 @@ class ExternalDependencyViewSet(viewsets.ModelViewSet):
     serializer_class = ExternalDependencySerializer
 
     def get_queryset(self):
-        return self.queryset.filter(series__repository=Repository.lookup_by_user(self.request.user))
+        return self.queryset.filter(own_series__repository=Repository.lookup_by_user(self.request.user))
 

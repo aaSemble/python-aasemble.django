@@ -51,7 +51,6 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
 class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
     repository = RepositoryField(view_name='repository-detail', source='own_series.repository', queryset=models.Repository.objects.all())
 
-
     class Meta:
         model = models.ExternalDependency
         fields = ('self', 'url', 'series', 'components', 'repository', 'key')
@@ -66,13 +65,13 @@ class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
         return res
 
 
-
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
     binary_source_list = serializers.ReadOnlyField(source='first_series.binary_source_list')
     source_source_list = serializers.ReadOnlyField(source='first_series.source_source_list')
     sources = serializers.HyperlinkedIdentityField(view_name='packagesource-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
+    external_dependencies = serializers.HyperlinkedIdentityField(view_name='externaldependency-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
 
     class Meta:
         model = models.Repository
-        fields = ('self', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list') # 'series', 
+        fields = ('self', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list', 'external_dependencies')

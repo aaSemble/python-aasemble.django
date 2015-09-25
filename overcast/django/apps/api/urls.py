@@ -7,12 +7,13 @@ from overcast.django.apps.api.views import GithubLogin
 
 router = routers.DefaultRouter()
 router.register(r'repositories', views.RepositoryViewSet)
-router.register(r'externaldependencies', views.ExternalDependencyViewSet)
+router.register(r'external_dependencies', views.ExternalDependencyViewSet, base_name='externaldependency')
 router.register(r'sources', views.PackageSourceViewSet, base_name='packagesource')
 
 repository_router = routers.NestedSimpleRouter(router, r'repositories', lookup='repository')
 #repository_router.register(r'series', views.SeriesViewSet)
 repository_router.register(r'sources', views.PackageSourceViewSet, base_name='packagesource')
+repository_router.register(r'external_dependencies', views.ExternalDependencyViewSet, base_name='externaldependency')
 
 urlpatterns = [
     url(r'^v1/', include(router.urls)),
