@@ -6,6 +6,9 @@ django-bootstrap3
 dj-static
 python-debian
 djangorestframework
-drf-nested-routers
+git+https://github.com/alanjds/drf-nested-routers
+chardet
+mysql
+django-cors-headers
 django-rest-auth
 django-allauth
