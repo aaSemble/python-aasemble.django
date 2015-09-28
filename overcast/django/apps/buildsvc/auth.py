@@ -6,21 +6,17 @@ class BuildSvcAuthzBackend(object):
         if not user_obj.is_active:
             return False
 
-        if perm == 'buildsvc.delete_packagesource':
-            # This is pretty nuts. If we don't return True here,
-            # django-rest-framework aborts immediately.
-            # It then asks us afterwards if deleting a specific
-            # object is ok.
-            if obj is None:
-                return True
+        app, perm_ = perm.split('.'):
+            if app == 'buildsvc':
+                action, model = perm_.split('_')
+                if (model in ('packagesource', 'externaldependency') and
+                    action in ('add', 'delete', 'change')):
+                    # This is pretty nuts. If we don't return True here,
+                    # django-rest-framework aborts immediately. So, we say
+                    # "sure!" and hope it asks for permission for the specific
+                    # object.
+                    if obj is None:
+                        return True
 
-        if obj is None:
-            if perm == 'buildsvc.add_packagesource':
-                return True
-            if perm == 'buildsvc.add_externaldependency':
-                return True
-            # Leave this case to the other backend(s)
-            return False
-
-        if hasattr(obj, 'user_can_modify'):
-            return obj.user_can_modify(user_obj)
+                if hasattr(obj, 'user_can_modify'):
+                    return obj.user_can_modify(user_obj)
