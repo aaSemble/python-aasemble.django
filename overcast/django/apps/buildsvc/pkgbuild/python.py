@@ -1,6 +1,6 @@
 import os.path
 
-from ..utils import run_cmd, recursive_render
+from ....utils import run_cmd, recursive_render
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
 
 class PythonBuilder(PackageBuilder):

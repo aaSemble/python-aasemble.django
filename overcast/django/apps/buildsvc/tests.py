@@ -6,7 +6,6 @@ from django.contrib.auth import models as auth_models
 from django.test import TestCase, override_settings
 
 from .models import Repository, Series
-from .utils import run_cmd
 
 class RepositoryTestCase(TestCase):
     fixtures = ['data.json']

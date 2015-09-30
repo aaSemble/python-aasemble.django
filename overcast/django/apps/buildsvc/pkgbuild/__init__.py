@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from ..utils import run_cmd, recursive_render
+from ....utils import run_cmd, recursive_render
 from ..models import BuildRecord
 
 class PackageBuilder(object):
