@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import os.path
 import tempfile
+import dbuild
 
 from debian.debian_support import version_compare
 
@@ -13,12 +14,14 @@ from ....utils import run_cmd, recursive_render
 from ..models import BuildRecord
 
 class PackageBuilder(object):
-    def __init__(self, basedir, package_source, build_record):
+    def __init__(self, basedir, package_source, build_record,
+                 docker_build=True):
         self.basedir = basedir
         self.build_dependencies = []
         self.runtime_dependencies = []
         self.package_source = package_source
         self.build_record = build_record
+        self.docker_build = docker_build
 
     @property
     def builddir(self):
@@ -49,8 +52,23 @@ class PackageBuilder(object):
         self.populate_debian_dir()
 
         self.add_changelog_entry()
-        self.build_source_package()
-        self.build_binary_packages()
+
+        if self.docker_build:
+            self.docker_build_source_package()
+            self.docker_build_binary_package()
+        else:
+            self.build_source_package()
+            self.build_binary_packages()
+
+    def docker_build_source_package(self):
+        """Build source package in docker"""
+        dbuild.docker_build(build_dir=self.basedir, build_type='source',
+                            source_dir=self.buildir)
+
+    def docker_build_binary_package(self):
+        """Build binary packages in docker"""
+        dbuild.docker_build(build_dir=self.basedir, build_type='binary',
+                            source_dir=self.buildir)
 
     def build_binary_packages(self):
         dsc = filter(lambda s:s.endswith('.dsc'), os.listdir(self.basedir))[0]
