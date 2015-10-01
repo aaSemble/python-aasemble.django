@@ -26,9 +26,16 @@ class MirrorSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Mirror
         fields = ('self', 'url', 'series', 'components', 'public')
 
+class MirrorField(serializers.HyperlinkedRelatedField):
+    def get_queryset(self):
+        if hasattr(self, 'context') and 'request' in self.context:
+            return models.Mirror.objects.filter(owner=self.context['request'].user)
+
+        return super(MirrorField, self).get_queryset()
+
 
 class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
-    mirrors = serializers.HyperlinkedRelatedField(many=True, view_name='mirror-detail', queryset=models.Mirror.objects.all())
+    mirrors = MirrorField(many=True, view_name='mirror-detail', queryset=models.Mirror.objects.all())
 
     class Meta:
         model = models.MirrorSet
