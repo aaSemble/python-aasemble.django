@@ -38,7 +38,7 @@ class Mirror(models.Model):
 
     @property
     def basepath(self):
-        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors', str(self.id), 'mirror')
+        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors', str(self.id))
         if not os.path.isdir(d):
             os.makedirs(d)
         return d
