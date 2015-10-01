@@ -99,7 +99,13 @@ class Snapshot(models.Model):
                 os.symlink(mirror.pool, destdir)
 
     def save(self, *args, **kwargs):
+        perform_snapshot = False
+
         if self.pk is None:
+            perform_snapshot = True
+
+        rv = super(Snapshot, self).save(*args, **kwargs)
+
+        if perform_snapshot:
             self.sync_dists()
             self.symlink_pool()
-        return super(Snapshot, self).save(*args, **kwargs)
