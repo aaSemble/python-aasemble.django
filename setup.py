@@ -22,6 +22,8 @@ with open('requirements.txt', 'r') as fp:
          l = l.strip()
          if '://' in l:
              l = l.split('/')[-1]
+             if '#egg=' in l:
+                 l = l.split('#egg=')[-1]
          requirements.append(l)
 
 setup(
