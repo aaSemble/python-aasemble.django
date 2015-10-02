@@ -1,14 +1,12 @@
 Django
 celery
 django-celery
-python-social-auth
-django-bootstrap3
 dj-static
 python-debian
 djangorestframework
 git+https://github.com/alanjds/drf-nested-routers
 chardet
-mysql
+MySQL-python
 django-cors-headers
 django-rest-auth
 django-allauth
