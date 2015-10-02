@@ -6,8 +6,9 @@ from ...utils import run_cmd
 from django.conf import settings
 from django.contrib.auth import models as auth_models
 from django.db import models
-
 from django.template.loader import render_to_string
+
+import tasks
 
 class MirrorSet(models.Model):
     name = models.CharField(max_length=100)
@@ -21,6 +22,7 @@ class Mirror(models.Model):
     series = models.CharField(max_length=200)
     components = models.CharField(max_length=200)
     public = models.BooleanField(default=False)
+    refresh_in_progress = models.BooleanField(default=False)
 
     def __unicode__(self):
         return '<Mirror of %s (owner=%s)' % (self.url, self.owner)
@@ -60,10 +62,23 @@ class Mirror(models.Model):
     def pool(self):
         return os.path.join(self.archive_dir, 'pool')
 
+    def schedule_update_mirror(self):
+        if Mirror.objects.filter(id=self.id, refresh_in_progress=False).update(refresh_in_progress=True) > 0:
+           tasks.refresh_mirror.delay(self.id)
+           return True
+        else:
+           # Update already scheduled
+           return False
+
     def update_mirror(self):
         self.write_config()
-        run_cmd(['apt-mirror', 'mirror.conf'], cwd=self.basepath)
+        try:
+            run_cmd(['apt-mirror', 'mirror.conf'], cwd=self.basepath)
+        finally:
+            Mirror.objects.filter(id=self.id).update(refresh_in_progress=False)
 
+    def user_can_modify(self, user):
+        return user == self.owner
 
 class Architecture(models.Model):
     name = models.CharField(max_length=50)

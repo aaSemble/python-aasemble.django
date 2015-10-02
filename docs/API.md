@@ -74,11 +74,16 @@ All objects have an attribute called `self` which gives its own ID.
    * `series`: List of series to mirror.
    * `components`: List of components to mirror.
    * `public`: Whether or not to share this mirror with other users.
+   * `refresh_in_progress`: Boolean denoting whether a refresh is progress. 
  * `/mirror_sets/`:
    * `mirrors`: The list of mirrors to include in this mirror set.
  * `/snapshots/`:
    * `timestamp`: Then the snapshot was started. **Read-only**
    * `mirrorset`: ID of the mirrorset used for the snapshot.
+
+## Extra actions
+
+Some actions don't easily fit the RESTful API style. The aaSemble API currently has only one such action: Refreshing a mirror. It is triggered by sending a `POST` request to `/mirrors/<id>/refresh/`.
 
 
 ## Examples

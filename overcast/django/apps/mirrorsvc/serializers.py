@@ -21,10 +21,11 @@ class MirrorSerializer(serializers.HyperlinkedModelSerializer):
     series = SimpleListField(required=True)
     components = SimpleListField(required=True)
     public = serializers.BooleanField(default=False)
+    refresh_in_progress = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = models.Mirror
-        fields = ('self', 'url', 'series', 'components', 'public')
+        fields = ('self', 'url', 'series', 'components', 'public', 'refresh_in_progress')
 
 class MirrorField(serializers.HyperlinkedRelatedField):
     def get_queryset(self):

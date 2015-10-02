@@ -1,12 +1,7 @@
-from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, Group
-from django.core.urlresolvers import reverse
-from django.forms import ModelChoiceField
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-
 from rest_framework import viewsets
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+
 from .serializers import MirrorSerializer, MirrorSetSerializer, SnapshotSerializer
 
 from .models import Mirror, MirrorSet, Snapshot
@@ -28,6 +23,16 @@ class MirrorViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    @detail_route(methods=['post'])
+    def refresh(self, request, pk=None):
+        mirror = self.get_object()
+        scheduled = mirror.schedule_update_mirror()
+        if scheduled:
+            status = 'update scheduled'
+        else:
+            status = 'update already scheduled'
+        return Response({'status': status})
 
 
 class MirrorSetViewSet(viewsets.ModelViewSet):
