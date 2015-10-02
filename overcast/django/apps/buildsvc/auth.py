@@ -9,7 +9,7 @@ class BuildSvcAuthzBackend(object):
         app, perm_ = perm.split('.')
         action, model = perm_.split('_')
 
-        if action in ('add', 'delete', 'change'):
+        if action not in ('add', 'delete', 'change'):
             return False
 
         if (((app == 'buildsvc') and (model in ('packagesource', 'externaldependency'))) or
