@@ -1,4 +1,5 @@
 from django.conf.urls import include, url
+from django.conf import settings
 
 from rest_framework_nested import routers
 
@@ -27,6 +28,8 @@ urlpatterns = [
     url(r'^v1/', include(repository_router.urls)),
     url(r'^v1/', include(source_router.urls)),
     url(r'^v1/auth/', include('rest_auth.urls')),
-    url(r'^v1/auth/registration/', include('rest_auth.registration.urls')),
     url(r'^v1/auth/github/$', GithubLogin.as_view(), name='github_login')
 ] 
+
+if getattr(settings, 'SIGNUP_OPEN', False):
+    urlpatterns += [url(r'^v1/auth/registration/', include('rest_auth.registration.urls'))]
