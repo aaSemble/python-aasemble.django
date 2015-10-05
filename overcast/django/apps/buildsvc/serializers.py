@@ -28,10 +28,11 @@ class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
     git_repository = serializers.URLField(source='git_url', required=True)
     git_branch = serializers.SlugField(source='branch', required=True)
     repository = RepositoryField(view_name='repository-detail', source='series.repository', queryset=models.Repository.objects.all())
+    builds = serializers.HyperlinkedIdentityField(view_name='build-list', lookup_url_kwarg='source_pk', lookup_field='pk', read_only=True)
 
     class Meta:
         model = models.PackageSource
-        fields = ('self', 'git_repository', 'git_branch', 'repository')
+        fields = ('self', 'git_repository', 'git_branch', 'repository', 'builds')
 
     def validate_repository(self, value):
         return value.first_series()
