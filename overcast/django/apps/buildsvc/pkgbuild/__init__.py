@@ -54,16 +54,38 @@ class PackageBuilder(object):
         self.add_changelog_entry()
 
         if self.docker_build:
+            self.build_external_dependency_repo_keys()
+            self.build_external_dependency_repo_sources()
             self.docker_build_source_package()
             self.docker_build_binary_package()
         else:
             self.build_source_package()
             self.build_binary_packages()
 
+    def build_external_dependency_repo_keys(self):
+        """create a file which has all external dependency repos keys"""
+        extdeps = self.package_source.series.externaldependency_set.all()
+        if extdeps:
+            with open(os.path.join(self.basedir,'keys'), 'w') as fp:
+                for extdep in extdeps:
+                    if extdep.key:
+                        fp.write(extdep.key)
+
+
+    def build_external_dependency_repo_sources(self):
+        """create a file which has all external dependency repo sources"""
+        extdeps = self.package_source.series.externaldependency_set.all()
+        if extdeps:
+            with open(os.path.join(self.basedir,'repos'), 'w') as fp:
+                for extdep in extdeps:
+                    fp.write(extdep.deb_line)
+
+
     def docker_build_source_package(self):
         """Build source package in docker"""
         dbuild.docker_build(build_dir=self.basedir, build_type='source',
                             source_dir=self.buildir)
+
 
     def docker_build_binary_package(self):
         """Build binary packages in docker"""
