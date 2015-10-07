@@ -109,9 +109,17 @@ class Repository(models.Model):
         return run_cmd(['reprepro', '-b', self.basedir] + list(args),
                        override_env=env)
 
+    def export_key(self):
+        keypath = os.path.join(self.outdir(), 'repo.key')
+        if not os.path.exists(keypath):
+            output = run_cmd(['gpg', '-a', '--export', self.key_id])
+            with open(keypath, 'w') as fp:
+                fp.write(output)
+
     def export(self):
         self.ensure_key()
         self.ensure_directory_structure()
+        self.export_key()
         self._reprepro('export')
 
     def process_changes(self, series_name, changes_file):
