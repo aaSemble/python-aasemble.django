@@ -10,3 +10,4 @@ MySQL-python
 django-cors-headers
 django-rest-auth
 django-allauth
+redis
