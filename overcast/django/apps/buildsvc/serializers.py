@@ -74,6 +74,7 @@ class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
+    key_id = serializers.CharField(read_only=True)
     binary_source_list = serializers.ReadOnlyField(source='first_series.binary_source_list')
     source_source_list = serializers.ReadOnlyField(source='first_series.source_source_list')
     sources = serializers.HyperlinkedIdentityField(view_name='packagesource-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)

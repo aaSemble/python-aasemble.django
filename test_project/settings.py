@@ -102,7 +102,7 @@ STATIC_ROOT = 'staticfiles'
 
 BUILDSVC_REPOS_BASE_DIR = os.path.join(BASE_DIR, 'data', 'repos')
 BUILDSVC_REPOS_BASE_PUBLIC_DIR = os.path.join(BASE_DIR, 'data', 'public_repos')
-BUILDSVC_REPOS_BASE_URL = 'http://127.0.0.1:8000/apt/'
+BUILDSVC_REPOS_BASE_URL = 'http://127.0.0.1:8000/apt'
 BUILDSVC_DEFAULT_SERIES_NAME = 'overcast'
 BUILDSVC_DEBEMAIL = 'pkgbuild@overcastcloud.com'
 BUILDSVC_DEBFULLNAME = 'Overcast Package Building Service'
@@ -136,8 +136,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGE_SIZE': 10,
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.DjangoObjectPermissions',),
+    'PAGE_SIZE': 100,
     'URL_FIELD_NAME': 'self',
 }
 

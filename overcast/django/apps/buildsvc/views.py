@@ -79,6 +79,9 @@ class RepositoryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Repository.lookup_by_user(self.request.user)
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
     serializer_class = RepositorySerializer
 
 
