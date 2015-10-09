@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import os.path
+import os
 import tempfile
 import dbuild
 
@@ -83,14 +83,15 @@ class PackageBuilder(object):
 
     def docker_build_source_package(self):
         """Build source package in docker"""
+        source_dir = os.path.basename(self.builddir)
         dbuild.docker_build(build_dir=self.basedir, build_type='source',
-                            source_dir=self.buildir)
+                            source_dir=source_dir, build_owner=os.getuid())
 
 
     def docker_build_binary_package(self):
         """Build binary packages in docker"""
         dbuild.docker_build(build_dir=self.basedir, build_type='binary',
-                            source_dir=self.buildir)
+                            build_owner=os.getuid())
 
     def build_binary_packages(self):
         dsc = filter(lambda s:s.endswith('.dsc'), os.listdir(self.basedir))[0]
