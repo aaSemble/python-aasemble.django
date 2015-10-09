@@ -1,0 +1,10 @@
+[{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "DEADBEEF",
+        "user": 1,
+        "name": "testuser"
+    },
+    "model": "buildsvc.repository",
+    "pk": 1
+}]

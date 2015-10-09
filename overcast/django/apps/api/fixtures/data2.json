@@ -1,0 +1,20 @@
+[{
+    "fields": {
+        "username": "testuser",
+        "first_name": "Test",
+        "last_name": "Testson",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [
+            1
+        ],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "test1@example.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 1
+}]
