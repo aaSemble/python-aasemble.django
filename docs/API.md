@@ -2,6 +2,10 @@
 ### Base URL:
 The base URL is `https://aasemble.com/api/v1`. So, when it says `/sources` below, the full URL would be `https://aasemble.com/api/v1/sources`. Although the path has `v1` in it, the API has not yet been frozen. Once the first revision is relatively stable, we'll tag it `v1` and hope to maintain the API over time.
 
+## Authentication
+In order to authenticate with the API, you need to pass a HTTP header: `Authorization: Token abcdef123456789` where `abcdef123456789` should be replaced with your personal API token.
+
+## Data model
 There are currently 7 data types:
 * Sources
 * Repositories
