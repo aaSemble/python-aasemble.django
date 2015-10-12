@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 import tempfile
 import dbuild
+import sys
 
 from debian.debian_support import version_compare
 
@@ -13,15 +14,14 @@ from django.template.loader import render_to_string
 from ....utils import run_cmd, recursive_render
 from ..models import BuildRecord
 
+
 class PackageBuilder(object):
-    def __init__(self, basedir, package_source, build_record,
-                 docker_build=True):
+    def __init__(self, basedir, package_source, build_record):
         self.basedir = basedir
         self.build_dependencies = []
         self.runtime_dependencies = []
         self.package_source = package_source
         self.build_record = build_record
-        self.docker_build = docker_build
 
     @property
     def builddir(self):
@@ -53,14 +53,10 @@ class PackageBuilder(object):
 
         self.add_changelog_entry()
 
-        if self.docker_build:
-            self.build_external_dependency_repo_keys()
-            self.build_external_dependency_repo_sources()
-            self.docker_build_source_package()
-            self.docker_build_binary_package()
-        else:
-            self.build_source_package()
-            self.build_binary_packages()
+        self.build_external_dependency_repo_keys()
+        self.build_external_dependency_repo_sources()
+        self.docker_build_source_package()
+        self.docker_build_binary_package()
 
     def build_external_dependency_repo_keys(self):
         """create a file which has all external dependency repos keys"""
@@ -84,39 +80,30 @@ class PackageBuilder(object):
     def docker_build_source_package(self):
         """Build source package in docker"""
         source_dir = os.path.basename(self.builddir)
-        dbuild.docker_build(build_dir=self.basedir, build_type='source',
-                            source_dir=source_dir, build_owner=os.getuid())
+        with open(self.build_record.buildlog(), 'a+') as fp:
+            try:
+                stdout_orig = sys.stdout
+                sys.stdout = fp
+                dbuild.docker_build(build_dir=self.basedir,
+                                    build_type='source',
+                                    source_dir=source_dir,
+                                    build_owner=os.getuid())
+            finally:
+                sys.stdout = stdout_orig
 
 
     def docker_build_binary_package(self):
         """Build binary packages in docker"""
-        dbuild.docker_build(build_dir=self.basedir, build_type='binary',
-                            build_owner=os.getuid())
+        with open(self.build_record.buildlog(), 'a+') as fp:
+            try:
+                stdout_orig = sys.stdout
+                sys.stdout = fp
+                dbuild.docker_build(build_dir=self.basedir,
+                                    build_type='binary',
+                                    build_owner=os.getuid())
+            finally:
+                sys.stdout = stdout_orig
 
-    def build_binary_packages(self):
-        dsc = filter(lambda s:s.endswith('.dsc'), os.listdir(self.basedir))[0]
-
-        fd, fname = tempfile.mkstemp(dir='/var/lib/sbuild/build')
-
-        cmd = ['sbuild',
-               '-n',
-               '--chroot-setup-commands=apt-key add %s' % (fname.replace('/var/lib/sbuild/build', '/build'),),
-               '--extra-repository=%s' % (self.package_source.series.binary_source_list(force_trusted=True),)]
-
-        with os.fdopen(fd, 'w') as fp:
-            for extdep in self.package_source.series.externaldependency_set.all():
-                if extdep.key:
-                    fp.write(extdep.key)
-                cmd += ['--extra-repository=%s' % (extdep.deb_line,)]
-
-        cmd += ['-d', 'trusty', '-A', dsc]
-
-        try:
-            with open(self.build_record.buildlog(), 'a+') as fp:
-                run_cmd(cmd, cwd=self.basedir,
-                        stdout=fp, logger=self.build_record.logger)
-        finally:
-            os.unlink(fname)
 
     def detect_runtime_dependencies(self):
         return []
@@ -128,9 +115,6 @@ class PackageBuilder(object):
                 return filter(lambda s:s, fp.read().split('\n'))
         return []
 
-    def build_source_package(self):
-        run_cmd(['dpkg-buildpackage', '-S', '-nc', '-uc', '-us'],
-                cwd=self.builddir, override_env=self.env, logger=self.build_record.logger)
 
     def populate_debian_dir(self):
         self.build_record.logger.debug('Populating debian dir')
