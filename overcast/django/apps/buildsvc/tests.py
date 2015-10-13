@@ -114,11 +114,13 @@ class RepositoryTestCase(TestCase):
         repo = Repository.objects.get(id=2)
         with mock.patch.multiple(repo, ensure_key=mock.DEFAULT,
                                        ensure_directory_structure=mock.DEFAULT,
+                                       export_key=mock.DEFAULT,
                                        _reprepro=mock.DEFAULT) as mocks:
             repo.export()
 
             mocks['ensure_key'].ensure_called_with()
             mocks['ensure_directory_structure'].ensure_called_with()
+            mocks['export_key'].ensure_called_with()
             mocks['_reprepro'].ensure_called_with('export')
 
     @mock.patch('overcast.django.apps.buildsvc.models.remove_ddebs_from_changes')

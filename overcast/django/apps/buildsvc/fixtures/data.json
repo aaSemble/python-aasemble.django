@@ -58,7 +58,7 @@
         "last_seen_revision": "16521c6da3171d987f7496f82a051c838a640338",
         "last_built_version": "9",
         "series": 1,
-        "github_repository": 1,
+        "git_url": "https://github.com/sorenh/reflector",
         "build_counter": 0,
         "branch": "master"
     },
@@ -70,7 +70,7 @@
         "last_seen_revision": "714dc8a5579cc6dcacbc82c6cebcf183b1829a5a",
         "last_built_version": "3",
         "series": 1,
-        "github_repository": 2,
+        "git_url": "https://github.com/JioCloud/consul",
         "build_counter": 0,
         "branch": "master"
     },
@@ -82,7 +82,7 @@
         "last_seen_revision": "f887be9d39a46bfb9834bde781d0c2ed3027a031",
         "last_built_version": "4",
         "series": 1,
-        "github_repository": 3,
+        "git_url": "https://github.com/sorenh/buildsvctest",
         "build_counter": 4,
         "branch": "python"
     },
@@ -94,7 +94,7 @@
         "last_seen_revision": null,
         "last_built_version": "1:0.1+15",
         "series": 1,
-        "github_repository": 3,
+        "git_url": "https://github.com/sorenh/buildsvctest",
         "build_counter": 15,
         "branch": "debian"
     },
@@ -144,42 +144,5 @@
     },
     "model": "auth.group",
     "pk": 1
-},
-{
-    "fields": {
-        "uid": "123456",
-        "extra_data": "{\"access_token\": \"512974612986348126348971623946\", \"login\": \"sorenh\", \"expires\": null, \"id\": 123456}",
-        "user": 1,
-        "provider": "github"
-    },
-    "model": "default.usersocialauth",
-    "pk": 1
-},
-{
-    "fields": {
-        "repo_owner": "sorenh",
-        "user": 1,
-        "repo_name": "reflector"
-    },
-    "model": "buildsvc.githubrepository",
-    "pk": 1
-},
-{
-    "fields": {
-        "repo_owner": "JioCloud",
-        "user": 1,
-        "repo_name": "consul"
-    },
-    "model": "buildsvc.githubrepository",
-    "pk": 2
-},
-{
-    "fields": {
-        "repo_owner": "sorenh",
-        "user": 1,
-        "repo_name": "buildsvctest"
-    },
-    "model": "buildsvc.githubrepository",
-    "pk": 3
 }
 ]
