@@ -7,8 +7,10 @@ def authenticate(client, username=None, token=None):
         token = Token.objects.get(user__username=username).key
     client.credentials(HTTP_AUTHORIZATION='Token ' + token)
 
+
 class APIv1Tests(APITestCase):
     fixtures = ['data2.json']
+
 
 class APIv1RepositoryTests(APIv1Tests):
     list_url = '/api/v1/repositories/'
@@ -56,6 +58,47 @@ class APIv1RepositoryTests(APIv1Tests):
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result)
+        return response.data
+
+    def test_delete_repository(self):
+        repo = self.test_create_repository()
+
+        response = self.client.delete(repo['self'])
+
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get(repo['self'])
+        self.assertEquals(response.status_code, 404)
+
+
+    def test_patch_repository(self):
+        repo = self.test_create_repository()
+        data = {'name': 'testrepo2'}
+
+        response = self.client.patch(repo['self'], data, format='json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['self'], repo['self'], '"self" attribute changed')
+
+        expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
+                           'name': 'testrepo2',
+                           'binary_source_list': 'deb http://127.0.0.1:8000/apt/testuser/testrepo2 overcast main',
+                           'source_source_list': 'deb-src http://127.0.0.1:8000/apt/testuser/testrepo2 overcast main',
+                           'self': response.data['self'],
+                           'sources': response.data['self'] + 'sources/',
+                           'user': 'testuser',
+                           'key_id': u''}
+
+        self.assertEquals(response.data, expected_result)
+
+        response = self.client.get(response.data['self'])
+        self.assertEquals(response.data, expected_result, 'Changes were not persisted')
+
+    def test_patch_repository_read_only_field(self):
+        repo = self.test_create_repository()
+        data = {'user': 'testuser2'}
+
+        response = self.client.patch(repo['self'], data, format='json')
 
 
 class APIv1SourceTests(APIv1Tests):
@@ -115,3 +158,15 @@ class APIv1SourceTests(APIv1Tests):
 
         response = self.client.get(data['self'])
         self.assertEquals(response.data, data)
+        return response.data
+
+    def test_delete_source(self):
+        source = self.test_create_source()
+
+        response = self.client.delete(source['self'])
+
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get(source['self'])
+        self.assertEquals(response.status_code, 404)
+
