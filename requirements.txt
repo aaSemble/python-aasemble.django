@@ -11,3 +11,4 @@ django-cors-headers
 django-rest-auth
 django-allauth
 redis
+django-bootstrap3
