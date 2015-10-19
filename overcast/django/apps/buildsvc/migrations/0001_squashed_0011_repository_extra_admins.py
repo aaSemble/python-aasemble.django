@@ -7,8 +7,6 @@ from django.conf import settings
 
 class Migration(migrations.Migration):
 
-    replaces = [(b'buildsvc', '0001_initial'), (b'buildsvc', '0002_source_builds_enabled'), (b'buildsvc', '0003_repository'), (b'buildsvc', '0004_series'), (b'buildsvc', '0005_auto_20150813_2150'), (b'buildsvc', '0006_auto_20150814_0640'), (b'buildsvc', '0007_packagesource_series'), (b'buildsvc', '0008_auto_20150814_0719'), (b'buildsvc', '0009_buildrecord'), (b'buildsvc', '0010_auto_20150820_1151'), (b'buildsvc', '0011_repository_extra_admins')]
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('auth', '0006_require_contenttypes_0002'),
@@ -94,6 +92,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='repository',
             name='extra_admins',
-            field=models.ManyToManyField(to=b'auth.Group'),
+            field=models.ManyToManyField(to='auth.Group'),
         ),
     ]
