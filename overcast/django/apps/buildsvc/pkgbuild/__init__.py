@@ -210,7 +210,6 @@ class PackageBuilderRegistry(object):
 
 
 def choose_builder(path):
-    print PackageBuilderRegistry.builders
     for builder in PackageBuilderRegistry.builders:
         if builder.is_suitable(path):
             return builder
