@@ -1,5 +1,5 @@
 import os.path
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from ...utils import run_cmd
 
@@ -7,8 +7,9 @@ from django.conf import settings
 from django.contrib.auth import models as auth_models
 from django.db import models
 from django.template.loader import render_to_string
+from django.utils.encoding import python_2_unicode_compatible
 
-import tasks
+from . import tasks
 
 class MirrorSet(models.Model):
     name = models.CharField(max_length=100)
@@ -16,6 +17,7 @@ class MirrorSet(models.Model):
     mirrors = models.ManyToManyField('Mirror')
 
 
+@python_2_unicode_compatible
 class Mirror(models.Model):
     owner = models.ForeignKey(auth_models.User)
     url = models.URLField(max_length=200)
@@ -24,7 +26,7 @@ class Mirror(models.Model):
     public = models.BooleanField(default=False)
     refresh_in_progress = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return '<Mirror of %s (owner=%s)' % (self.url, self.owner)
 
     def series_list(self):
@@ -80,11 +82,12 @@ class Mirror(models.Model):
     def user_can_modify(self, user):
         return user == self.owner
 
+@python_2_unicode_compatible
 class Architecture(models.Model):
     name = models.CharField(max_length=50)
     apt_mirror_prefix = models.CharField(max_length=20)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

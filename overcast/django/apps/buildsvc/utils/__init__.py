@@ -1,4 +1,4 @@
-import github
+from . import github
 
 
 def sync_sources_from_github(user):

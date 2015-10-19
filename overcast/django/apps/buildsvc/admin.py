@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-import models
+from . import models
 
 admin.site.register(models.Repository)
 admin.site.register(models.Series)

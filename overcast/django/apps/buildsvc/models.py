@@ -5,19 +5,20 @@ import os.path
 import shutil
 import subprocess
 import tempfile
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import models
 from django.forms import ModelForm
 from django.contrib.auth import models as auth_models
 from django.template.loader import render_to_string
+from django.utils.encoding import python_2_unicode_compatible
 
 import deb822
 
 from ...utils import run_cmd, recursive_render
 
-import tasks
+from . import tasks
 
 LOG = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ def remove_ddebs_from_changes(changes_file):
         fp.write(changes.dump())
 
 
+@python_2_unicode_compatible
 class Repository(models.Model):
     user = models.ForeignKey(auth_models.User)
     name = models.CharField(max_length=100)
@@ -49,7 +51,7 @@ class Repository(models.Model):
     class Meta:
         verbose_name_plural = 'repositories'
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s/%s' % (self.user.username, self.name)
 
     @property
@@ -145,11 +147,12 @@ class Repository(models.Model):
         return False
 
 
+@python_2_unicode_compatible
 class Series(models.Model):
     name = models.CharField(max_length=100)
     repository = models.ForeignKey(Repository, related_name='series')
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s/%s' % (self.repository.name, self.name)
 
     def binary_source_list(self, force_trusted=False):
@@ -196,6 +199,7 @@ class ExternalDependency(models.Model):
         return self.own_series.user_can_modify(user)
 
 
+@python_2_unicode_compatible
 class PackageSource(models.Model):
     git_url = models.URLField()
     branch = models.CharField(max_length=100)
@@ -204,7 +208,7 @@ class PackageSource(models.Model):
     last_built_version = models.CharField(max_length=64, null=True, blank=True)
     build_counter = models.IntegerField(default=0)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s/%s' % (self.git_url, self.branch)
 
     def poll(self):
@@ -342,12 +346,13 @@ class BuildRecord(models.Model):
         return '%s/buildlogs/%s' % (self.source.series.repository.base_url,
                                     self.logpath())
 
+@python_2_unicode_compatible
 class GithubRepository(models.Model):
     user = models.ForeignKey(auth_models.User)
     repo_owner = models.CharField(max_length=100)
     repo_name = models.CharField(max_length=100)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.url
 
     class Meta:

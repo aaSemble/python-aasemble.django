@@ -6,7 +6,8 @@ python-debian
 djangorestframework
 git+https://github.com/alanjds/drf-nested-routers
 chardet
-MySQL-python
+pytz
+mysqlclient
 django-cors-headers
 django-rest-auth
 django-allauth
