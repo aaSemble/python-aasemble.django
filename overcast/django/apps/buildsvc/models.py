@@ -206,6 +206,7 @@ class PackageSource(models.Model):
     series = models.ForeignKey(Series, related_name='sources')
     last_seen_revision = models.CharField(max_length=64, null=True, blank=True)
     last_built_version = models.CharField(max_length=64, null=True, blank=True)
+    last_built_name = models.CharField(max_length=64, null=True, blank=True)
     build_counter = models.IntegerField(default=0)
 
     def __str__(self):

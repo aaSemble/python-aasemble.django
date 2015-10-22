@@ -39,6 +39,7 @@ class PackageBuilder(object):
         self.build_record.save()
 
         self.package_source.last_built_version = package_version
+        self.package.source.last_built_name = self.sanitized_package_name
         self.package_source.save()
 
         self.build_record.logger.debug('Detecting Build dependencies')
