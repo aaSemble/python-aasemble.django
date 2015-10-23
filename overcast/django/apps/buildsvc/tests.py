@@ -5,7 +5,7 @@ import os.path
 from django.contrib.auth import models as auth_models
 from django.test import TestCase, override_settings
 
-from .models import Repository, Series
+from .models import Repository, Series, PackageSource
 
 class RepositoryTestCase(TestCase):
     fixtures = ['data.json']
@@ -149,3 +149,15 @@ class RepositoryTestCase(TestCase):
         repo = Repository.objects.get(id=2)
         self.assertEquals(repo.base_url, 'http://example.com/some/dir/sorenh/other')
 
+
+class PackageSourceTestCase(TestCase):
+    fixtures = ['data.json']
+
+    @mock.patch('overcast.django.apps.buildsvc.models.Repository._reprepro')
+    def test_post_delete(self, _reprepro):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://example.com/git',
+                                          branch='master',
+                                          last_built_name='something')
+        ps.delete()
+        _reprepro.assert_called_with('removesrc', 'overcast', 'something')

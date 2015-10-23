@@ -280,6 +280,11 @@ class PackageSource(models.Model):
         finally:
             shutil.rmtree(tmpdir)
 
+
+    def delete_on_filesystem(self):
+        if self.last_built_name:
+            self.series.repository._reprepro('removesrc', self.series.name, self.last_built_name)
+
     def user_can_modify(self, user):
         return self.series.user_can_modify(user)
 
