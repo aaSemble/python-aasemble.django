@@ -1,4 +1,5 @@
 from glob import glob
+import importlib
 import logging
 import os
 import os.path
@@ -13,6 +14,7 @@ from django.forms import ModelForm
 from django.contrib.auth import models as auth_models
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.module_loading import import_string
 
 import deb822
 
@@ -40,10 +42,15 @@ def remove_ddebs_from_changes(changes_file):
     with open(changes_file, 'w') as fp:
         fp.write(changes.dump())
 
-class RepreproDriver(object):
+class RepositoryDriver(object):
     def __init__(self, repository):
         self.repository = repository
 
+class FakeDriver(RepositoryDriver):
+    def generate_key(self):
+        return 'FAKEID'
+
+class RepreproDriver(RepositoryDriver):
     def generate_key(self):
         LOG.info('Generating key for %s' % (self.repository))
         gpg_input = render_to_string('buildsvc/gpg-keygen-input.tmpl',
@@ -54,9 +61,10 @@ class RepreproDriver(object):
             if l.startswith('gpg: key '):
                 return l.split(' ')[2]
 
-
 def get_repo_driver(repository):
-    return RepreproDriver(repository)
+    driver_name = getattr(settings, 'BUILDSVC_REPODRIVER', 'overcast.django.apps.buildsvc.models.RepreproDriver')
+    driver = import_string(driver_name)
+    return driver(repository)
 
 @python_2_unicode_compatible
 class Repository(models.Model):

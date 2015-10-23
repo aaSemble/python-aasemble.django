@@ -3,8 +3,9 @@ import operator
 import os.path
 
 from django.contrib.auth import models as auth_models
-from django.test import TestCase, override_settings
+from django.test import override_settings
 
+from overcast.django.tests import OvercastTestCase as TestCase
 from .models import Repository, Series, PackageSource
 
 class RepositoryTestCase(TestCase):
@@ -47,9 +48,8 @@ class RepositoryTestCase(TestCase):
 
     def test_ensure_key_generates_when_needed(self):
         repo = Repository.objects.get(id=2)
-        with mock.patch('overcast.django.apps.buildsvc.models.run_cmd') as run_cmd:
-            repo.ensure_key()
-            run_cmd.assert_called_with(['gpg', '--batch', '--gen-key'], input=mock.ANY)
+        repo.ensure_key()
+        self.assertEquals(repo.key_id, 'FAKEID')
 
 
     def test_first_series(self):
