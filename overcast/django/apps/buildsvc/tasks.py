@@ -1,6 +1,12 @@
 from celery import shared_task
 
 @shared_task(ignore_result=True)
+def reprepro(repository_id, *args):
+    from .models import Repository
+    r = Repository.objects.get(id=repository_id)
+    r._reprepro(*args)
+
+@shared_task(ignore_result=True)
 def build(package_source_id):
     from .models import PackageSource
     ps = PackageSource.objects.get(id=package_source_id)
