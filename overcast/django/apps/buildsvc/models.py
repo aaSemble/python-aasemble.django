@@ -1,4 +1,5 @@
 from glob import glob
+import importlib
 import logging
 import os
 import os.path
@@ -13,6 +14,7 @@ from django.forms import ModelForm
 from django.contrib.auth import models as auth_models
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.module_loading import import_string
 
 import deb822
 
@@ -40,6 +42,29 @@ def remove_ddebs_from_changes(changes_file):
     with open(changes_file, 'w') as fp:
         fp.write(changes.dump())
 
+class RepositoryDriver(object):
+    def __init__(self, repository):
+        self.repository = repository
+
+class FakeDriver(RepositoryDriver):
+    def generate_key(self):
+        return 'FAKEID'
+
+class RepreproDriver(RepositoryDriver):
+    def generate_key(self):
+        LOG.info('Generating key for %s' % (self.repository))
+        gpg_input = render_to_string('buildsvc/gpg-keygen-input.tmpl',
+                                     {'repository': self.repository})
+        output = run_cmd(['gpg', '--batch', '--gen-key'], input=gpg_input)
+
+        for l in output.split('\n'):
+            if l.startswith('gpg: key '):
+                return l.split(' ')[2]
+
+def get_repo_driver(repository):
+    driver_name = getattr(settings, 'BUILDSVC_REPODRIVER', 'overcast.django.apps.buildsvc.models.RepreproDriver')
+    driver = import_string(driver_name)
+    return driver(repository)
 
 @python_2_unicode_compatible
 class Repository(models.Model):
@@ -68,15 +93,8 @@ class Repository(models.Model):
 
     def ensure_key(self):
         if not self.key_id:
-            LOG.info('Generating key for %s' % (self))
-            gpg_input = render_to_string('buildsvc/gpg-keygen-input.tmpl',
-                                         {'repository': self})
-            output = run_cmd(['gpg', '--batch', '--gen-key'],input=gpg_input)
-
-            for l in output.split('\n'):
-                if l.startswith('gpg: key '):
-                    self.key_id = l.split(' ')[2]
-                    self.save()
+            self.key_id = get_repo_driver(self).generate_key()
+            self.save()
 
     def first_series(self):
         return Series.objects.get_or_create(name=settings.BUILDSVC_DEFAULT_SERIES_NAME, repository=self)[0]
@@ -84,7 +102,6 @@ class Repository(models.Model):
     @property
     def basedir(self):
         basedir = os.path.join(settings.BUILDSVC_REPOS_BASE_DIR, self.user.username, self.name)
-
         return ensure_dir(basedir)
 
     def confdir(self):
