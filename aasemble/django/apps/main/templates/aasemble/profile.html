@@ -1,0 +1,15 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}Profile{% endblock %}
+{% block aasemble_content %}
+  <dl class="dl-horizontal">
+    <dt>Username:</dt>
+    <dd>{{ user.username }}</dd>
+    <dt>Github username:</dt>
+    <dd>{{ user.username }}</dd>
+    <dt>Auth token (for API):</dt>
+    <dd>{{ user.auth_token }}</dd>
+  </dl>
+{% endblock %}
+

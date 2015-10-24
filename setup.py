@@ -27,7 +27,7 @@ with open('requirements.txt', 'r') as fp:
          requirements.append(l)
 
 setup(
-    name='overcast.django',
+    name='aasemble.django',
     version='0.1a',
     long_description=__doc__,
     packages=find_packages(),
