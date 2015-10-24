@@ -173,3 +173,8 @@ ACCOUNT_UNIQUE_EMAIL=True
 REST_SESSION_LOGIN = False
 
 DEFAULT_FROM_EMAIL = 'noreply@overcasatcloud.com'
+
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'overcast.django.apps.api.serializers.UserDetailsSerializer'
+}

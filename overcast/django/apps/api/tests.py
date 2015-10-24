@@ -170,3 +170,16 @@ class APIv1SourceTests(APIv1Tests):
         response = self.client.get(source['self'])
         self.assertEquals(response.status_code, 404)
 
+
+class APIv1AuthTests(APIv1Tests):
+    def test_get_user_details(self):
+        authenticate(self.client, 'testuser')
+
+        response = self.client.get('/api/v1/auth/user/', format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data,
+                          {'username': u'testuser',
+                           'company': u'aaSemble',
+                           'email': u'test1@example.com',
+                           'avatar': u'https://avatars.githubusercontent.com/u/160090?v=3',
+                           'real_name': u'Soren Hansen'})
