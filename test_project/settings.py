@@ -1,5 +1,5 @@
 """
-Test settings for Overcast project.
+Test settings for aaSemble
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.8/topics/settings/
@@ -25,10 +25,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.humanize',
-    'overcast.django.apps.main',
-    'overcast.django.apps.api',
-    'overcast.django.apps.buildsvc',
-    'overcast.django.apps.mirrorsvc',
+    'aasemble.django.apps.main',
+    'aasemble.django.apps.api',
+    'aasemble.django.apps.buildsvc',
+    'aasemble.django.apps.mirrorsvc',
     'bootstrap3',
     'djcelery',
     'rest_framework',
@@ -77,7 +77,7 @@ TEMPLATES = [
 AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
-    'overcast.django.apps.buildsvc.auth.BuildSvcAuthzBackend',
+    'aasemble.django.apps.buildsvc.auth.BuildSvcAuthzBackend',
 )
 
 WSGI_APPLICATION = 'test_project.wsgi.application'
@@ -103,9 +103,9 @@ STATIC_ROOT = 'staticfiles'
 BUILDSVC_REPOS_BASE_DIR = os.path.join(BASE_DIR, 'data', 'repos')
 BUILDSVC_REPOS_BASE_PUBLIC_DIR = os.path.join(BASE_DIR, 'data', 'public_repos')
 BUILDSVC_REPOS_BASE_URL = 'http://127.0.0.1:8000/apt'
-BUILDSVC_DEFAULT_SERIES_NAME = 'overcast'
-BUILDSVC_DEBEMAIL = 'pkgbuild@overcastcloud.com'
-BUILDSVC_DEBFULLNAME = 'Overcast Package Building Service'
+BUILDSVC_DEFAULT_SERIES_NAME = 'aasemble'
+BUILDSVC_DEBEMAIL = 'pkgbuild@aasemble.com'
+BUILDSVC_DEBFULLNAME = 'aaSemble Package Builder'
 MIRRORSVC_BASE_PATH = os.path.join(BASE_DIR, 'mirrors')
 
 LOGIN_URL = '/login/github/'
@@ -125,7 +125,7 @@ CACHES = {
 
 CELERYBEAT_SCHEDULE = {
     'poll-very-frequently': {
-        'task': 'overcast.django.apps.buildsvc.tasks.poll_all',
+        'task': 'aasemble.django.apps.buildsvc.tasks.poll_all',
         'schedule': timedelta(seconds=10),
     },
 }
@@ -172,9 +172,9 @@ ACCOUNT_UNIQUE_EMAIL=True
 
 REST_SESSION_LOGIN = False
 
-DEFAULT_FROM_EMAIL = 'noreply@overcasatcloud.com'
+DEFAULT_FROM_EMAIL = 'noreply@aasemble.com'
 
 
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'overcast.django.apps.api.serializers.UserDetailsSerializer'
+    'USER_DETAILS_SERIALIZER': 'aasemble.django.apps.api.serializers.UserDetailsSerializer'
 }
