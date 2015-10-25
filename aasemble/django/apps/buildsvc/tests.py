@@ -60,6 +60,24 @@ class RepositoryTestCase(TestCase):
         self.assertEquals(repo.first_series(), series)
 
 
+    @override_settings(BUILDSVC_DEFAULT_SERIES_NAME='somethingelse')
+    def test_first_series_does_not_create_extra_series_when_default_is_renamed(self):
+        repo = Repository.objects.get(id=1)
+
+        repo.first_series()
+
+        self.assertEquals(repo.series.count(), 1)
+
+    @override_settings(BUILDSVC_DEFAULT_SERIES_NAME='somethingelse')
+    def test_first_series_creates_series_when_there_is_not_one_already(self):
+        repo = Repository.objects.create(user_id=1, name='reponame')
+        self.assertEquals(repo.series.count(), 0)
+
+        series = repo.first_series()
+        self.assertEquals(series.repository, repo)
+        self.assertEquals(series.name, 'somethingelse')
+
+
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s:s)
     def test_basedir(self):
