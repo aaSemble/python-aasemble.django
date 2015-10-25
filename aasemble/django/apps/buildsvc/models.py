@@ -97,7 +97,7 @@ class Repository(models.Model):
             self.save()
 
     def first_series(self):
-        return Series.objects.get_or_create(name=settings.BUILDSVC_DEFAULT_SERIES_NAME, repository=self)[0]
+        return Series.objects.get_or_create(defaults={'name': settings.BUILDSVC_DEFAULT_SERIES_NAME}, repository=self)[0]
 
     @property
     def basedir(self):
