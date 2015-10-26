@@ -60,6 +60,16 @@ class APIv1RepositoryTests(APIv1Tests):
         self.assertEquals(response.data, expected_result)
         return response.data
 
+
+    def test_create_duplicate_repository(self):
+        data = {'name': 'testrepo'}
+        authenticate(self.client, 'testuser')
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 409)
+
+
     def test_delete_repository(self):
         repo = self.test_create_repository()
 

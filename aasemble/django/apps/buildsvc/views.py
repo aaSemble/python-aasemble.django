@@ -2,15 +2,16 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+import django.db.utils
 from django.forms import ModelChoiceField
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from rest_framework import viewsets
 from .serializers import UserSerializer, GroupSerializer, RepositorySerializer, SeriesSerializer, PackageSourceSerializer, ExternalDependencySerializer, BuildRecordSerializer
-
-
 from .models import BuildRecord, Repository, PackageSource, PackageSourceForm, Series, GithubRepository, ExternalDependency
+
+from aasemble.django.exceptions import DuplicateResourceException
 
 def get_package_source_form(request, *args, **kwargs):
     form = PackageSourceForm(*args, **kwargs)
@@ -80,7 +81,10 @@ class RepositoryViewSet(viewsets.ModelViewSet):
         return Repository.lookup_by_user(self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        try:
+            serializer.save(user=self.request.user)
+        except django.db.utils.IntegrityError, e:
+            raise DuplicateResourceException()
 
     serializer_class = RepositorySerializer
 
