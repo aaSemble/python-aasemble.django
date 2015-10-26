@@ -83,7 +83,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
-        except django.db.utils.IntegrityError, e:
+        except django.db.utils.IntegrityError as e:
             raise DuplicateResourceException()
 
     serializer_class = RepositorySerializer
