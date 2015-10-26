@@ -75,6 +75,7 @@ class Repository(models.Model):
 
     class Meta:
         verbose_name_plural = 'repositories'
+        unique_together = (('user', 'name'),)
 
     def __str__(self):
         return '%s/%s' % (self.user.username, self.name)
