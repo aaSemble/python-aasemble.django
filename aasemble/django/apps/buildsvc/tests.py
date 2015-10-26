@@ -3,6 +3,7 @@ import operator
 import os.path
 
 from django.contrib.auth import models as auth_models
+from django.db.utils import IntegrityError
 from django.test import override_settings
 
 from aasemble.django.tests import AasembleTestCase as TestCase
@@ -77,6 +78,8 @@ class RepositoryTestCase(TestCase):
         self.assertEquals(series.repository, repo)
         self.assertEquals(series.name, 'somethingelse')
 
+    def test_unique_reponame_raises_integrity_error(self):
+        self.assertRaises(IntegrityError, Repository.objects.create, user_id=1, name='sorenh')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s:s)
