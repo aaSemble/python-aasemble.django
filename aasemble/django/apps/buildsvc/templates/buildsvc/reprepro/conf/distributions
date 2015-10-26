@@ -9,4 +9,5 @@ Description: {{ repository.name }} {{ series.name }}
 {% if repository.key_id %}SignWith: {{ repository.key_id }}
 {% endif %}Tracking: minimal includelogs
 Pull: {{ series.name }}
+
 {% endfor %}
