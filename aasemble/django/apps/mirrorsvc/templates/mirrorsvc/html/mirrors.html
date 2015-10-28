@@ -1,0 +1,30 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}Mirrors{% endblock %}
+{% block aasemble_content %}
+  {% for mirror in mirrors %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Series</th>
+          <th>Components</th>
+          <th>Public</th>
+          <th>Currently being Refreshed?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="{{ mirror.url }}">{{ mirror.url }}</a></td>
+          <td>{{ mirror.series }}</td>
+          <td>{{ mirror.components }}</td>
+          <td>{{ mirror.public }}</td>
+          <td>{{ mirror.refresh_in_progress }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  {% endfor %}
+{% endblock %}
