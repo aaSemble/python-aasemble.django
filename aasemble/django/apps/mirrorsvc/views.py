@@ -14,6 +14,12 @@ def mirrors(request):
     return render(request, 'mirrorsvc/html/mirrors.html',
                   {'mirrors': mirrors})
 
+@login_required
+def snapshots(request):
+    snapshots = Snapshot.objects.filter(mirrorset__in=MirrorSet.lookup_by_user(request.user)).order_by('timestamp')
+    return render(request, 'mirrorsvc/html/snapshots.html',
+                  {'snapshots': snapshots})
+
 #############
 # API stuff #
 #############
