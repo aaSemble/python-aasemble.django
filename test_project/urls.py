@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^profile/$', 'aasemble.django.apps.main.views.profile', name='profile'),
     url(r'^$', 'aasemble.django.apps.main.views.index', name='index'),
     url(r'^buildsvc/', include('aasemble.django.apps.buildsvc.urls', namespace='buildsvc')),
+    url(r'^mirrorsvc/', include('aasemble.django.apps.mirrorsvc.urls', namespace='mirrorsvc')),
     url(r'^logout/', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
 ]

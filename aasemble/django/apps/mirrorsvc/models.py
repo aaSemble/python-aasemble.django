@@ -64,6 +64,14 @@ class Mirror(models.Model):
     def pool(self):
         return os.path.join(self.archive_dir, 'pool')
 
+    @classmethod
+    def lookup_by_user(cls, user):
+        if not user.is_active:
+            return cls.objects.none()
+        if user.is_superuser:
+            return cls.objects.all()
+        return cls.objects.filter(user=user) | cls.objects.filter(extra_admins=user.groups.all())
+
     def schedule_update_mirror(self):
         if Mirror.objects.filter(id=self.id, refresh_in_progress=False).update(refresh_in_progress=True) > 0:
            tasks.refresh_mirror.delay(self.id)
