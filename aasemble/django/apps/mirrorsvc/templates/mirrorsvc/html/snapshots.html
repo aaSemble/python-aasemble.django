@@ -1,0 +1,24 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}Snapshots{% endblock %}
+{% block aasemble_content %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Snapshot MirrorSet</th>
+          <th>Time Created</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for snapshot in snapshots %}
+        <tr>
+          <td>{{ snapshot.mirrorset.name }}</td>
+          <td>{{ snapshot.timestamp }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

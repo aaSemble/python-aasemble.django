@@ -3,7 +3,6 @@
 
 {% block title %}Mirrors{% endblock %}
 {% block aasemble_content %}
-  {% for mirror in mirrors %}
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
@@ -16,6 +15,7 @@
         </tr>
       </thead>
       <tbody>
+      {% for mirror in mirrors %}
         <tr>
           <td><a href="{{ mirror.url }}">{{ mirror.url }}</a></td>
           <td>{{ mirror.series }}</td>
@@ -23,8 +23,8 @@
           <td>{{ mirror.public }}</td>
           <td>{{ mirror.refresh_in_progress }}</td>
         </tr>
+      {% endfor %}
       </tbody>
     </table>
   </div>
-  {% endfor %}
 {% endblock %}

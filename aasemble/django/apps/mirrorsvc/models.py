@@ -15,6 +15,15 @@ class MirrorSet(models.Model):
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(auth_models.User)
     mirrors = models.ManyToManyField('Mirror')
+    extra_admins = models.ManyToManyField(auth_models.Group)
+
+    @classmethod
+    def lookup_by_user(cls, user):
+        if not user.is_active:
+            return cls.objects.none()
+        if user.is_superuser:
+            return cls.objects.all()
+        return cls.objects.filter(owner=user) | cls.objects.filter(extra_admins=user.groups.all())
 
 
 @python_2_unicode_compatible
