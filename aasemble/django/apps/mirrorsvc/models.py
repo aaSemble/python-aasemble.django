@@ -143,5 +143,8 @@ class Snapshot(models.Model):
         rv = super(Snapshot, self).save(*args, **kwargs)
 
         if perform_snapshot:
-            self.sync_dists()
-            self.symlink_pool()
+            tasks.perform_snapshot.delay(self.id)
+
+    def perform_snapshot(self):
+        self.sync_dists()
+        self.symlink_pool()
