@@ -25,6 +25,7 @@ class Mirror(models.Model):
     components = models.CharField(max_length=200)
     public = models.BooleanField(default=False)
     refresh_in_progress = models.BooleanField(default=False)
+    extra_admins = models.ManyToManyField(auth_models.Group)
 
     def __str__(self):
         return '<Mirror of %s (owner=%s)' % (self.url, self.owner)
@@ -70,7 +71,7 @@ class Mirror(models.Model):
             return cls.objects.none()
         if user.is_superuser:
             return cls.objects.all()
-        return cls.objects.filter(user=user) | cls.objects.filter(extra_admins=user.groups.all())
+        return cls.objects.filter(owner=user) | cls.objects.filter(extra_admins=user.groups.all())
 
     def schedule_update_mirror(self):
         if Mirror.objects.filter(id=self.id, refresh_in_progress=False).update(refresh_in_progress=True) > 0:
