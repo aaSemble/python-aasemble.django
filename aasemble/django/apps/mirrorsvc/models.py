@@ -1,4 +1,5 @@
 import os.path
+import uuid
 from six.moves.urllib.parse import urlparse
 
 from ...utils import run_cmd
@@ -12,6 +13,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from . import tasks
 
 class MirrorSet(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(auth_models.User)
     mirrors = models.ManyToManyField('Mirror')
@@ -28,6 +30,7 @@ class MirrorSet(models.Model):
 
 @python_2_unicode_compatible
 class Mirror(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(auth_models.User)
     url = models.URLField(max_length=200)
     series = models.CharField(max_length=200)
@@ -110,6 +113,7 @@ class Architecture(models.Model):
 
 
 class Snapshot(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     mirrorset = models.ForeignKey(MirrorSet)
 
