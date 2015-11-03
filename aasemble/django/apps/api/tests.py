@@ -197,7 +197,7 @@ class APIv1SourceTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
 
         self.assertEquals(response.status_code, 201)
-        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url))
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
         data['self'] = response.data['self']
         data['builds'] = data['self'] + 'builds/'
         self.assertEquals(response.data, data)
