@@ -8,7 +8,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .serializers import UserSerializer, GroupSerializer, RepositorySerializer, SeriesSerializer, PackageSourceSerializer, ExternalDependencySerializer, BuildRecordSerializer
 from .models import BuildRecord, Repository, PackageSource, PackageSourceForm, Series, GithubRepository, ExternalDependency
 
 from aasemble.django.exceptions import DuplicateResourceException
@@ -65,88 +64,3 @@ def repositories(request):
     repositories = Repository.lookup_by_user(request.user)
     return render(request, 'buildsvc/html/repositories.html',
                   {'repositories': repositories, 'settings': settings})
-
-
-#############
-# API stuff #
-#############
-
-class RepositoryViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows repositories to be viewed or edited.
-    """
-    queryset = Repository.objects.all()
-
-    def get_queryset(self):
-        return Repository.lookup_by_user(self.request.user)
-
-    def perform_create(self, serializer):
-        try:
-            serializer.save(user=self.request.user)
-        except django.db.utils.IntegrityError as e:
-            raise DuplicateResourceException()
-
-    serializer_class = RepositorySerializer
-
-
-class SeriesViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows series to be viewed or edited.
-    """
-    queryset = Series.objects.all()
-    serializer_class = SeriesSerializer
-
-    def get_queryset(self):
-        return self.queryset.filter(repository=Repository.lookup_by_user(self.request.user))
-
-
-class PackageSourceViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows series to be viewed or edited.
-    """
-    queryset = PackageSource.objects.all()
-    serializer_class = PackageSourceSerializer
-
-    def get_queryset(self):
-        qs = self.queryset.filter(series__repository__in=Repository.lookup_by_user(self.request.user))
-        if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
-            fn, args, kwargs = self.request.resolver_match
-            if 'repository_pk' in kwargs:
-                qs = qs.filter(series__repository=kwargs['repository_pk'])
-
-        return qs
-
-
-class ExternalDependencyViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows external dependencies to be viewed or edited.
-    """
-    queryset = ExternalDependency.objects.all()
-    serializer_class = ExternalDependencySerializer
-
-
-    def get_queryset(self):
-        qs = self.queryset.filter(own_series__repository__in=Repository.lookup_by_user(self.request.user))
-        if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
-            fn, args, kwargs = self.request.resolver_match
-            if 'repository_pk' in kwargs:
-                qs = qs.filter(own_series__repository=kwargs['repository_pk'])
-
-        return qs
-
-
-class BuildViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows builds viewed
-    """
-    queryset = BuildRecord.objects.all()
-    serializer_class = BuildRecordSerializer
-
-    def get_queryset(self):
-        qs = self.queryset.filter(source__series__repository__in=Repository.lookup_by_user(self.request.user))
-        if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
-            fn, args, kwargs = self.request.resolver_match
-            if 'source_pk' in kwargs:
-                qs = qs.filter(source=kwargs['source_pk'])
-
-        return qs
