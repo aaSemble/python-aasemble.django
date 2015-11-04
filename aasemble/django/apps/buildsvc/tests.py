@@ -17,15 +17,17 @@ class RepositoryTestCase(TestCase):
         repo = Repository.objects.get(id=1)
         self.assertEquals(str(repo), 'sorenh/sorenh')
 
-
     def test_lookup_by_user_with_extra_admin(self):
         sorenh = auth_models.User.objects.get(id=1)
         self.assertEquals(set([1, 2, 3]), set([repo.id for repo in Repository.lookup_by_user(sorenh)]))
 
-
     def test_lookup_by_user_without_extra_admin(self):
         alterego = auth_models.User.objects.get(id=2)
         self.assertEquals(set([3]), set([repo.id for repo in Repository.lookup_by_user(alterego)]))
+
+    def test_lookup_by_user_with_multiple_groups(self):
+        alterego2 = auth_models.User.objects.get(id=3)
+        self.assertEquals(set([2, 3]), set([repo.id for repo in Repository.lookup_by_user(alterego2)]))
 
     def test_user_can_modify_own_repo(self):
         sorenh = auth_models.User.objects.get(id=1)

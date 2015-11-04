@@ -11,7 +11,7 @@
 },
 {
     "fields": {
-        "extra_admins": [],
+        "extra_admins": [1],
         "key_id": "",
         "user": 1,
         "name": "other"
@@ -21,7 +21,7 @@
 },
 {
     "fields": {
-        "extra_admins": [1],
+        "extra_admins": [1,2],
         "key_id": "34567890",
         "user": 2,
         "name": "alterego"
@@ -139,10 +139,37 @@
 },
 {
     "fields": {
+        "username": "alterego2",
+        "first_name": "Alter",
+        "last_name": "Ego",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-08-27T13:46:04.208Z",
+        "groups": [1,2],
+        "user_permissions": [],
+        "password": "!tUlzJUo3XCmAelnYYkoFiJ29LDbfINsZQbFILOVt",
+        "email": "alterego@linux2go.dk",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 3
+},
+{
+    "fields": {
         "name": "Admin group",
         "permissions": []
     },
     "model": "auth.group",
     "pk": 1
+},
+{
+    "fields": {
+        "name": "Extra admin group",
+        "permissions": []
+    },
+    "model": "auth.group",
+    "pk": 2
 }
+
 ]

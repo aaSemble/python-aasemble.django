@@ -16,13 +16,13 @@
         "date_joined": "2015-08-26T11:04:30.486Z"
     },
     "model": "auth.user",
-    "pk": 1
+    "pk": 4
 },
 {
     "fields": {
         "uid": "123456",
         "last_login": "2015-09-22T11:30:38Z",
-        "user": 1,
+        "user": 4,
         "provider": "github",
         "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 123456, \"followers_url\": \"https://api.github.com/users/sorenh/followers\", \"following_url\": \"https://api.github.com/users/sorenh/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/sorenh/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/sorenh/gists{/gist_id}\", \"html_url\": \"https://github.com/sorenh\", \"subscriptions_url\": \"https://api.github.com/users/sorenh/subscriptions\", \"received_events_url\": \"https://api.github.com/users/sorenh/received_events\", \"starred_url\": \"https://api.github.com/users/sorenh/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Soren Hansen\", \"organizations_url\": \"https://api.github.com/users/sorenh/orgs\", \"url\": \"https://api.github.com/users/sorenh\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/160090?v=3\", \"repos_url\": \"https://api.github.com/users/sorenh/repos\", \"following\": 6, \"login\": \"sorenh\"}",
         "date_joined": "2015-09-16T09:46:12Z"
