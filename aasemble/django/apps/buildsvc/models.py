@@ -6,6 +6,7 @@ import os.path
 import shutil
 import subprocess
 import tempfile
+import uuid
 from six.moves.urllib.parse import urlparse
 
 from django.conf import settings
@@ -68,6 +69,7 @@ def get_repo_driver(repository):
 
 @python_2_unicode_compatible
 class Repository(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(auth_models.User)
     name = models.CharField(max_length=100)
     key_id = models.CharField(max_length=100)
@@ -167,6 +169,7 @@ class Repository(models.Model):
 
 @python_2_unicode_compatible
 class Series(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     repository = models.ForeignKey(Repository, related_name='series')
 
@@ -203,6 +206,7 @@ class Series(models.Model):
 
 
 class ExternalDependency(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     url = models.URLField()
     series = models.CharField(max_length=200)
     components = models.CharField(max_length=200, null=True, blank=True)
@@ -219,6 +223,7 @@ class ExternalDependency(models.Model):
 
 @python_2_unicode_compatible
 class PackageSource(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     git_url = models.URLField()
     branch = models.CharField(max_length=100)
     series = models.ForeignKey(Series, related_name='sources')
@@ -308,6 +313,7 @@ class PackageSource(models.Model):
 
 
 class BuildRecord(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey(PackageSource)
     version = models.CharField(max_length=50)
     build_counter = models.IntegerField(default=0)
@@ -372,6 +378,7 @@ class BuildRecord(models.Model):
 
 @python_2_unicode_compatible
 class GithubRepository(models.Model):
+    uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(auth_models.User)
     repo_owner = models.CharField(max_length=100)
     repo_name = models.CharField(max_length=100)

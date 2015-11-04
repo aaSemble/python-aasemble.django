@@ -65,7 +65,7 @@ class APIv1RepositoryTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
 
         self.assertEquals(response.status_code, 201)
-        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url))
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo',
                            'binary_source_list': 'deb http://127.0.0.1:8000/apt/testuser/testrepo aasemble main',
@@ -131,6 +131,10 @@ class APIv1RepositoryTests(APIv1Tests):
         response = self.client.patch(repo['self'], data, format='json')
 
 
+class APIv2RepositoryTests(APIv1RepositoryTests):
+    list_url = '/api/v2/repositories/'
+
+
 class APIv1BuildTests(APIv1Tests):
     fixtures = ['data.json', 'data2.json', 'repository.json']
 
@@ -142,6 +146,10 @@ class APIv1BuildTests(APIv1Tests):
         authenticate(self.client, 'alterego2')
         response = self.client.get(self.list_url)
         self.assertEquals(response.status_code, 200)
+
+
+class APIv2BuildTests(APIv1BuildTests):
+    list_url = '/api/v2/builds/'
 
 
 class APIv1SourceTests(APIv1Tests):
@@ -188,7 +196,7 @@ class APIv1SourceTests(APIv1Tests):
     def test_create_source(self):
         authenticate(self.client, 'testuser')
 
-        response = self.client.get('/api/v1/repositories/')
+        response = self.client.get(self.list_url.replace('sources', 'repositories'))
 
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
                 'git_branch': 'master',
@@ -197,7 +205,7 @@ class APIv1SourceTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
 
         self.assertEquals(response.status_code, 201)
-        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url))
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
         data['self'] = response.data['self']
         data['builds'] = data['self'] + 'builds/'
         self.assertEquals(response.data, data)
@@ -215,6 +223,12 @@ class APIv1SourceTests(APIv1Tests):
 
         response = self.client.get(source['self'])
         self.assertEquals(response.status_code, 404)
+
+
+class APIv2SourceTests(APIv1SourceTests):
+    fixtures = ['data.json', 'data2.json', 'repository.json']
+
+    list_url = '/api/v2/sources/'
 
 
 class APIv1AuthTests(APIv1Tests):
