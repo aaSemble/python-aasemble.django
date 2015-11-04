@@ -40,7 +40,7 @@ class MirrorField(serializers.HyperlinkedRelatedField):
 
 class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_mirrorset-detail', read_only=True, source='*', lookup_field='uuid')
-    mirrors = MirrorField(many=True, view_name='v2_mirror-detail', queryset=mirrorsvc_models.Mirror.objects.all())
+    mirrors = MirrorField(many=True, view_name='v2_mirror-detail', queryset=mirrorsvc_models.Mirror.objects.all(), lookup_field='uuid')
 
     class Meta:
         model = mirrorsvc_models.MirrorSet
@@ -49,6 +49,7 @@ class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
 
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_snapshot-detail', read_only=True, source='*', lookup_field='uuid')
+    mirrorset = serializers.HyperlinkedRelatedField(view_name='v2_mirrorset-detail', read_only=True, lookup_field='uuid')
     class Meta:
         model = mirrorsvc_models.Snapshot
         fields = ('self', 'timestamp', 'mirrorset')
@@ -93,7 +94,7 @@ class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_packagesource-detail', read_only=True, source='*', lookup_field='uuid')
     git_repository = serializers.URLField(source='git_url', required=True)
     git_branch = serializers.SlugField(source='branch', required=True)
-    repository = RepositoryField(view_name='v2_repository-detail', source='series.repository', queryset=buildsvc_models.Repository.objects.all())
+    repository = RepositoryField(view_name='v2_repository-detail', source='series.repository', queryset=buildsvc_models.Repository.objects.all(), lookup_field='uuid')
     builds = serializers.HyperlinkedIdentityField(view_name='v2_build-list', lookup_url_kwarg='source_uuid', lookup_field='uuid', read_only=True)
 
     class Meta:
@@ -118,6 +119,7 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
 
 class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_buildrecord-detail', read_only=True, source='*', lookup_field='uuid')
+    source = serializers.HyperlinkedRelatedField(view_name='v2_packagesource-detail', read_only=True, lookup_field='uuid')
     class Meta:
         model = buildsvc_models.BuildRecord
         fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
