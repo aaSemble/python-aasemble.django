@@ -38,6 +38,8 @@ class MirrorViewSet(viewsets.ModelViewSet):
     """
     queryset = mirrorsvc_models.Mirror.objects.all()
     serializer_class = serializers.MirrorSerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
         return self.queryset.filter(owner=self.request.user) | self.queryset.filter(public=True)
@@ -62,6 +64,8 @@ class MirrorSetViewSet(viewsets.ModelViewSet):
     """
     queryset = mirrorsvc_models.MirrorSet.objects.all()
     serializer_class = serializers.MirrorSetSerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
         return self.queryset.filter(owner=self.request.user)
@@ -76,6 +80,8 @@ class SnapshotViewSet(viewsets.ModelViewSet):
     """
     queryset = mirrorsvc_models.Snapshot.objects.all()
     serializer_class = serializers.SnapshotSerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
         return self.queryset.filter(mirrorset__owner=self.request.user)
@@ -87,6 +93,8 @@ class RepositoryViewSet(viewsets.ModelViewSet):
     """
     queryset = buildsvc_models.Repository.objects.all()
     serializer_class = serializers.RepositorySerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
         return buildsvc_models.Repository.lookup_by_user(self.request.user)
@@ -104,6 +112,8 @@ class SeriesViewSet(viewsets.ModelViewSet):
     """
     queryset = buildsvc_models.Series.objects.all()
     serializer_class = serializers.SeriesSerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
         return self.queryset.filter(repository=buildsvc_models.Repository.lookup_by_user(self.request.user))
@@ -115,6 +125,8 @@ class PackageSourceViewSet(viewsets.ModelViewSet):
     """
     queryset = buildsvc_models.PackageSource.objects.all()
     serializer_class = serializers.PackageSourceSerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
         qs = self.queryset.filter(series__repository=buildsvc_models.Repository.lookup_by_user(self.request.user))
@@ -132,6 +144,8 @@ class ExternalDependencyViewSet(viewsets.ModelViewSet):
     """
     queryset = buildsvc_models.ExternalDependency.objects.all()
     serializer_class = serializers.ExternalDependencySerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
 
     def get_queryset(self):
@@ -150,6 +164,8 @@ class BuildViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = buildsvc_models.BuildRecord.objects.all()
     serializer_class = serializers.BuildRecordSerializer
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
         qs = self.queryset.filter(source__series__repository=buildsvc_models.Repository.lookup_by_user(self.request.user))
