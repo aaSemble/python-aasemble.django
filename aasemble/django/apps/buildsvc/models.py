@@ -90,7 +90,7 @@ class Repository(models.Model):
             return cls.objects.none()
         if user.is_superuser:
             return cls.objects.all()
-        return cls.objects.filter(user=user) | cls.objects.filter(extra_admins=user.groups.all())
+        return cls.objects.filter(user=user) | cls.objects.filter(extra_admins__in=user.groups.all())
 
     def ensure_key(self):
         if not self.key_id:

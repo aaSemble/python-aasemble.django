@@ -108,7 +108,7 @@ class PackageSourceViewSet(viewsets.ModelViewSet):
     serializer_class = PackageSourceSerializer
 
     def get_queryset(self):
-        qs = self.queryset.filter(series__repository=Repository.lookup_by_user(self.request.user))
+        qs = self.queryset.filter(series__repository__in=Repository.lookup_by_user(self.request.user))
         if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
             fn, args, kwargs = self.request.resolver_match
             if 'repository_pk' in kwargs:
@@ -126,7 +126,7 @@ class ExternalDependencyViewSet(viewsets.ModelViewSet):
 
 
     def get_queryset(self):
-        qs = self.queryset.filter(own_series__repository=Repository.lookup_by_user(self.request.user))
+        qs = self.queryset.filter(own_series__repository__in=Repository.lookup_by_user(self.request.user))
         if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
             fn, args, kwargs = self.request.resolver_match
             if 'repository_pk' in kwargs:
@@ -143,7 +143,7 @@ class BuildViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BuildRecordSerializer
 
     def get_queryset(self):
-        qs = self.queryset.filter(source__series__repository=Repository.lookup_by_user(self.request.user))
+        qs = self.queryset.filter(source__series__repository__in=Repository.lookup_by_user(self.request.user))
         if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
             fn, args, kwargs = self.request.resolver_match
             if 'source_pk' in kwargs:

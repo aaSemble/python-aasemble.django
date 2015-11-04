@@ -9,11 +9,31 @@ def authenticate(client, username=None, token=None):
 
 
 class APIv1Tests(APITestCase):
-    fixtures = ['data2.json']
+    fixtures = ['data.json', 'data2.json']
 
 
 class APIv1RepositoryTests(APIv1Tests):
     list_url = '/api/v1/repositories/'
+
+    def test_fetch_sources(self):
+        # Use alterego2 to make sure it works with users who are members
+        # of multiple groups
+        authenticate(self.client, 'alterego2')
+        response = self.client.get(self.list_url)
+
+        for repo in response.data['results']:
+            resp = self.client.get(repo['sources'])
+            self.assertEquals(resp.status_code, 200)
+
+    def test_fetch_external_dependencies(self):
+        # Use alterego2 to make sure it works with users who are members
+        # of multiple groups
+        authenticate(self.client, 'alterego2')
+        response = self.client.get(self.list_url)
+
+        for repo in response.data['results']:
+            resp = self.client.get(repo['external_dependencies'])
+            self.assertEquals(resp.status_code, 200)
 
     def test_create_repository_empty_fails_400(self):
         data = {}
@@ -111,8 +131,21 @@ class APIv1RepositoryTests(APIv1Tests):
         response = self.client.patch(repo['self'], data, format='json')
 
 
+class APIv1BuildTests(APIv1Tests):
+    fixtures = ['data.json', 'data2.json', 'repository.json']
+
+    list_url = '/api/v1/builds/'
+
+    def test_fetch_builds(self):
+        # Use alterego2 to make sure it works with users who are members
+        # of multiple groups
+        authenticate(self.client, 'alterego2')
+        response = self.client.get(self.list_url)
+        self.assertEquals(response.status_code, 200)
+
+
 class APIv1SourceTests(APIv1Tests):
-    fixtures = ['data2.json', 'repository.json']
+    fixtures = ['data.json', 'data2.json', 'repository.json']
 
     list_url = '/api/v1/sources/'
 
@@ -153,10 +186,13 @@ class APIv1SourceTests(APIv1Tests):
         self.assertEquals(response.status_code, 401)
 
     def test_create_source(self):
+        authenticate(self.client, 'testuser')
+
+        response = self.client.get('/api/v1/repositories/')
+
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
                 'git_branch': 'master',
-                'repository': 'http://testserver/api/v1/repositories/1/'}
-        authenticate(self.client, 'testuser')
+                'repository': response.data['results'][0]['self']}
 
         response = self.client.post(self.list_url, data, format='json')
 
