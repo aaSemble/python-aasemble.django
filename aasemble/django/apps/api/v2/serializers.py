@@ -18,7 +18,7 @@ class SimpleListField(serializers.ListField):
 
 
 class MirrorSerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_mirror-detail', read_only=True, source='*')
+    self = serializers.HyperlinkedRelatedField(view_name='v2_mirror-detail', read_only=True, source='*')
     url = serializers.URLField(required=True)
     series = SimpleListField(required=True)
     components = SimpleListField(required=True)
@@ -39,8 +39,8 @@ class MirrorField(serializers.HyperlinkedRelatedField):
 
 
 class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_mirrorset-detail', read_only=True, source='*')
-    mirrors = MirrorField(many=True, view_name='v1_mirror-detail', queryset=mirrorsvc_models.Mirror.objects.all())
+    self = serializers.HyperlinkedRelatedField(view_name='v2_mirrorset-detail', read_only=True, source='*')
+    mirrors = MirrorField(many=True, view_name='v2_mirror-detail', queryset=mirrorsvc_models.Mirror.objects.all())
 
     class Meta:
         model = mirrorsvc_models.MirrorSet
@@ -48,7 +48,7 @@ class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_snapshot-detail', read_only=True, source='*')
+    self = serializers.HyperlinkedRelatedField(view_name='v2_snapshot-detail', read_only=True, source='*')
     class Meta:
         model = mirrorsvc_models.Snapshot
         fields = ('self', 'timestamp', 'mirrorset')
@@ -90,11 +90,11 @@ class RepositoryField(serializers.HyperlinkedRelatedField):
 
 
 class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_packagesource-detail', read_only=True, source='*')
+    self = serializers.HyperlinkedRelatedField(view_name='v2_packagesource-detail', read_only=True, source='*')
     git_repository = serializers.URLField(source='git_url', required=True)
     git_branch = serializers.SlugField(source='branch', required=True)
-    repository = RepositoryField(view_name='v1_repository-detail', source='series.repository', queryset=buildsvc_models.Repository.objects.all())
-    builds = serializers.HyperlinkedIdentityField(view_name='v1_build-list', lookup_url_kwarg='source_pk', lookup_field='pk', read_only=True)
+    repository = RepositoryField(view_name='v2_repository-detail', source='series.repository', queryset=buildsvc_models.Repository.objects.all())
+    builds = serializers.HyperlinkedIdentityField(view_name='v2_build-list', lookup_url_kwarg='source_pk', lookup_field='pk', read_only=True)
 
     class Meta:
         model = buildsvc_models.PackageSource
@@ -110,22 +110,22 @@ class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_series-detail', read_only=True, source='*')
+    self = serializers.HyperlinkedRelatedField(view_name='v2_series-detail', read_only=True, source='*')
     class Meta:
         model = buildsvc_models.Series
         fields = ('self', 'name', 'repository', 'binary_source_list', 'source_source_list')
 
 
 class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_buildrecord-detail', read_only=True, source='*')
+    self = serializers.HyperlinkedRelatedField(view_name='v2_buildrecord-detail', read_only=True, source='*')
     class Meta:
         model = buildsvc_models.BuildRecord
         fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
 
 
 class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_externaldependency-detail', read_only=True, source='*')
-    repository = RepositoryField(view_name='v1_repository-detail', source='own_series.repository', queryset=buildsvc_models.Repository.objects.all())
+    self = serializers.HyperlinkedRelatedField(view_name='v2_externaldependency-detail', read_only=True, source='*')
+    repository = RepositoryField(view_name='v2_externaldependency-detail', source='own_series.repository', queryset=buildsvc_models.Repository.objects.all())
 
     class Meta:
         model = buildsvc_models.ExternalDependency
@@ -142,13 +142,13 @@ class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):
 
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
-    self = serializers.HyperlinkedRelatedField(view_name='v1_repository-detail', read_only=True, source='*')
+    self = serializers.HyperlinkedRelatedField(view_name='v2_repository-detail', read_only=True, source='*')
     user = serializers.ReadOnlyField(source='user.username')
     key_id = serializers.CharField(read_only=True)
     binary_source_list = serializers.ReadOnlyField(source='first_series.binary_source_list')
     source_source_list = serializers.ReadOnlyField(source='first_series.source_source_list')
-    sources = serializers.HyperlinkedIdentityField(view_name='v1_packagesource-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
-    external_dependencies = serializers.HyperlinkedIdentityField(view_name='v1_externaldependency-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
+    sources = serializers.HyperlinkedIdentityField(view_name='v2_packagesource-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
+    external_dependencies = serializers.HyperlinkedIdentityField(view_name='v2_externaldependency-list', lookup_url_kwarg='repository_pk', lookup_field='pk', read_only=True)
 
     class Meta:
         model = buildsvc_models.Repository

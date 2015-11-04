@@ -11,6 +11,9 @@ def authenticate(client, username=None, token=None):
 class APIv1Tests(APITestCase):
     fixtures = ['data.json', 'data2.json']
 
+class APIv2Tests(APIv1Tests):
+    pass
+
 
 class APIv1RepositoryTests(APIv1Tests):
     list_url = '/api/v1/repositories/'
@@ -65,7 +68,7 @@ class APIv1RepositoryTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
 
         self.assertEquals(response.status_code, 201)
-        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url))
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo',
                            'binary_source_list': 'deb http://127.0.0.1:8000/apt/testuser/testrepo aasemble main',
@@ -142,6 +145,14 @@ class APIv1BuildTests(APIv1Tests):
         authenticate(self.client, 'alterego2')
         response = self.client.get(self.list_url)
         self.assertEquals(response.status_code, 200)
+
+
+class APIv2BuildTests(APIv1RepositoryTests):
+    list_url = '/api/v2/builds/'
+
+
+class APIv2RepositoryTests(APIv1RepositoryTests):
+    list_url = '/api/v2/repositories/'
 
 
 class APIv1SourceTests(APIv1Tests):
