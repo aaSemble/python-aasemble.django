@@ -134,6 +134,10 @@ class APIv1RepositoryTests(APIv1Tests):
         response = self.client.patch(repo['self'], data, format='json')
 
 
+class APIv2RepositoryTests(APIv1RepositoryTests):
+    list_url = '/api/v2/repositories/'
+
+
 class APIv1BuildTests(APIv1Tests):
     fixtures = ['data.json', 'data2.json', 'repository.json']
 
@@ -149,10 +153,6 @@ class APIv1BuildTests(APIv1Tests):
 
 class APIv2BuildTests(APIv1RepositoryTests):
     list_url = '/api/v2/builds/'
-
-
-class APIv2RepositoryTests(APIv1RepositoryTests):
-    list_url = '/api/v2/repositories/'
 
 
 class APIv1SourceTests(APIv1Tests):
@@ -199,7 +199,7 @@ class APIv1SourceTests(APIv1Tests):
     def test_create_source(self):
         authenticate(self.client, 'testuser')
 
-        response = self.client.get('/api/v1/repositories/')
+        response = self.client.get(self.list_url.replace('sources', 'repositories'))
 
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
                 'git_branch': 'master',

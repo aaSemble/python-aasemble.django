@@ -106,7 +106,7 @@ class SeriesViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SeriesSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(repository=buildsvc_models.Repository.lookup_by_user(self.request.user))
+        return self.queryset.filter(repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
 
 
 class PackageSourceViewSet(viewsets.ModelViewSet):

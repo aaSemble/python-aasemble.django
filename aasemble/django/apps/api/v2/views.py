@@ -116,7 +116,7 @@ class SeriesViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
-        return self.queryset.filter(repository=buildsvc_models.Repository.lookup_by_user(self.request.user))
+        return self.queryset.filter(repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
 
 
 class PackageSourceViewSet(viewsets.ModelViewSet):
@@ -132,8 +132,8 @@ class PackageSourceViewSet(viewsets.ModelViewSet):
         qs = self.queryset.filter(series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
         if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
             fn, args, kwargs = self.request.resolver_match
-            if 'repository_pk' in kwargs:
-                qs = qs.filter(series__repository=kwargs['repository_pk'])
+            if 'repository_uuid' in kwargs:
+                qs = qs.filter(series__repository__uuid=kwargs['repository_uuid'])
 
         return qs
 
@@ -149,11 +149,11 @@ class ExternalDependencyViewSet(viewsets.ModelViewSet):
 
 
     def get_queryset(self):
-        qs = self.queryset.filter(own_series__repository=buildsvc_models.Repository.lookup_by_user(self.request.user))
+        qs = self.queryset.filter(own_series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
         if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
             fn, args, kwargs = self.request.resolver_match
-            if 'repository_pk' in kwargs:
-                qs = qs.filter(own_series__repository=kwargs['repository_pk'])
+            if 'repository_uuid' in kwargs:
+                qs = qs.filter(own_series__repository__uuid=kwargs['repository_uuid'])
 
         return qs
 
@@ -171,7 +171,7 @@ class BuildViewSet(viewsets.ReadOnlyModelViewSet):
         qs = self.queryset.filter(source__series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
         if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
             fn, args, kwargs = self.request.resolver_match
-            if 'source_pk' in kwargs:
-                qs = qs.filter(source=kwargs['source_pk'])
+            if 'source_uuid' in kwargs:
+                qs = qs.filter(source__uuid=kwargs['source_uuid'])
 
         return qs
