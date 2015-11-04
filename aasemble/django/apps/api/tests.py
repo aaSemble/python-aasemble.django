@@ -11,9 +11,6 @@ def authenticate(client, username=None, token=None):
 class APIv1Tests(APITestCase):
     fixtures = ['data.json', 'data2.json']
 
-class APIv2Tests(APIv1Tests):
-    pass
-
 
 class APIv1RepositoryTests(APIv1Tests):
     list_url = '/api/v1/repositories/'
@@ -151,7 +148,7 @@ class APIv1BuildTests(APIv1Tests):
         self.assertEquals(response.status_code, 200)
 
 
-class APIv2BuildTests(APIv1RepositoryTests):
+class APIv2BuildTests(APIv1BuildTests):
     list_url = '/api/v2/builds/'
 
 
@@ -226,6 +223,12 @@ class APIv1SourceTests(APIv1Tests):
 
         response = self.client.get(source['self'])
         self.assertEquals(response.status_code, 404)
+
+
+class APIv2SourceTests(APIv1SourceTests):
+    fixtures = ['data.json', 'data2.json', 'repository.json']
+
+    list_url = '/api/v2/sources/'
 
 
 class APIv1AuthTests(APIv1Tests):
