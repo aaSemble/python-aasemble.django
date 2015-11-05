@@ -6,10 +6,10 @@ import debian.deb822
 from ....utils import run_cmd
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
 
+
 class DebianBuilder(PackageBuilder):
     @classmethod
     def is_suitable(cls, path):
-        print os.path.join(path, 'debian')
         return os.path.isdir(os.path.join(path, 'debian'))
 
     @property

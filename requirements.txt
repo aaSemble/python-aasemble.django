@@ -13,5 +13,3 @@ django-rest-auth
 django-allauth
 redis
 django-bootstrap3
-mock
-selenium

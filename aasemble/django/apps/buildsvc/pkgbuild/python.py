@@ -1,7 +1,8 @@
 import os.path
 
-from ....utils import run_cmd, recursive_render
+from ....utils import run_cmd
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
+
 
 class PythonBuilder(PackageBuilder):
     @classmethod
@@ -48,5 +49,5 @@ class PythonBuilder(PackageBuilder):
 
     def extra_dh_args(self):
         return ' --with python2'
-    
+
 PackageBuilderRegistry.register_builder(PythonBuilder)

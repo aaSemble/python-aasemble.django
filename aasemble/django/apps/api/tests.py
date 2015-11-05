@@ -1,6 +1,6 @@
-from django.core.urlresolvers import reverse
-from rest_framework.test import APIClient, APIRequestFactory, APITestCase
+from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
+
 
 def authenticate(client, username=None, token=None):
     if token is None:
@@ -43,12 +43,10 @@ class APIv1RepositoryTests(APIv1Tests):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'name': ['This field is required.']})
 
-
     def test_create_repository_no_auth_fails_401(self):
         data = {}
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
-
 
     def test_create_repository_incorrect_auth_fails_401(self):
         data = {}
@@ -80,7 +78,6 @@ class APIv1RepositoryTests(APIv1Tests):
         self.assertEquals(response.data, expected_result)
         return response.data
 
-
     def test_create_duplicate_repository(self):
         data = {'name': 'testrepo'}
         authenticate(self.client, 'testuser')
@@ -88,7 +85,6 @@ class APIv1RepositoryTests(APIv1Tests):
         self.assertEquals(response.status_code, 201)
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 409)
-
 
     def test_delete_repository(self):
         repo = self.test_create_repository()
@@ -99,7 +95,6 @@ class APIv1RepositoryTests(APIv1Tests):
 
         response = self.client.get(repo['self'])
         self.assertEquals(response.status_code, 404)
-
 
     def test_patch_repository(self):
         repo = self.test_create_repository()
@@ -128,7 +123,7 @@ class APIv1RepositoryTests(APIv1Tests):
         repo = self.test_create_repository()
         data = {'user': 'testuser2'}
 
-        response = self.client.patch(repo['self'], data, format='json')
+        self.client.patch(repo['self'], data, format='json')
 
 
 class APIv2RepositoryTests(APIv1RepositoryTests):
@@ -167,7 +162,6 @@ class APIv1SourceTests(APIv1Tests):
                                           'git_branch': ['This field is required.'],
                                           'repository': ['This field is required.']})
 
-
     def test_create_invalied_url_fails_400(self):
         data = {'git_repository': 'not a valid url'}
         authenticate(self.client, 'testuser')
@@ -178,12 +172,10 @@ class APIv1SourceTests(APIv1Tests):
                                           'git_branch': ['This field is required.'],
                                           'repository': ['This field is required.']})
 
-
     def test_create_source_no_auth_fails_401(self):
         data = {}
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
-
 
     def test_create_source_incorrect_auth_fails_401(self):
         data = {}

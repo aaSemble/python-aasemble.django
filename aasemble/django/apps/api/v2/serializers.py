@@ -9,7 +9,7 @@ class SimpleListField(serializers.ListField):
     child = serializers.CharField()
 
     def to_internal_value(self, data):
-        return  ' '.join(data)
+        return ' '.join(data)
 
     def to_representation(self, data):
         if isinstance(data, list):
@@ -50,6 +50,7 @@ class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_snapshot-detail', read_only=True, source='*', lookup_field='uuid')
     mirrorset = serializers.HyperlinkedRelatedField(view_name='v2_mirrorset-detail', read_only=True, lookup_field='uuid')
+
     class Meta:
         model = mirrorsvc_models.Snapshot
         fields = ('self', 'timestamp', 'mirrorset')
@@ -112,6 +113,7 @@ class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
 
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_series-detail', read_only=True, source='*', lookup_field='uuid')
+
     class Meta:
         model = buildsvc_models.Series
         fields = ('self', 'name', 'repository', 'binary_source_list', 'source_source_list')
@@ -120,6 +122,7 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
 class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_buildrecord-detail', read_only=True, source='*', lookup_field='uuid')
     source = serializers.HyperlinkedRelatedField(view_name='v2_packagesource-detail', read_only=True, lookup_field='uuid')
+
     class Meta:
         model = buildsvc_models.BuildRecord
         fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')

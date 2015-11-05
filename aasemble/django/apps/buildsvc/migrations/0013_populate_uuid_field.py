@@ -5,12 +5,14 @@ from __future__ import unicode_literals
 from django.db import migrations
 import uuid
 
+
 def gen_uuid(apps, schema_editor):
     for model_name in ('buildrecord', 'externaldependency', 'githubrepository', 'packagesource', 'repository', 'series'):
         m = apps.get_model('buildsvc', model_name)
         for row in m.objects.all():
             row.uuid = uuid.uuid4()
             row.save()
+
 
 class Migration(migrations.Migration):
 

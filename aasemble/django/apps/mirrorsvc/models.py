@@ -13,6 +13,7 @@ from django.core.urlresolvers import reverse
 
 from . import tasks
 
+
 class MirrorSet(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
@@ -32,7 +33,8 @@ class MirrorSet(models.Model):
     def snapshots_url(self):
         # print(self.uuid)
         str_uuid = str(self.uuid)
-        return reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid':str_uuid})
+        return reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid': str_uuid})
+
 
 @python_2_unicode_compatible
 class Mirror(models.Model):
@@ -109,6 +111,7 @@ class Mirror(models.Model):
     def user_can_modify(self, user):
         return user == self.owner
 
+
 @python_2_unicode_compatible
 class Architecture(models.Model):
     name = models.CharField(max_length=50)
@@ -137,7 +140,6 @@ class Snapshot(models.Model):
                 os.makedirs(destdir)
             run_cmd(['rsync', '-aHAPvi', '--exclude=**/i18n', mirror.dists, destdir])
 
-
     def symlink_pool(self):
         for mirror in self.mirrorset.mirrors.all():
             destdir = os.path.join(self.basepath, mirror.archive_subpath, 'pool')
@@ -150,7 +152,7 @@ class Snapshot(models.Model):
         if self.pk is None:
             perform_snapshot = True
 
-        rv = super(Snapshot, self).save(*args, **kwargs)
+        super(Snapshot, self).save(*args, **kwargs)
 
         if perform_snapshot:
             tasks.perform_snapshot.delay(self.id)

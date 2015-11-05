@@ -9,7 +9,7 @@ class SimpleListField(serializers.ListField):
     child = serializers.CharField()
 
     def to_internal_value(self, data):
-        return  ' '.join(data)
+        return ' '.join(data)
 
     def to_representation(self, data):
         if isinstance(data, list):
@@ -49,6 +49,7 @@ class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
 
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v1_snapshot-detail', read_only=True, source='*')
+
     class Meta:
         model = mirrorsvc_models.Snapshot
         fields = ('self', 'timestamp', 'mirrorset')
@@ -111,6 +112,7 @@ class PackageSourceSerializer(serializers.HyperlinkedModelSerializer):
 
 class SeriesSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v1_series-detail', read_only=True, source='*')
+
     class Meta:
         model = buildsvc_models.Series
         fields = ('self', 'name', 'repository', 'binary_source_list', 'source_source_list')

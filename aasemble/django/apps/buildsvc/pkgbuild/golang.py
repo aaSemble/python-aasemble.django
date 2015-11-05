@@ -2,6 +2,7 @@ import os.path
 
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
 
+
 class GolangBuilder(PackageBuilder):
     def detect_build_dependencies(self):
         return ['golang-go'] + super(GolangBuilder, self).detect_build_dependencies()
@@ -15,4 +16,3 @@ class GolangBuilder(PackageBuilder):
 
 
 PackageBuilderRegistry.register_builder(GolangBuilder)
-
