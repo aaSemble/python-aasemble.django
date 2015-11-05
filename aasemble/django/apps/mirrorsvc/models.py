@@ -27,6 +27,10 @@ class MirrorSet(models.Model):
             return cls.objects.all()
         return cls.objects.filter(owner=user) | cls.objects.filter(extra_admins=user.groups.all())
 
+    @property
+    def snapshots_url(self):
+        # print(self.uuid)
+        return '/mirrorsvc/mirrorsets/%s/snapshots/' % (self.uuid)
 
 @python_2_unicode_compatible
 class Mirror(models.Model):
@@ -87,11 +91,11 @@ class Mirror(models.Model):
 
     def schedule_update_mirror(self):
         if Mirror.objects.filter(id=self.id, refresh_in_progress=False).update(refresh_in_progress=True) > 0:
-           tasks.refresh_mirror.delay(self.id)
-           return True
+            tasks.refresh_mirror.delay(self.id)
+            return True
         else:
-           # Update already scheduled
-           return False
+            # Update already scheduled
+            return False
 
     def update_mirror(self):
         self.write_config()
