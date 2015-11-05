@@ -118,6 +118,8 @@ class SeriesSerializer(serializers.HyperlinkedModelSerializer):
 
 class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v1_buildrecord-detail', read_only=True, source='*')
+    source = serializers.HyperlinkedRelatedField(view_name='v1_packagesource-detail', read_only=True)
+
     class Meta:
         model = buildsvc_models.BuildRecord
         fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
