@@ -50,7 +50,7 @@ urlpatterns = [
     url(r'^v2/', include(v2_source_router.urls)),
     url(r'^v2/auth/', include('rest_auth.urls')),
     url(r'^v2/auth/github/$', views_v2.GithubLogin.as_view(), name='github_login'),
-] 
+]
 
 if getattr(settings, 'SIGNUP_OPEN', False):
     urlpatterns += [url(r'^v1/auth/registration/', include('rest_auth.registration.urls'))]

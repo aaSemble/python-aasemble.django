@@ -1,6 +1,5 @@
-import os.path
-
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
+
 
 class GenericBuilder(PackageBuilder):
     @classmethod

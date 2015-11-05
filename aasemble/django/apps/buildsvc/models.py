@@ -1,10 +1,7 @@
-from glob import glob
-import importlib
 import logging
 import os
 import os.path
 import shutil
-import subprocess
 import tempfile
 import uuid
 from six.moves.urllib.parse import urlparse
@@ -26,10 +23,12 @@ from . import tasks
 
 LOG = logging.getLogger(__name__)
 
+
 def ensure_dir(d):
     if not os.path.isdir(d):
         os.makedirs(d)
     return d
+
 
 def remove_ddebs_from_changes(changes_file):
     with open(changes_file, 'r') as fp:
@@ -44,13 +43,16 @@ def remove_ddebs_from_changes(changes_file):
     with open(changes_file, 'w') as fp:
         fp.write(changes.dump())
 
+
 class RepositoryDriver(object):
     def __init__(self, repository):
         self.repository = repository
 
+
 class FakeDriver(RepositoryDriver):
     def generate_key(self):
         return 'FAKEID'
+
 
 class RepreproDriver(RepositoryDriver):
     def generate_key(self):
@@ -63,10 +65,12 @@ class RepreproDriver(RepositoryDriver):
             if l.startswith('gpg: key '):
                 return l.split(' ')[2]
 
+
 def get_repo_driver(repository):
     driver_name = getattr(settings, 'BUILDSVC_REPODRIVER', 'aasemble.django.apps.buildsvc.models.RepreproDriver')
     driver = import_string(driver_name)
     return driver(repository)
+
 
 @python_2_unicode_compatible
 class Repository(models.Model):
@@ -156,7 +160,6 @@ class Repository(models.Model):
         return '%s/%s/%s' % (settings.BUILDSVC_REPOS_BASE_URL,
                              self.user.username,
                              self.name)
-
 
     def user_can_modify(self, user):
         if not user.is_active:
@@ -295,7 +298,7 @@ class PackageSource(models.Model):
 
             builder.build()
 
-            changes_files = filter(lambda s:s.endswith('.changes'), os.listdir(tmpdir))
+            changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
 
             for changes_file in changes_files:
                 self.series.process_changes(os.path.join(tmpdir, changes_file))
@@ -303,7 +306,6 @@ class PackageSource(models.Model):
             self.series.export()
         finally:
             shutil.rmtree(tmpdir)
-
 
     def delete_on_filesystem(self):
         if self.last_built_name:
@@ -358,9 +360,9 @@ class BuildRecord(models.Model):
     def logpath(self):
         LOG.debug('Determining logpath for %s. version = %r' % (self, self.version))
         if self.version:
-           return os.path.join(self.source.long_name, '%s_%s.log' % (self.source.long_name, self.version))
+            return os.path.join(self.source.long_name, '%s_%s.log' % (self.source.long_name, self.version))
         else:
-           return os.path.join(self.source.long_name, '%s_%s.tmp.log' % (self.source.long_name, self.build_counter))
+            return os.path.join(self.source.long_name, '%s_%s.tmp.log' % (self.source.long_name, self.build_counter))
 
     def buildlog(self):
         path = os.path.join(self.source.series.repository.buildlogdir,
@@ -387,6 +389,7 @@ class BuildRecord(models.Model):
 
     def buildlog_url(self):
         return '%s/buildlogs/%s' % (self.base_url, self.logpath())
+
 
 @python_2_unicode_compatible
 class GithubRepository(models.Model):

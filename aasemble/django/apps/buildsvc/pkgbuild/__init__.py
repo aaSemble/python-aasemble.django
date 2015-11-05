@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import os
-import tempfile
 import dbuild
 import sys
 
@@ -11,8 +10,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from ....utils import run_cmd, recursive_render
-from ..models import BuildRecord
+from ....utils import recursive_render
 
 
 class PackageBuilder(object):
@@ -63,20 +61,18 @@ class PackageBuilder(object):
         """create a file which has all external dependency repos keys"""
         extdeps = self.package_source.series.externaldependency_set.all()
         if extdeps:
-            with open(os.path.join(self.basedir,'keys'), 'w') as fp:
+            with open(os.path.join(self.basedir, 'keys'), 'w') as fp:
                 for extdep in extdeps:
                     if extdep.key:
                         fp.write(extdep.key)
-
 
     def build_external_dependency_repo_sources(self):
         """create a file which has all external dependency repo sources"""
         extdeps = self.package_source.series.externaldependency_set.all()
         if extdeps:
-            with open(os.path.join(self.basedir,'repos'), 'w') as fp:
+            with open(os.path.join(self.basedir, 'repos'), 'w') as fp:
                 for extdep in extdeps:
                     fp.write(extdep.deb_line)
-
 
     def docker_build_source_package(self):
         """Build source package in docker"""
@@ -92,7 +88,6 @@ class PackageBuilder(object):
             finally:
                 sys.stdout = stdout_orig
 
-
     def docker_build_binary_package(self):
         """Build binary packages in docker"""
         with open(self.build_record.buildlog(), 'a+') as fp:
@@ -105,7 +100,6 @@ class PackageBuilder(object):
             finally:
                 sys.stdout = stdout_orig
 
-
     def detect_runtime_dependencies(self):
         return []
 
@@ -113,9 +107,8 @@ class PackageBuilder(object):
         reqfile = os.path.join(self.builddir, '.extra_build_packages')
         if os.path.exists(reqfile):
             with open(reqfile, 'r') as fp:
-                return filter(lambda s:s, fp.read().split('\n'))
+                return filter(lambda s: s, fp.read().split('\n'))
         return []
-
 
     def populate_debian_dir(self):
         self.build_record.logger.debug('Populating debian dir')
@@ -151,7 +144,7 @@ class PackageBuilder(object):
         with open(changelog, 'w') as fp:
             fp.write(rendered)
             fp.write(current_changelog)
-  
+
     @property
     def sanitized_package_name(self):
         return self.package_name.replace('_', '-')
@@ -187,8 +180,8 @@ class PackageBuilder(object):
                 cmp_ver = last_built_version
 
             if version_compare(version, cmp_ver) < 0:
-                epoch = epoch+1
-        
+                epoch = epoch + 1
+
         if epoch:
             version = '%s:%s' % (epoch, version)
 
@@ -201,6 +194,7 @@ class PackageBuilder(object):
     @classmethod
     def is_suitable(cls, path):
         return False
+
 
 class PackageBuilderRegistry(object):
     builders = []
@@ -215,7 +209,7 @@ def choose_builder(path):
         if builder.is_suitable(path):
             return builder
 
-from . import debian
-from . import python
-from . import golang
-from . import generic
+from . import debian  # noqa
+from . import python  # noqa
+from . import golang  # noqa
+from . import generic  # noqa

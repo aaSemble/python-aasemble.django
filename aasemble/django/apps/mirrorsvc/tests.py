@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from .models import Mirror, MirrorSet, Snapshot
 
+
 class SnapshotTestCase(TestCase):
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.perform_snapshot')
     def test_save_snapshot_triggers_snapshot(self, perform_snapshot):

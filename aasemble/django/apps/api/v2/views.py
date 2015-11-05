@@ -1,9 +1,9 @@
 from django.conf import settings
-from django.contrib.sites import models as site_models
 import django.db.utils
 
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
@@ -20,7 +20,7 @@ from . import serializers
 class GithubLogin(SocialLoginView):
     callback_url = settings.GITHUB_AUTH_CALLBACK
     adapter_class = GitHubOAuth2Adapter
-    client_class =  OAuth2Client
+    client_class = OAuth2Client
 
 
 class MyUserAdapter(DefaultAccountAdapter):
@@ -102,7 +102,7 @@ class RepositoryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
-        except django.db.utils.IntegrityError as e:
+        except django.db.utils.IntegrityError:
             raise DuplicateResourceException()
 
 
@@ -146,7 +146,6 @@ class ExternalDependencyViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ExternalDependencySerializer
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-
 
     def get_queryset(self):
         qs = self.queryset.filter(own_series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))

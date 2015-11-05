@@ -11,6 +11,7 @@ def add_initial_architectures(apps, schema_editor):
     Architecture.objects.create(name='x86 64-bit', apt_mirror_prefix='amd64')
     Architecture.objects.create(name='Source', apt_mirror_prefix='src')
 
+
 class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

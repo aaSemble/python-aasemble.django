@@ -2,9 +2,6 @@ import re
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium.webdriver.firefox.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 from aasemble.django.tests import create_session_cookie
 
 
@@ -46,4 +43,3 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         page_header = self.selenium.find_element_by_class_name('page-header')
         text_found = re.search(r'Sources', page_header.text)
         self.assertNotEqual(text_found, None)
-

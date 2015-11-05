@@ -6,6 +6,7 @@ import debian.deb822
 from ....utils import run_cmd
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
 
+
 class DebianBuilder(PackageBuilder):
     @classmethod
     def is_suitable(cls, path):

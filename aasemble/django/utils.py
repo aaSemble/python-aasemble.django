@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 
 LOG = logging.getLogger(__name__)
 
+
 def recursive_render(src, dst, context, logger=LOG):
     logger.debug('Processing %s' % (src,))
     if os.path.isdir(src):
@@ -28,7 +29,7 @@ def recursive_render(src, dst, context, logger=LOG):
 def run_cmd(cmd, input=None, cwd=None, override_env=None,
             discard_stderr=False, stdout=None, logger=LOG):
     logger.debug("%r, input=%r, cwd=%r, override_env=%r, discard_stderr=%r" %
-                    (cmd, input, cwd, override_env, discard_stderr))
+                 (cmd, input, cwd, override_env, discard_stderr))
 
     environ = dict(os.environ)
 
