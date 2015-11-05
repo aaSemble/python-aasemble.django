@@ -14,6 +14,6 @@ class Command(BaseCommand):
         ps = PackageSource.objects.get(id=options['id'])
         tmpdir, builddir, sha = ps.checkout()
         builder_cls = choose_builder(builddir)
-        print 'Building with', builder_cls
+        print('Building with', builder_cls)
         builder = builder_cls(tmpdir, ps, build_counter=ps.build_counter + 1, save_build_record=False)
         builder.build()
