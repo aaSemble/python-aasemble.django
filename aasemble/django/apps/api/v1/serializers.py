@@ -49,6 +49,7 @@ class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
 
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v1_snapshot-detail', read_only=True, source='*')
+    mirrorset = serializers.HyperlinkedRelatedField(view_name='v1_mirrorset-detail', read_only=True)
 
     class Meta:
         model = mirrorsvc_models.Snapshot
