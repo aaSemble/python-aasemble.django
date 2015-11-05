@@ -17,11 +17,13 @@ def snapshots(request):
     return render(request, 'mirrorsvc/html/snapshots.html',
                   {'snapshots': snapshots})
 
+
 @login_required
 def mirrorsets(request):
     sets = MirrorSet.lookup_by_user(request.user)
     return render(request, 'mirrorsvc/html/mirrorsets.html',
                   {'mirrorsets': sets})
+
 
 @login_required
 def mirrorset_snapshots(request, uuid):

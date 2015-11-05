@@ -33,7 +33,8 @@ class MirrorSet(models.Model):
     def snapshots_url(self):
         # print(self.uuid)
         str_uuid = str(self.uuid)
-        return reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid':str_uuid})
+        return reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid': str_uuid})
+
 
 @python_2_unicode_compatible
 class Mirror(models.Model):
