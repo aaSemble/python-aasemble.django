@@ -1,0 +1,26 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}Mirror-Sets{% endblock %}
+{% block aasemble_content %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Mirror-Set UUID</th>
+          <th>Name</th>
+          <th>Snapshots</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for set in mirrorsets %}
+        <tr>
+          <td>{{ set.uuid }}</td>
+          <td>{{ set.name }}</td>
+          <td><a href="{{ set.snapshots_url }}">Click</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
