@@ -9,6 +9,7 @@ from django.contrib.auth import models as auth_models
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
+from django.core.urlresolvers import reverse
 
 from . import tasks
 
@@ -30,7 +31,8 @@ class MirrorSet(models.Model):
     @property
     def snapshots_url(self):
         # print(self.uuid)
-        return '/mirrorsvc/mirrorsets/%s/snapshots/' % (self.uuid)
+        str_uuid = str(self.uuid)
+        return reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid':str_uuid})
 
 @python_2_unicode_compatible
 class Mirror(models.Model):
