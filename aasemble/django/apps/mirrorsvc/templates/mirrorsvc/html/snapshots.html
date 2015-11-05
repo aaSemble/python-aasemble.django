@@ -7,14 +7,18 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Snapshot MirrorSet</th>
+          <th>Mirror-Set UUID</th>
+          <th>Mirror-Set Name</th>
+          <th>Snapshot UUID</th>
           <th>Time Created</th>
         </tr>
       </thead>
       <tbody>
       {% for snapshot in snapshots %}
         <tr>
+          <td>{{ snapshot.mirrorset.uuid }}</td>
           <td>{{ snapshot.mirrorset.name }}</td>
+          <td>{{ snapshot.uuid }}</td>
           <td>{{ snapshot.timestamp }}</td>
         </tr>
       {% endfor %}

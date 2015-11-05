@@ -9,7 +9,7 @@ from aasemble.django.tests import create_session_cookie
 
 
 class RepositoryFunctionalTests(StaticLiveServerTestCase):
-    fixtures = ['data.json']
+    # fixtures = ['data.json']
 
     @classmethod
     def setUpClass(cls):
