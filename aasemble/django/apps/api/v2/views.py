@@ -48,7 +48,7 @@ class MirrorViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
     @detail_route(methods=['post'])
-    def refresh(self, request, pk=None):
+    def refresh(self, request, **kwargs):
         mirror = self.get_object()
         scheduled = mirror.schedule_update_mirror()
         if scheduled:
