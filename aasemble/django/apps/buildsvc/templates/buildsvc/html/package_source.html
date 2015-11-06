@@ -1,7 +1,12 @@
 {% extends 'aasemble/base.html' %}
 {% load bootstrap3 %}
-
-{% block title %}Package Source{% endblock %}
+{% block title %}
+    {% if source_id != 'new' %}
+        Edit Package Source
+    {% else %}
+        Package Source
+    {% endif %}
+{% endblock %}
 {% block aasemble_content %}
 <form action="{% url "buildsvc:package_source" source_id=source_id %}" method="post">
     {% csrf_token %}
@@ -10,9 +15,11 @@
         <button type="submit" class="btn btn-primary">
             {% bootstrap_icon "star" %} Submit
         </button>
-        <button type="submit" class="btn btn-danger" name="delete" value="delete">
-             Delete
-        </button>
+        {% if source_id != 'new' %}
+            <button type="submit" class="btn btn-danger" name="delete" value="delete">
+                 Delete
+            </button>
+        {% endif %}
     {% endbuttons %}
 {% endblock %}
 
