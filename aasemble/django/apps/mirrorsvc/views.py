@@ -10,6 +10,7 @@ def get_mirror_definition_form(request, *args, **kwargs):
     form = MirrorDefinitionForm(*args, **kwargs)
     return form
 
+
 @login_required
 def mirror_definition(request, mirror_id):
     # print("entered mirror_definition function")
@@ -39,6 +40,7 @@ def mirror_definition(request, mirror_id):
 
     return render(request, 'mirrorsvc/html/mirror_definition.html',
                   {'form': form, 'mirror_id': mirror_id})
+
 
 @login_required
 def mirrors(request):
