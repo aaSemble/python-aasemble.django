@@ -1,0 +1,25 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+{% block title %}
+    {% if mirror_id != 'new' %}
+        Edit Mirror
+    {% else %}
+        Add new Mirror
+    {% endif %}
+{% endblock %}
+{% block aasemble_content %}
+<form action="{% url "mirrorsvc:mirror_definition" mirror_id=mirror_id %}" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout='inline' %}
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">
+            {% bootstrap_icon "star" %} Submit
+        </button>
+        {% if mirror_id != 'new' %}
+            <button type="submit" class="btn btn-danger" name="delete" value="delete">
+                 Delete
+            </button>
+        {% endif %}
+    {% endbuttons %}
+{% endblock %}
+
