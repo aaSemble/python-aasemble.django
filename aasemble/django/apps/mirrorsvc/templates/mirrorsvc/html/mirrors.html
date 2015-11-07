@@ -7,6 +7,7 @@
     <table class="table table-striped">
       <thead>
         <tr>
+          <th>UUID</th>
           <th>URL</th>
           <th>Series</th>
           <th>Components</th>
@@ -17,6 +18,7 @@
       <tbody>
       {% for mirror in mirrors %}
         <tr>
+          <td>{{ mirror.uuid }}</td>
           <td><a href="{{ mirror.url }}">{{ mirror.url }}</a></td>
           <td>{{ mirror.series }}</td>
           <td>{{ mirror.components }}</td>
