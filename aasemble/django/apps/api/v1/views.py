@@ -1,13 +1,14 @@
 from django.conf import settings
 import django.db.utils
 
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
 from allauth.account.adapter import DefaultAccountAdapter
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+
 from rest_auth.registration.views import SocialLoginView
 
 from aasemble.django.apps.buildsvc import models as buildsvc_models
@@ -70,7 +71,11 @@ class MirrorSetViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class SnapshotViewSet(viewsets.ModelViewSet):
+class SnapshotViewSet(mixins.CreateModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
     """
     API endpoint that allows mirrors to be viewed or edited.
     """

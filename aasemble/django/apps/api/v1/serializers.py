@@ -47,9 +47,17 @@ class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('self', 'mirrors')
 
 
+class MirrorSetField(serializers.HyperlinkedRelatedField):
+    def get_queryset(self):
+        if hasattr(self, 'context') and 'request' in self.context:
+            return mirrorsvc_models.MirrorSet.lookup_by_user(self.context['request'].user)
+
+        return super(MirrorSetField, self).get_queryset()
+
+
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v1_snapshot-detail', read_only=True, source='*')
-    mirrorset = serializers.HyperlinkedRelatedField(view_name='v1_mirrorset-detail', read_only=True)
+    mirrorset = MirrorSetField(view_name='v1_mirrorset-detail', queryset=mirrorsvc_models.MirrorSet.objects.none())
 
     class Meta:
         model = mirrorsvc_models.Snapshot
