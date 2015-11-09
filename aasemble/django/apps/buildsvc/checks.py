@@ -13,12 +13,14 @@ E002 = Error(
     id='aasemble.buildsvc.E002',
 )
 
+
 @register(deploy=True)
 def public_dir_writable(app_configs, **kwargs):
     if ((os.access(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR, os.W_OK) and
          os.access(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR, os.X_OK))):
         return []
     return [E001]
+
 
 @register(deploy=True)
 def private_dir_writable(app_configs, **kwargs):
