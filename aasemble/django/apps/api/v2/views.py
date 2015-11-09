@@ -1,7 +1,7 @@
 from django.conf import settings
 import django.db.utils
 
-from rest_framework import viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
@@ -74,7 +74,11 @@ class MirrorSetViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class SnapshotViewSet(viewsets.ModelViewSet):
+class SnapshotViewSet(mixins.CreateModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.DestroyModelMixin,
+                      mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
     """
     API endpoint that allows mirrors to be viewed or edited.
     """
