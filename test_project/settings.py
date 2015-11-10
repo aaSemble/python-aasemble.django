@@ -145,7 +145,7 @@ CORS_ORIGIN_WHITELIST = ()
 CORS_ALLOW_CREDENTIALS = True
 
 # Request access to user's org memberships
-SOCIALACCOUNT_PROVIDERS = {'github': {'SCOPE': ['read:org']}}
+SOCIALACCOUNT_PROVIDERS = {'github': {'SCOPE': ['read:org', 'user:email']}}
 
 # Don't send account verification e-mails
 ACCOUNT_EMAIL_VERIFICATION = "none"

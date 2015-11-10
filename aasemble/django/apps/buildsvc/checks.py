@@ -13,6 +13,12 @@ E002 = Error(
     id='aasemble.buildsvc.E002',
 )
 
+W001 = Error(
+    "You have not configured allauth to request access to user's e-mails. "
+    "Depending on your authentication config, this may be a problem.",
+    id='aasemble.W001',
+)
+
 
 @register(deploy=True)
 def public_dir_writable(app_configs, **kwargs):
@@ -28,3 +34,10 @@ def private_dir_writable(app_configs, **kwargs):
          os.access(settings.BUILDSVC_REPOS_BASE_DIR, os.X_OK))):
         return []
     return [E002]
+
+
+@register(deploy=True)
+def github_email_scope(app_configs, **kwargs):
+    if 'user:email' in getattr(settings, 'SOCIALACCOUNT_PROVIDERS', {}).get('github', {}).get('SCOPE', []):
+        return []
+    return [W001]
