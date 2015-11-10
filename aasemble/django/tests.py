@@ -103,7 +103,7 @@ class UtilsTestCase(AasembleTestCase):
             self.assertEquals(rv, None)
 
             with open(tmpfile, 'r') as fp:
-                self.assertEquals(fp.read(), b'foo\n')
+                self.assertEquals(fp.read(), 'foo\n')
 
         finally:
             os.unlink(tmpfile)
