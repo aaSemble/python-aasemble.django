@@ -49,7 +49,7 @@ class UtilsTestCase(AasembleTestCase):
     def test_run_cmd_dead_simple(self):
         # Should simply return successfully
         stdout = run_cmd(['true'])
-        self.assertEquals(stdout, '')
+        self.assertEquals(stdout, b'')
 
     def test_run_cmd_fail_raises_exception(self):
         self.assertRaises(CommandFailed, run_cmd, ['false'])
@@ -66,7 +66,7 @@ class UtilsTestCase(AasembleTestCase):
         self.assertNotIn(b'TESTVAR=', stdout)
 
     def test_run_cmd_other_cwd(self):
-        self.assertEquals(run_cmd(['pwd'], cwd='/').strip(), '/')
+        self.assertEquals(run_cmd(['pwd'], cwd='/').strip(), b'/')
 
     def _prepare_stdout_stderr_script(self):
         _fd, tmpfile = tempfile.mkstemp()
