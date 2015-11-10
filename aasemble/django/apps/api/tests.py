@@ -9,7 +9,7 @@ def authenticate(client, username=None, token=None):
 
 
 class APIv1Tests(APITestCase):
-    fixtures = ['data.json', 'data2.json']
+    fixtures = ['buildsvc.json', 'data2.json']
 
 
 class APIv1RepositoryTests(APIv1Tests):
@@ -131,7 +131,7 @@ class APIv2RepositoryTests(APIv1RepositoryTests):
 
 
 class APIv1BuildTests(APIv1Tests):
-    fixtures = ['data.json', 'data2.json', 'repository.json']
+    fixtures = ['buildsvc.json', 'data2.json', 'repository.json']
 
     list_url = '/api/v1/builds/'
 
@@ -148,7 +148,7 @@ class APIv2BuildTests(APIv1BuildTests):
 
 
 class APIv1SourceTests(APIv1Tests):
-    fixtures = ['data.json', 'data2.json', 'repository.json']
+    fixtures = ['buildsvc.json', 'data2.json', 'repository.json']
 
     list_url = '/api/v1/sources/'
 
@@ -218,7 +218,7 @@ class APIv1SourceTests(APIv1Tests):
 
 
 class APIv2SourceTests(APIv1SourceTests):
-    fixtures = ['data.json', 'data2.json', 'repository.json']
+    fixtures = ['buildsvc.json', 'data2.json', 'repository.json']
 
     list_url = '/api/v2/sources/'
 
