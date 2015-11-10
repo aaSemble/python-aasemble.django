@@ -57,13 +57,13 @@ class UtilsTestCase(AasembleTestCase):
     def test_run_cmd_override_env(self):
         os.environ['TESTVAR'] = 'foo'
         stdout = run_cmd(['env'])
-        self.assertIn('TESTVAR=foo', stdout)
+        self.assertIn(b'TESTVAR=foo', stdout)
 
         stdout = run_cmd(['env'], override_env={'TESTVAR': 'bar'})
-        self.assertIn('TESTVAR=bar', stdout)
+        self.assertIn(b'TESTVAR=bar', stdout)
 
         stdout = run_cmd(['env'], override_env={'TESTVAR': None})
-        self.assertNotIn('TESTVAR=', stdout)
+        self.assertNotIn(b'TESTVAR=', stdout)
 
     def test_run_cmd_other_cwd(self):
         self.assertEquals(run_cmd(['pwd'], cwd='/').strip(), '/')
@@ -83,13 +83,13 @@ class UtilsTestCase(AasembleTestCase):
     def test_run_cmd_stdout_includes_stderr(self):
         tmpfile = self._prepare_stdout_stderr_script()
         try:
-            self.assertIn('stderr', run_cmd([tmpfile]))
+            self.assertIn(b'stderr', run_cmd([tmpfile]))
         finally:
             os.unlink(tmpfile)
 
     def test_run_cmd_stdout_can_discard_stderr(self):
         tmpfile = self._prepare_stdout_stderr_script()
         try:
-            self.assertNotIn('stderr', run_cmd([tmpfile], discard_stderr=True))
+            self.assertNotIn(b'stderr', run_cmd([tmpfile], discard_stderr=True))
         finally:
             os.unlink(tmpfile)
