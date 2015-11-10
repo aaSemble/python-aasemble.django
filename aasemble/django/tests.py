@@ -74,7 +74,7 @@ class UtilsTestCase(AasembleTestCase):
             os.close(_fd)
             with open(tmpfile, 'w') as fp:
                 fp.write(stdout_stderr_script)
-            os.chmod(tmpfile, 0755)
+            os.chmod(tmpfile, 0o0755)
             return tmpfile
         except:
             os.unlink(tmpfile)
@@ -83,9 +83,6 @@ class UtilsTestCase(AasembleTestCase):
     def test_run_cmd_stdout_includes_stderr(self):
         tmpfile = self._prepare_stdout_stderr_script()
         try:
-            with open(tmpfile, 'w') as fp:
-                fp.write(stdout_stderr_script)
-            os.chmod(tmpfile, 0755)
             self.assertIn('stderr', run_cmd([tmpfile]))
         finally:
             os.unlink(tmpfile)
@@ -93,9 +90,6 @@ class UtilsTestCase(AasembleTestCase):
     def test_run_cmd_stdout_can_discard_stderr(self):
         tmpfile = self._prepare_stdout_stderr_script()
         try:
-            with open(tmpfile, 'w') as fp:
-                fp.write(stdout_stderr_script)
-            os.chmod(tmpfile, 0755)
             self.assertNotIn('stderr', run_cmd([tmpfile], discard_stderr=True))
         finally:
             os.unlink(tmpfile)
