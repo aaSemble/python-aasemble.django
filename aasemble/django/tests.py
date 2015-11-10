@@ -76,7 +76,7 @@ class UtilsTestCase(AasembleTestCase):
                 fp.write(stdout_stderr_script)
             os.chmod(tmpfile, 0o0755)
             return tmpfile
-        except:
+        except:  # pragma: nocover
             os.unlink(tmpfile)
             raise
 
