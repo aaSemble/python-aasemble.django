@@ -18,6 +18,7 @@ echo stdout
 echo stderr >&2
 '''
 
+
 @override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.models.FakeDriver')
 class AasembleTestCase(TestCase):
     pass
@@ -42,6 +43,7 @@ def create_session_cookie(username, password):
         'path': '/',
     }
     return cookie
+
 
 class UtilsTestCase(AasembleTestCase):
     def test_run_cmd_dead_simple(self):
