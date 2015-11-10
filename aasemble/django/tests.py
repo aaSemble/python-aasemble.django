@@ -93,3 +93,17 @@ class UtilsTestCase(AasembleTestCase):
             self.assertNotIn(b'stderr', run_cmd([tmpfile], discard_stderr=True))
         finally:
             os.unlink(tmpfile)
+
+    def test_run_cmd_alternate_stdout(self):
+        fd, tmpfile = tempfile.mkstemp()
+        try:
+            with os.fdopen(fd, 'w') as fp:
+                rv = run_cmd(['echo', 'foo'], stdout=fp)
+
+            self.assertEquals(rv, None)
+
+            with open(tmpfile, 'r') as fp:
+                self.assertEquals(fp.read(), b'foo\n')
+
+        finally:
+            os.unlink(tmpfile)
