@@ -18,6 +18,7 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 script:
-  - "python -m coverage run --source=aasemble manage.py test"
-  - "flake8 --ignore=E501 aasemble"
+  - "python -m coverage run --source=aasemble manage.py test -v3"
+  - "flake8 --ignore=E501,I aasemble"
   - "python -m coverage report -m"
+  - "flake8 --select=I aasemble || true"
