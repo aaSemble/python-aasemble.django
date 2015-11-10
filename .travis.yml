@@ -20,4 +20,4 @@ before_script:
 script:
   - "python -m coverage run --source=aasemble manage.py test"
   - "flake8 --ignore=E501 aasemble"
-  - "python -m coverage report"
+  - "python -m coverage report -m"
