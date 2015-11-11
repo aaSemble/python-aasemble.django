@@ -111,7 +111,7 @@ def mirrorset_snapshots(request, uuid):
     except:
         pass
     return render(request, 'mirrorsvc/html/mirrorset_snapshots.html',
-                  {'snapshots': snapshots})
+                  {'snapshots': snapshots, 'mirrorset': mirrorset})
 
 
 @login_required
@@ -120,3 +120,12 @@ def refresh_mirror_with_uuid(request, mirror_uuid):
     if mirror.user_can_modify(request.user):
         mirror.schedule_update_mirror()
     return HttpResponseRedirect(reverse('mirrorsvc:mirrors'))
+
+
+@login_required
+def create_new_snapshot(request, uuid):
+    ms = MirrorSet.objects.get(uuid=uuid)
+    if ms.user_can_modify(request.user):
+        snap = Snapshot.objects.create(mirrorset=ms)
+        snap.perform_snapshot()
+    return HttpResponseRedirect(reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid': uuid}))
