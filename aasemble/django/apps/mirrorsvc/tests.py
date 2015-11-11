@@ -28,3 +28,21 @@ class SnapshotTestCase(TestCase):
         perform_snapshot(s.id)
         sync_dists.assert_called_with()
         symlink_pool.assert_called_with()
+
+
+class TaskTestCase(TestCase):
+    @mock.patch('aasemble.django.apps.mirrorsvc.models.Mirror')
+    def test_refresh_mirror(self, MirrorMock):
+        from . import tasks
+        tasks.refresh_mirror(1234)
+
+        MirrorMock.objects.get.assert_called_with(id=1234)
+        MirrorMock.objects.get.return_value.update_mirror.assert_called_with()
+
+    @mock.patch('aasemble.django.apps.mirrorsvc.models.Snapshot')
+    def test_perform_snapshot(self, SnapshotMock):
+        from . import tasks
+        tasks.perform_snapshot(1234)
+
+        SnapshotMock.objects.get.assert_called_with(id=1234)
+        SnapshotMock.objects.get.return_value.perform_snapshot.assert_called_with()

@@ -10,7 +10,7 @@ from .models import Repository, Series, PackageSource
 
 
 class RepositoryTestCase(TestCase):
-    fixtures = ['data.json']
+    fixtures = ['buildsvc.json']
 
     def test_unicode(self):
         repo = Repository.objects.get(id=1)
@@ -165,7 +165,7 @@ class RepositoryTestCase(TestCase):
 
 
 class PackageSourceTestCase(TestCase):
-    fixtures = ['data.json']
+    fixtures = ['buildsvc.json']
 
     @mock.patch('aasemble.django.apps.buildsvc.tasks.reprepro')
     def test_post_delete(self, reprepro):

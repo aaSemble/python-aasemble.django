@@ -2,22 +2,17 @@ language: python
 python:
   - "2.7"
   - "3.4"
+  - "pypy"
 env:
   - DJANGO_VERSION=1.8
   - DJANGO_VERSION=1.9b1
-matrix:
-  allow_failures:
-   - env: DJANGO_VERSION=1.9b1
 install:
   - pip install -U pip
   - pip install -U Django==$DJANGO_VERSION
   - pip install -r requirements.txt
   - pip install -r test-requirements.txt
-before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
 script:
-  - "python -m coverage run --source=aasemble manage.py test"
-  - "flake8 --ignore=E501 aasemble"
-  - "python -m coverage report"
+  - "xvfb-run python -m coverage run --source=aasemble manage.py test -v3"
+  - "flake8 --ignore=E501,I aasemble"
+  - "python -m coverage report -m"
+  - "flake8 --select=I aasemble || true"

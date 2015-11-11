@@ -1,3 +1,5 @@
+import mock
+
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
@@ -9,7 +11,7 @@ def authenticate(client, username=None, token=None):
 
 
 class APIv1Tests(APITestCase):
-    fixtures = ['data.json', 'data2.json']
+    fixtures = ['buildsvc.json', 'data2.json']
 
 
 class APIv1RepositoryTests(APIv1Tests):
@@ -131,7 +133,7 @@ class APIv2RepositoryTests(APIv1RepositoryTests):
 
 
 class APIv1BuildTests(APIv1Tests):
-    fixtures = ['data.json', 'data2.json', 'repository.json']
+    fixtures = ['buildsvc.json', 'data2.json', 'repository.json']
 
     list_url = '/api/v1/builds/'
 
@@ -148,7 +150,7 @@ class APIv2BuildTests(APIv1BuildTests):
 
 
 class APIv1SourceTests(APIv1Tests):
-    fixtures = ['data.json', 'data2.json', 'repository.json']
+    fixtures = ['buildsvc.json', 'data2.json', 'repository.json']
 
     list_url = '/api/v1/sources/'
 
@@ -218,16 +220,18 @@ class APIv1SourceTests(APIv1Tests):
 
 
 class APIv2SourceTests(APIv1SourceTests):
-    fixtures = ['data.json', 'data2.json', 'repository.json']
+    fixtures = ['buildsvc.json', 'data2.json', 'repository.json']
 
     list_url = '/api/v2/sources/'
 
 
 class APIv1AuthTests(APIv1Tests):
+    self_url = '/api/v1/auth/user/'
+
     def test_get_user_details(self):
         authenticate(self.client, 'testuser')
 
-        response = self.client.get('/api/v1/auth/user/', format='json')
+        response = self.client.get(self.self_url, format='json')
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data,
                           {'username': u'testuser',
@@ -235,3 +239,58 @@ class APIv1AuthTests(APIv1Tests):
                            'email': u'test1@example.com',
                            'avatar': u'https://avatars.githubusercontent.com/u/160090?v=3',
                            'real_name': u'Soren Hansen'})
+
+
+class APIv2AuthTests(APIv1AuthTests):
+    self_url = '/api/v2/auth/user/'
+
+
+class APIv1MirrorTests(APIv1Tests):
+    fixtures = ['buildsvc.json']
+
+    list_url = '/api/v1/mirrors/'
+
+    def test_create_mirror_empty_fails_400(self):
+        data = {}
+        authenticate(self.client, 'sorenh')
+
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'url': ['This field is required.'],
+                                          'series': ['This field is required.'],
+                                          'components': ['This field is required.']})
+
+    def test_create_mirror_invalid_url_fails(self):
+        data = {'url': 'not-a-url',
+                'series': ['trusty'],
+                'components': ['main']}
+        authenticate(self.client, 'sorenh')
+
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'url': ['Enter a valid URL.']})
+
+    def test_create_mirror(self):
+        data = {'url': 'http://example.com/',
+                'series': ['trusty'],
+                'components': ['main']}
+        authenticate(self.client, 'sorenh')
+
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
+        data['self'] = response.data['self']
+        data['refresh_in_progress'] = False
+        data['public'] = False
+        self.assertEquals(data, response.data)
+        return response.data
+
+    @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
+    def test_refresh_mirror(self, refresh_mirror):
+        mirror = self.test_create_mirror()
+        self.client.post(mirror['self'] + 'refresh/')
+        self.assertTrue(refresh_mirror.delay.call_args_list)
+
+
+class APIv2MirrorTests(APIv1MirrorTests):
+    list_url = '/api/v2/mirrors/'
