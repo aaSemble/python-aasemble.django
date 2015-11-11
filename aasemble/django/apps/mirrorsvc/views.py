@@ -16,7 +16,7 @@ def get_mirror_definition_form(request, *args, **kwargs):
 def mirror_definition(request, mirror_uuid):
     # print("entered mirror_definition function")
     if mirror_uuid == 'new':
-        print("mirror_uuid==new")
+        # print("mirror_uuid==new")
         mirror = None
     else:
         mirror = Mirror.objects.get(uuid=mirror_uuid)
@@ -24,7 +24,7 @@ def mirror_definition(request, mirror_uuid):
             mirror, mirror_uuid = None, 'new'
 
     if request.method == 'POST':
-        print("Entered request.method == POST")
+        # print("Entered request.method == POST")
         form = get_mirror_definition_form(request, request.POST, instance=mirror)
 
         if mirror is not None and request.POST.get('delete', '') == 'delete':
@@ -50,9 +50,9 @@ def get_mirrorset_definition_form(request, *args, **kwargs):
 
 @login_required
 def mirrorset_definition(request, uuid):
-    print("entered mirrorset_definition function")
+    # print("entered mirrorset_definition function")
     if uuid == 'new':
-        print("mirrorset_uuid==new")
+        # print("mirrorset_uuid==new")
         mirrorset = None
     else:
         mirrorset = MirrorSet.objects.get(uuid=uuid)
@@ -60,7 +60,7 @@ def mirrorset_definition(request, uuid):
             mirrorset, uuid = None, 'new'
 
     if request.method == 'POST':
-        print("Entered request.method == POST")
+        # print("Entered request.method == POST")
         form = get_mirrorset_definition_form(request, request.POST, instance=mirrorset)
 
         if mirrorset is not None and request.POST.get('delete', '') == 'delete':
@@ -112,3 +112,11 @@ def mirrorset_snapshots(request, uuid):
         pass
     return render(request, 'mirrorsvc/html/mirrorset_snapshots.html',
                   {'snapshots': snapshots})
+
+
+@login_required
+def refresh_mirror_with_uuid(request, mirror_uuid):
+    mirror = Mirror.objects.get(uuid=mirror_uuid)
+    if mirror.user_can_modify(request.user):
+        mirror.schedule_update_mirror()
+    return HttpResponseRedirect(reverse('mirrorsvc:mirrors'))
