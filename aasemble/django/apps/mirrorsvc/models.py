@@ -10,7 +10,6 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from django.core.urlresolvers import reverse
-from django.forms import ModelForm
 
 from . import tasks
 
@@ -163,7 +162,3 @@ class Snapshot(models.Model):
         self.symlink_pool()
 
 
-class MirrorDefinitionForm(ModelForm):
-    class Meta:
-        model = Mirror
-        fields = ['url', 'series', 'components', 'public']

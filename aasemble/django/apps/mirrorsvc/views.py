@@ -3,8 +3,8 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
-from .models import Mirror, MirrorSet, Snapshot, MirrorDefinitionForm
-
+from .models import Mirror, MirrorSet, Snapshot
+from .forms import MirrorDefinitionForm
 
 def get_mirror_definition_form(request, *args, **kwargs):
     form = MirrorDefinitionForm(*args, **kwargs)
