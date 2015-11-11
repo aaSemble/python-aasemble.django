@@ -160,5 +160,3 @@ class Snapshot(models.Model):
     def perform_snapshot(self):
         self.sync_dists()
         self.symlink_pool()
-
-
