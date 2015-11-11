@@ -35,6 +35,9 @@ class MirrorSet(models.Model):
         str_uuid = str(self.uuid)
         return reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid': str_uuid})
 
+    def user_can_modify(self, user):
+        return user == self.owner
+
 
 @python_2_unicode_compatible
 class Mirror(models.Model):
@@ -48,7 +51,7 @@ class Mirror(models.Model):
     extra_admins = models.ManyToManyField(auth_models.Group)
 
     def __str__(self):
-        return '<Mirror of %s (owner=%s)' % (self.url, self.owner)
+        return '<Mirror of %s (owner=%s)>' % (self.url, self.owner)
 
     def series_list(self):
         return self.series.split(' ')

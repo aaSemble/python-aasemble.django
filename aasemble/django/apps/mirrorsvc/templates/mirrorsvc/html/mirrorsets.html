@@ -15,12 +15,13 @@
       <tbody>
       {% for set in mirrorsets %}
         <tr>
-          <td>{{ set.uuid }}</td>
+          <td><a href="{% url "mirrorsvc:mirrorset_definition" uuid=set.uuid %}">{{ set.uuid }}</a></td>
           <td>{{ set.name }}</td>
-          <td><a href="{{ set.snapshots_url }}">Click</a></td>
+          <td><a href="{{ set.snapshots_url }}">View snapshots</a></td>
         </tr>
       {% endfor %}
       </tbody>
     </table>
   </div>
+    <a class="btn btn-primary" href="{% url "mirrorsvc:mirrorset_definition" uuid='new' %}" role="button">{% bootstrap_icon "plus" %} New</a>
 {% endblock %}
