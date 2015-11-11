@@ -240,6 +240,7 @@ class APIv1AuthTests(APIv1Tests):
                            'avatar': u'https://avatars.githubusercontent.com/u/160090?v=3',
                            'real_name': u'Soren Hansen'})
 
+
 class APIv2AuthTests(APIv1AuthTests):
     self_url = '/api/v2/auth/user/'
 
@@ -289,6 +290,7 @@ class APIv1MirrorTests(APIv1Tests):
         mirror = self.test_create_mirror()
         self.client.post(mirror['self'] + 'refresh/')
         self.assertTrue(refresh_mirror.delay.call_args_list)
+
 
 class APIv2MirrorTests(APIv1MirrorTests):
     list_url = '/api/v2/mirrors/'
