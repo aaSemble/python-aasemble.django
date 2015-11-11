@@ -18,7 +18,7 @@
       <tbody>
       {% for mirror in mirrors %}
         <tr>
-          <td>{{ mirror.uuid }}</td>
+          <td><a href="{% url "mirrorsvc:mirror_definition" mirror_uuid=mirror.uuid %}">{{ mirror.uuid }}</a></td>
           <td><a href="{{ mirror.url }}">{{ mirror.url }}</a></td>
           <td>{{ mirror.series }}</td>
           <td>{{ mirror.components }}</td>
@@ -29,5 +29,5 @@
       </tbody>
     </table>
   </div>
-    <a class="btn btn-primary" href="{% url "mirrorsvc:mirror_definition" mirror_id='new' %}" role="button">{% bootstrap_icon "plus" %} New</a>
+    <a class="btn btn-primary" href="{% url "mirrorsvc:mirror_definition" mirror_uuid='new' %}" role="button">{% bootstrap_icon "plus" %} New</a>
 {% endblock %}

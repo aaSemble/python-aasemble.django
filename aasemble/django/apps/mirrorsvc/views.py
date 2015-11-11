@@ -13,15 +13,15 @@ def get_mirror_definition_form(request, *args, **kwargs):
 
 
 @login_required
-def mirror_definition(request, mirror_id):
+def mirror_definition(request, mirror_uuid):
     # print("entered mirror_definition function")
-    if mirror_id == 'new':
-        print("mirror_id==new")
+    if mirror_uuid == 'new':
+        print("mirror_uuid==new")
         mirror = None
     else:
-        mirror = Mirror.objects.get(pk=mirror_id)
+        mirror = Mirror.objects.get(uuid=mirror_uuid)
         if not mirror.user_can_modify(request.user):
-            mirror, mirror_id = None, 'new'
+            mirror, mirror_uuid = None, 'new'
 
     if request.method == 'POST':
         print("Entered request.method == POST")
@@ -40,7 +40,7 @@ def mirror_definition(request, mirror_id):
         form = get_mirror_definition_form(request, instance=mirror)
 
     return render(request, 'mirrorsvc/html/mirror_definition.html',
-                  {'form': form, 'mirror_id': mirror_id})
+                  {'form': form, 'mirror_uuid': mirror_uuid})
 
 
 def get_mirrorset_definition_form(request, *args, **kwargs):

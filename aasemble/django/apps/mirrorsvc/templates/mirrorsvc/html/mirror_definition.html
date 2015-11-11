@@ -8,7 +8,7 @@
     {% endif %}
 {% endblock %}
 {% block aasemble_content %}
-<form action="{% url "mirrorsvc:mirror_definition" mirror_id=mirror_id %}" method="post">
+<form action="{% url "mirrorsvc:mirror_definition" mirror_uuid=mirror_uuid %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form layout='inline' %}
     {% buttons %}
