@@ -1,16 +1,16 @@
 import os
 import tempfile
 
-from django.test import TestCase, override_settings
 from django.conf import settings
 from django.contrib.auth import (
-    SESSION_KEY, BACKEND_SESSION_KEY, HASH_SESSION_KEY
+    BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY
 )
-from django.contrib.sessions.backends.db import SessionStore
 from django.contrib.auth.models import User
+from django.contrib.sessions.backends.db import SessionStore
+from django.test import TestCase, override_settings
 
-from aasemble.django.utils import run_cmd
 from aasemble.django.exceptions import CommandFailed
+from aasemble.django.utils import run_cmd
 
 stdout_stderr_script = '''#!/bin/sh
 

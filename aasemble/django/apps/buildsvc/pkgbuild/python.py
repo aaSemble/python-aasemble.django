@@ -1,7 +1,7 @@
 import os.path
 
-from ....utils import run_cmd
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
+from ....utils import run_cmd
 
 
 class PythonBuilder(PackageBuilder):

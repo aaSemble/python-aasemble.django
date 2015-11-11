@@ -1,17 +1,17 @@
 import os.path
 import uuid
-from six.moves.urllib.parse import urlparse
-
-from ...utils import run_cmd
 
 from django.conf import settings
 from django.contrib.auth import models as auth_models
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
-from django.core.urlresolvers import reverse
+
+from six.moves.urllib.parse import urlparse
 
 from . import tasks
+from ...utils import run_cmd
 
 
 class MirrorSet(models.Model):

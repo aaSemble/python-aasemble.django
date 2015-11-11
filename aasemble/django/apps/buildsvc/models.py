@@ -4,22 +4,22 @@ import os.path
 import shutil
 import tempfile
 import uuid
-from six.moves.urllib.parse import urlparse
+
+import deb822
 
 from django.conf import settings
+from django.contrib.auth import models as auth_models
 from django.core.cache import cache
 from django.db import models
 from django.forms import ModelForm
-from django.contrib.auth import models as auth_models
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.module_loading import import_string
 
-import deb822
-
-from ...utils import run_cmd, recursive_render
+from six.moves.urllib.parse import urlparse
 
 from . import tasks
+from ...utils import recursive_render, run_cmd
 
 LOG = logging.getLogger(__name__)
 

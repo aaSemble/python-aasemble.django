@@ -13,6 +13,5 @@ install:
   - pip install -r test-requirements.txt
 script:
   - "xvfb-run python -m coverage run --source=aasemble manage.py test -v3"
-  - "flake8 --ignore=E501,I aasemble"
+  - "flake8 --ignore=E501 --application-import-names=aasemble aasemble"
   - "python -m coverage report -m"
-  - "flake8 --select=I aasemble || true"
