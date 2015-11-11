@@ -5,6 +5,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test.utils import skipIf
 
 from selenium.webdriver.firefox.webdriver import WebDriver
+
 from aasemble.django.tests import create_session_cookie
 
 

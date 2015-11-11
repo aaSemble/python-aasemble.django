@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 
-from .models import Mirror, MirrorSet, Snapshot
 from .forms import MirrorDefinitionForm
+from .models import Mirror, MirrorSet, Snapshot
 
 
 def get_mirror_definition_form(request, *args, **kwargs):

@@ -1,7 +1,7 @@
-import mock
-
 from django.contrib.auth import models as auth_models
 from django.test import TestCase
+
+import mock
 
 from .models import Mirror, MirrorSet, Snapshot
 

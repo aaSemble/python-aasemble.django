@@ -1,10 +1,11 @@
+import logging
 import os
 import os.path
-import logging
 import subprocess
-from .exceptions import CommandFailed
 
 from django.template.loader import render_to_string
+
+from .exceptions import CommandFailed
 
 LOG = logging.getLogger(__name__)
 

@@ -1,12 +1,14 @@
-import mock
 import os.path
 
 from django.contrib.auth import models as auth_models
 from django.db.utils import IntegrityError
 from django.test import override_settings
 
+import mock
+
 from aasemble.django.tests import AasembleTestCase as TestCase
-from .models import Repository, Series, PackageSource
+
+from .models import PackageSource, Repository, Series
 
 
 class RepositoryTestCase(TestCase):

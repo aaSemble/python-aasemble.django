@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from .models import BuildRecord, Repository, PackageSource, PackageSourceForm, Series
+from .models import BuildRecord, PackageSource, PackageSourceForm, Repository, Series
 
 
 def get_package_source_form(request, *args, **kwargs):

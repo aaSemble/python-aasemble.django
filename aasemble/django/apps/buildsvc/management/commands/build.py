@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from ...pkgbuild import choose_builder
 from ...models import PackageSource
+from ...pkgbuild import choose_builder
 
 
 class Command(BaseCommand):
