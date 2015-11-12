@@ -1,3 +1,5 @@
+import os.path
+
 import mock
 
 from rest_framework.authtoken.models import Token
@@ -294,3 +296,21 @@ class APIv1MirrorTests(APIv1Tests):
 
 class APIv2MirrorTests(APIv1MirrorTests):
     list_url = '/api/v2/mirrors/'
+
+
+class GithubHookViewTestCase(APIv1Tests):
+    @mock.patch('aasemble.django.apps.api.tasks.github_push_event')
+    def test_hook(self, github_push_event):
+        with open(os.path.join(os.path.dirname(__file__), 'example-hook.json'), 'r') as fp:
+            res = self.client.post('/api/events/github/',
+                                   data=fp.read(),
+                                   content_type='application/json',
+                                   HTTP_X_GITHUB_EVENT='push')
+        self.assertEquals(res.data, {'ok': 'thanks'})
+        github_push_event.delay.assert_called_with("https://github.com/baxterthehacker/public-repo")
+
+    @mock.patch('aasemble.django.apps.buildsvc.tasks.poll_one')
+    def test_github_push_event(self, poll_one):
+        from .tasks import github_push_event
+        github_push_event("https://github.com/sorenh/reflector")
+        poll_one.delay.assert_called_with(1)

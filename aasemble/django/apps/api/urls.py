@@ -3,6 +3,7 @@ from django.conf.urls import include, url
 
 from rest_framework_nested import routers
 
+from . import views
 from .v1 import views as views_v1
 from .v2 import views as views_v2
 
@@ -40,6 +41,7 @@ v2_repository_router.register(r'external_dependencies', views_v2.ExternalDepende
 
 
 urlpatterns = [
+    url(r'^events/github/', views.GithubHookView.as_view()),
     url(r'^v1/', include(v1_router.urls)),
     url(r'^v1/', include(v1_repository_router.urls)),
     url(r'^v1/', include(v1_source_router.urls)),
