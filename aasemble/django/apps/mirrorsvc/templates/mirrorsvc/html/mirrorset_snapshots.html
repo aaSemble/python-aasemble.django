@@ -1,7 +1,7 @@
 {% extends 'aasemble/base.html' %}
 {% load bootstrap3 %}
 
-{% block title %}Snapshots for this MirrorSet{% endblock %}
+{% block title %}Snapshots for MirrorSet: {{ mirrorset.name }}{% endblock %}
 {% block aasemble_content %}
   <div class="table-responsive">
     <table class="table table-striped">
@@ -21,4 +21,5 @@
       </tbody>
     </table>
   </div>
+    <a class="btn btn-primary" href="{% url "mirrorsvc:new_snapshot" uuid=mirrorset.uuid %}" role="button">{% bootstrap_icon "plus" %} Take new snapshot</a>
 {% endblock %}

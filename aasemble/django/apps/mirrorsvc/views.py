@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from .forms import MirrorDefinitionForm
+from .forms import MirrorDefinitionForm, MirrorSetDefinitionForm
 from .models import Mirror, MirrorSet, Snapshot
 
 
@@ -13,18 +13,18 @@ def get_mirror_definition_form(request, *args, **kwargs):
 
 
 @login_required
-def mirror_definition(request, mirror_id):
+def mirror_definition(request, mirror_uuid):
     # print("entered mirror_definition function")
-    if mirror_id == 'new':
-        print("mirror_id==new")
+    if mirror_uuid == 'new':
+        # print("mirror_uuid==new")
         mirror = None
     else:
-        mirror = Mirror.objects.get(pk=mirror_id)
+        mirror = Mirror.objects.get(uuid=mirror_uuid)
         if not mirror.user_can_modify(request.user):
-            mirror, mirror_id = None, 'new'
+            mirror, mirror_uuid = None, 'new'
 
     if request.method == 'POST':
-        print("Entered request.method == POST")
+        # print("Entered request.method == POST")
         form = get_mirror_definition_form(request, request.POST, instance=mirror)
 
         if mirror is not None and request.POST.get('delete', '') == 'delete':
@@ -40,7 +40,44 @@ def mirror_definition(request, mirror_id):
         form = get_mirror_definition_form(request, instance=mirror)
 
     return render(request, 'mirrorsvc/html/mirror_definition.html',
-                  {'form': form, 'mirror_id': mirror_id})
+                  {'form': form, 'mirror_uuid': mirror_uuid})
+
+
+def get_mirrorset_definition_form(request, *args, **kwargs):
+    form = MirrorSetDefinitionForm(*args, **kwargs)
+    return form
+
+
+@login_required
+def mirrorset_definition(request, uuid):
+    # print("entered mirrorset_definition function")
+    if uuid == 'new':
+        # print("mirrorset_uuid==new")
+        mirrorset = None
+    else:
+        mirrorset = MirrorSet.objects.get(uuid=uuid)
+        if not mirrorset.user_can_modify(request.user):
+            mirrorset, uuid = None, 'new'
+
+    if request.method == 'POST':
+        # print("Entered request.method == POST")
+        form = get_mirrorset_definition_form(request, request.POST, instance=mirrorset)
+
+        if mirrorset is not None and request.POST.get('delete', '') == 'delete':
+            mirrorset.delete()
+            return HttpResponseRedirect(reverse('mirrorsvc:mirrorsets'))
+
+        if form.is_valid():
+            new_mirrorset = form.save(commit=False)
+            new_mirrorset.owner = request.user
+            new_mirrorset.save()
+            print("new_mirrorset saved")
+            return HttpResponseRedirect(reverse('mirrorsvc:mirrorsets'))
+    else:
+        form = get_mirrorset_definition_form(request, instance=mirrorset)
+
+    return render(request, 'mirrorsvc/html/mirrorset_definition.html',
+                  {'form': form, 'uuid': uuid})
 
 
 @login_required
@@ -74,4 +111,21 @@ def mirrorset_snapshots(request, uuid):
     except:
         pass
     return render(request, 'mirrorsvc/html/mirrorset_snapshots.html',
-                  {'snapshots': snapshots})
+                  {'snapshots': snapshots, 'mirrorset': mirrorset})
+
+
+@login_required
+def refresh_mirror_with_uuid(request, mirror_uuid):
+    mirror = Mirror.objects.get(uuid=mirror_uuid)
+    if mirror.user_can_modify(request.user):
+        mirror.schedule_update_mirror()
+    return HttpResponseRedirect(reverse('mirrorsvc:mirrors'))
+
+
+@login_required
+def create_new_snapshot(request, uuid):
+    ms = MirrorSet.objects.get(uuid=uuid)
+    if ms.user_can_modify(request.user):
+        snap = Snapshot.objects.create(mirrorset=ms)
+        snap.perform_snapshot()
+    return HttpResponseRedirect(reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid': uuid}))
