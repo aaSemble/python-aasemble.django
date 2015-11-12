@@ -6,6 +6,8 @@ python:
 env:
   - DJANGO_VERSION=1.8
   - DJANGO_VERSION=1.9b1
+before_install:
+  - openssl aes-256-cbc -K $encrypted_8f2ce7add2e8_key -iv $encrypted_8f2ce7add2e8_iv -in deploy.key.enc -out deploy.key -d
 install:
   - pip install -U pip
   - pip install -U Django==$DJANGO_VERSION
@@ -15,3 +17,8 @@ script:
   - "xvfb-run python -m coverage run --source=aasemble manage.py test -v3"
   - "flake8 --ignore=E501 --application-import-names=aasemble aasemble"
   - "python -m coverage report -m"
+deploy:
+  provider: script
+  script: scripts/deploy.sh
+  on:
+    branch: master
