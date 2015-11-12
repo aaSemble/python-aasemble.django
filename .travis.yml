@@ -7,7 +7,9 @@ env:
   - DJANGO_VERSION=1.8
   - DJANGO_VERSION=1.9b1
 before_install:
-  - openssl aes-256-cbc -K $encrypted_8f2ce7add2e8_key -iv $encrypted_8f2ce7add2e8_iv -in deploy.key.enc -out deploy.key -d || true
+  - ls
+  - openssl aes-256-cbc -K $encrypted_8f2ce7add2e8_key -iv $encrypted_8f2ce7add2e8_iv -in deploy.key.enc -out deploy.key -d || echo it failed
+  - ls
 install:
   - pip install -U pip
   - pip install -U Django==$DJANGO_VERSION
