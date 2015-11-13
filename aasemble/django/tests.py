@@ -21,7 +21,7 @@ echo stderr >&2
 
 @override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.models.FakeDriver')
 class AasembleTestCase(TestCase):
-    pass
+    fixtures = ['complete.json']
 
 
 def create_session_cookie(username, password):
