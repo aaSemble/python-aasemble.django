@@ -22,11 +22,15 @@ class GithubHookView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         from .tasks import github_push_event
 
-        event_type = request.META['HTTP_X_GITHUB_EVENT']
+        try:
+            event_type = request.META['HTTP_X_GITHUB_EVENT']
+            url = request.data['repository']['url']
 
-        if event_type != 'push':
-            return Response({'thanks': 'but no thanks'})
+            if event_type != 'push':
+                return Response({'thanks': 'cool story bro'})
 
-        github_push_event.delay(request.data['repository']['url'])
+            github_push_event.delay(url)
 
-        return Response({'ok': 'thanks'})
+            return Response({'ok': 'thanks'})
+        except KeyError:
+            return Response({"it's not me": "it's you"})
