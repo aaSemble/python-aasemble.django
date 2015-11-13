@@ -1,0 +1,1381 @@
+[
+{
+    "fields": {
+        "username": "aaron",
+        "first_name": "Aaron",
+        "last_name": "Aaronson",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "aaron@example.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 1
+},
+{
+    "fields": {
+        "username": "brandon",
+        "first_name": "Brandon",
+        "last_name": "Brandonson",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [2,3,4],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "brandon@brandoncorp.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 2
+},
+{
+    "fields": {
+        "username": "charles",
+        "first_name": "Charles",
+        "last_name": "Charleson",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [3],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "charles@brandoncorp.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 3
+},
+{
+    "fields": {
+        "username": "dennis",
+        "first_name": "Dennis",
+        "last_name": "Dennison",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "aaron@example.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 4
+},
+{
+    "fields": {
+        "username": "eric",
+        "first_name": "Eric",
+        "last_name": "Ericson",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "eric@example.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 5
+},
+{
+    "fields": {
+        "username": "frank",
+        "first_name": "Frank",
+        "last_name": "Frankson",
+        "is_active": false,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "aaron@example.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 6
+},
+{
+    "fields": {
+        "username": "george",
+        "first_name": "George",
+        "last_name": "Georgeson",
+        "is_active": true,
+        "is_superuser": true,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [1],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "aaron@example.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 7
+},
+{
+    "fields": {
+        "username": "harold",
+        "first_name": "Harold",
+        "last_name": "Haroldson",
+        "is_active": false,
+        "is_superuser": true,
+        "is_staff": false,
+        "last_login": "2015-09-23T14:02:43.580Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "!87126348126348127634871264812347123864Vt",
+        "email": "aaron@example.com",
+        "date_joined": "2015-08-26T11:04:30.486Z"
+    },
+    "model": "auth.user",
+    "pk": 8
+},
+{
+    "fields": {
+        "name": "aaSemble",
+        "permissions": []
+    },
+    "model": "auth.group",
+    "pk": 1
+},
+{
+    "fields": {
+        "name": "Acme Inc.",
+        "permissions": []
+    },
+    "model": "auth.group",
+    "pk": 2
+},
+{
+    "fields": {
+        "name": "BrandonCorp Ltd.",
+        "permissions": []
+    },
+    "model": "auth.group",
+    "pk": 3
+},
+{
+    "fields": {
+        "name": "Cleantech LLC",
+        "permissions": []
+    },
+    "model": "auth.group",
+    "pk": 4
+},
+{
+    "fields": {
+        "name": "Dysfunctional",
+        "permissions": []
+    },
+    "model": "auth.group",
+    "pk": 5
+},
+{   
+    "fields": {
+        "name": "aaSemble web",
+        "sites": [],
+        "secret": "f934875698426597834265987342695673428547",
+        "client_id": "34287612986349283768",
+        "key": "",
+        "provider": "github"
+    },
+    "model": "socialaccount.socialapp",
+    "pk": 1
+},
+{
+    "fields": {
+        "uid": "1234561",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 1,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234561, \"followers_url\": \"https://api.github.com/users/aaron/followers\", \"following_url\": \"https://api.github.com/users/aaron/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/aaron/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/aaron/gists{/gist_id}\", \"html_url\": \"https://github.com/aaron\", \"subscriptions_url\": \"https://api.github.com/users/aaron/subscriptions\", \"received_events_url\": \"https://api.github.com/users/aaron/received_events\", \"starred_url\": \"https://api.github.com/users/aaron/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Aaron Aaronson\", \"organizations_url\": \"https://api.github.com/users/aaron/orgs\", \"url\": \"https://api.github.com/users/aaron\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234561?v=3\", \"repos_url\": \"https://api.github.com/users/aaron/repos\", \"following\": 6, \"login\": \"aaron\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 1
+},
+{
+    "fields": {
+        "uid": "1234562",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 2,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234562, \"followers_url\": \"https://api.github.com/users/brandon/followers\", \"following_url\": \"https://api.github.com/users/brandon/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/brandon/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/brandon/gists{/gist_id}\", \"html_url\": \"https://github.com/brandon\", \"subscriptions_url\": \"https://api.github.com/users/brandon/subscriptions\", \"received_events_url\": \"https://api.github.com/users/brandon/received_events\", \"starred_url\": \"https://api.github.com/users/brandon/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Brandon Brandonson\", \"organizations_url\": \"https://api.github.com/users/brandon/orgs\", \"url\": \"https://api.github.com/users/brandon\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234562?v=3\", \"repos_url\": \"https://api.github.com/users/brandon/repos\", \"following\": 6, \"login\": \"brandon\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 2
+},
+{
+    "fields": {
+        "uid": "1234563",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 3,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234563, \"followers_url\": \"https://api.github.com/users/charles/followers\", \"following_url\": \"https://api.github.com/users/charles/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/charles/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/charles/gists{/gist_id}\", \"html_url\": \"https://github.com/charles\", \"subscriptions_url\": \"https://api.github.com/users/charles/subscriptions\", \"received_events_url\": \"https://api.github.com/users/charles/received_events\", \"starred_url\": \"https://api.github.com/users/charles/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Charles Charleson\", \"organizations_url\": \"https://api.github.com/users/charles/orgs\", \"url\": \"https://api.github.com/users/charles\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234563?v=3\", \"repos_url\": \"https://api.github.com/users/charles/repos\", \"following\": 6, \"login\": \"charles\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 3
+},
+{
+    "fields": {
+        "uid": "1234564",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 4,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234564, \"followers_url\": \"https://api.github.com/users/dennis/followers\", \"following_url\": \"https://api.github.com/users/dennis/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/dennis/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/dennis/gists{/gist_id}\", \"html_url\": \"https://github.com/dennis\", \"subscriptions_url\": \"https://api.github.com/users/dennis/subscriptions\", \"received_events_url\": \"https://api.github.com/users/dennis/received_events\", \"starred_url\": \"https://api.github.com/users/dennis/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Dennis Dennison\", \"organizations_url\": \"https://api.github.com/users/dennis/orgs\", \"url\": \"https://api.github.com/users/dennis\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234564?v=3\", \"repos_url\": \"https://api.github.com/users/dennis/repos\", \"following\": 6, \"login\": \"dennis\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 4
+},
+{
+    "fields": {
+        "uid": "1234565",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 5,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234565, \"followers_url\": \"https://api.github.com/users/eric/followers\", \"following_url\": \"https://api.github.com/users/eric/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/eric/events{/privacy}\", \"company\": \"No Company\", \"gists_url\": \"https://api.github.com/users/eric/gists{/gist_id}\", \"html_url\": \"https://github.com/eric\", \"subscriptions_url\": \"https://api.github.com/users/eric/subscriptions\", \"received_events_url\": \"https://api.github.com/users/eric/received_events\", \"starred_url\": \"https://api.github.com/users/eric/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Eric Ericson\", \"organizations_url\": \"https://api.github.com/users/eric/orgs\", \"url\": \"https://api.github.com/users/eric\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234565?v=3\", \"repos_url\": \"https://api.github.com/users/eric/repos\", \"following\": 6, \"login\": \"eric\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 5
+},
+{
+    "fields": {
+        "uid": "1234566",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 6,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234566, \"followers_url\": \"https://api.github.com/users/frank/followers\", \"following_url\": \"https://api.github.com/users/frank/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/frank/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/frank/gists{/gist_id}\", \"html_url\": \"https://github.com/frank\", \"subscriptions_url\": \"https://api.github.com/users/frank/subscriptions\", \"received_events_url\": \"https://api.github.com/users/frank/received_events\", \"starred_url\": \"https://api.github.com/users/frank/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Frank Frankson\", \"organizations_url\": \"https://api.github.com/users/frank/orgs\", \"url\": \"https://api.github.com/users/frank\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234566?v=3\", \"repos_url\": \"https://api.github.com/users/frank/repos\", \"following\": 6, \"login\": \"frank\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 6
+},
+{
+    "fields": {
+        "uid": "1234567",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 7,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234567, \"followers_url\": \"https://api.github.com/users/george/followers\", \"following_url\": \"https://api.github.com/users/george/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/george/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/george/gists{/gist_id}\", \"html_url\": \"https://github.com/george\", \"subscriptions_url\": \"https://api.github.com/users/george/subscriptions\", \"received_events_url\": \"https://api.github.com/users/george/received_events\", \"starred_url\": \"https://api.github.com/users/george/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"George Georgeson\", \"organizations_url\": \"https://api.github.com/users/george/orgs\", \"url\": \"https://api.github.com/users/george\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234567?v=3\", \"repos_url\": \"https://api.github.com/users/george/repos\", \"following\": 6, \"login\": \"george\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 7
+},
+{
+    "fields": {
+        "uid": "1234568",
+        "last_login": "2015-09-22T11:30:38Z",
+        "user": 8,
+        "provider": "github",
+        "extra_data": "{\"bio\": null, \"site_admin\": false, \"updated_at\": \"2015-09-17T14:15:08Z\", \"gravatar_id\": \"\", \"hireable\": true, \"id\": 1234568, \"followers_url\": \"https://api.github.com/users/harold/followers\", \"following_url\": \"https://api.github.com/users/harold/following{/other_user}\", \"blog\": \"http://linux2go.dk/\", \"followers\": 31, \"location\": \"Denmark\", \"type\": \"User\", \"email\": \"soren@linux2go.dk\", \"public_repos\": 63, \"events_url\": \"https://api.github.com/users/harold/events{/privacy}\", \"company\": \"aaSemble\", \"gists_url\": \"https://api.github.com/users/harold/gists{/gist_id}\", \"html_url\": \"https://github.com/harold\", \"subscriptions_url\": \"https://api.github.com/users/harold/subscriptions\", \"received_events_url\": \"https://api.github.com/users/harold/received_events\", \"starred_url\": \"https://api.github.com/users/harold/starred{/owner}{/repo}\", \"public_gists\": 36, \"name\": \"Harold Haroldson\", \"organizations_url\": \"https://api.github.com/users/harold/orgs\", \"url\": \"https://api.github.com/users/harold\", \"created_at\": \"2009-11-30T22:08:35Z\", \"avatar_url\": \"https://avatars.githubusercontent.com/u/1234568?v=3\", \"repos_url\": \"https://api.github.com/users/harold/repos\", \"following\": 6, \"login\": \"harold\"}",
+        "date_joined": "2015-09-16T09:46:12Z"
+    },
+    "model": "socialaccount.socialaccount",
+    "pk": 8
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 1,
+        "token": "7342897561498356329487658792364598732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 1
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 2,
+        "token": "2348562349569324875692387562364598732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 2
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 3,
+        "token": "2348763248653247856342985629345598732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 3
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 4,
+        "token": "2348756324856324897562934785664598732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 4
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 5,
+        "token": "2348765218564329856923487569324878732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 5
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 6,
+        "token": "7348765238461248959872698292364598732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 6
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 7,
+        "token": "7342898734659823695834265792364598732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 7
+},
+{
+    "fields": {
+        "app": 1,
+        "token_secret": "",
+        "expires_at": null,
+        "account": 8,
+        "token": "2837649283465984326487658792364598732645"
+    },
+    "model": "socialaccount.socialtoken",
+    "pk": 8
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "CA62552B",
+        "uuid": "fcac72dd-f770-4225-b362-758cfbf2c370",
+        "name": "brandon",
+        "user": 2
+    },
+    "model": "buildsvc.repository",
+    "pk": 1
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "80E6D622",
+        "uuid": "8b18e6b3-06ca-4e47-bf25-1d3ab78bfd71",
+        "name": "charles",
+        "user": 3
+    },
+    "model": "buildsvc.repository",
+    "pk": 2
+},
+{
+    "fields": {
+        "extra_admins": [3],
+        "key_id": "6944C86E",
+        "uuid": "78e24439-a7f9-4023-8957-c75d97a47bbe",
+        "name": "dennis",
+        "user": 4
+    },
+    "model": "buildsvc.repository",
+    "pk": 3
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "CB6F0E0E",
+        "uuid": "1e8f1146-0501-48c3-bba1-c568033f9507",
+        "name": "eric",
+        "user": 5
+    },
+    "model": "buildsvc.repository",
+    "pk": 4
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "02BA21C3",
+        "uuid": "bed5828b-213f-429e-84e5-e81f2ee40bdf",
+        "name": "frank",
+        "user": 6
+    },
+    "model": "buildsvc.repository",
+    "pk": 5
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "672A650F",
+        "uuid": "144aa169-3182-433a-9778-7d9ebf3c9e6f",
+        "name": "george",
+        "user": 7
+    },
+    "model": "buildsvc.repository",
+    "pk": 6
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "082B4A85",
+        "uuid": "07a058da-eedb-46e6-8bee-3e40e9fb135e",
+        "name": "harold",
+        "user": 8
+    },
+    "model": "buildsvc.repository",
+    "pk": 7
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "74E66264",
+        "uuid": "a9c5dc55-2775-4011-ae37-510e4785eab1",
+        "name": "eric1",
+        "user": 5
+    },
+    "model": "buildsvc.repository",
+    "pk": 8
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "A3C4A610",
+        "uuid": "9be626dd-6415-47d9-878a-35a26aeba270",
+        "name": "eric2",
+        "user": 5
+    },
+    "model": "buildsvc.repository",
+    "pk": 9
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "DF334374",
+        "uuid": "b083df20-46b2-4c9d-9b2c-0182690c7599",
+        "name": "eric3",
+        "user": 5
+    },
+    "model": "buildsvc.repository",
+    "pk": 10
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "3D569F6A",
+        "uuid": "1ca73b01-4822-4e94-8c23-46f5b7e1dc14",
+        "name": "eric4",
+        "user": 5
+    },
+    "model": "buildsvc.repository",
+    "pk": 11
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "4C709D10",
+        "uuid": "f3cc7909-104f-4dee-8fb5-e0ac5a38592f",
+        "name": "eric5",
+        "user": 5
+    },
+    "model": "buildsvc.repository",
+    "pk": 12
+},
+{
+    "fields": {
+        "extra_admins": [],
+        "key_id": "",
+        "uuid": "9a1eb35e-b5a2-4925-b506-48f7fea07dc4",
+        "name": "eric6",
+        "user": 5
+    },
+    "model": "buildsvc.repository",
+    "pk": 13
+},
+{
+    "fields": {
+        "uuid": "db093755-c8d8-4584-9e3b-ec5e010b4bd8",
+        "repository": 1,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 1
+},
+{
+    "fields": {
+        "uuid": "f9e68257-19b8-48f6-a63e-103f0eee2354",
+        "repository": 2,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 2
+},
+{
+    "fields": {
+        "uuid": "0f16dac5-c6b5-4f59-af15-cb9429a6e80c",
+        "repository": 3,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 3
+},
+{
+    "fields": {
+        "uuid": "f7618d5e-e3f0-45dd-96ec-9dc7a21b9549",
+        "repository": 4,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 4
+},
+{
+    "fields": {
+        "uuid": "fa1e792c-1e94-4f4e-b9de-faf716947961",
+        "repository": 8,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 5
+},
+{
+    "fields": {
+        "uuid": "22dea7ed-5093-4b64-a026-2b8d10dddf7a",
+        "repository": 9,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 6
+},
+{
+    "fields": {
+        "uuid": "6c46c568-c038-4769-88cd-e208d27075c8",
+        "repository": 10,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 7
+},
+{
+    "fields": {
+        "uuid": "bf28aa11-fe1b-4aae-908e-fa818ace4193",
+        "repository": 11,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 8
+},
+{
+    "fields": {
+        "uuid": "996f27b2-c495-467a-92a9-d8f4810f94be",
+        "repository": 12,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 9
+},
+{
+    "fields": {
+        "uuid": "5b545235-0cfd-4173-b0ed-86ea6cb39d7b",
+        "repository": 13,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 10
+},
+{
+    "fields": {
+        "uuid": "33a50162-5ef4-4362-a4eb-7e32d414056e",
+        "repository": 5,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 11
+},
+{
+    "fields": {
+        "uuid": "f9d6a63f-9e43-4744-8edd-7f841540248a",
+        "repository": 6,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 12
+},
+{
+    "fields": {
+        "uuid": "50db7d75-5c44-4ba2-8ac8-c537265a8300",
+        "repository": 7,
+        "name": "aasemble"
+    },
+    "model": "buildsvc.series",
+    "pk": 13
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "fd0e978c-4b6d-4174-9491-070fe1736110",
+        "series": 4,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project0",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 1
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "f0f63852-1b9a-438f-b7b3-e1595d9d72b3",
+        "series": 5,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project1",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 2
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "3e5d6dca-de90-4e82-bb2f-c12b81a7504f",
+        "series": 6,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project2",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 3
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "7809613c-d9e5-4530-87e0-9a12fcd0fc2f",
+        "series": 7,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project3",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 4
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "3fb944de-da7f-45b4-9a68-7853ec1c30f0",
+        "series": 8,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project4",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 5
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "ef23256b-290a-46ea-8e40-985ac134410c",
+        "series": 9,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project5",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 6
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "dc7d7156-fcd4-4c9d-9eca-2f28741284cb",
+        "series": 10,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project6",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 7
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "83c085df-980a-4ad8-8ed5-5807601c068b",
+        "series": 4,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project7",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 8
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "8a100a7c-91c0-4006-9e7f-b63cee6e0995",
+        "series": 5,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project8",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 9
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "fba87f9f-187b-4221-8121-9de30c5084f1",
+        "series": 6,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project9",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 10
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "fdbeace9-536f-4c9a-bb0b-9cb798a9e033",
+        "series": 7,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project10",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 11
+},
+{
+    "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "b161fde2-4d8d-4f4a-8a73-1aeb5c99d478",
+        "series": 8,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/eric/project11",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 12
+},
+{
+    "fields": {
+        "owner": 5,
+        "extra_admins": [],
+        "mirrors": [
+            3
+        ],
+        "uuid": "ce9cb460-aaef-44e5-978d-55896259436e",
+        "name": ""
+    },
+    "model": "mirrorsvc.mirrorset",
+    "pk": 1
+},
+{
+    "fields": {
+        "owner": 5,
+        "extra_admins": [],
+        "mirrors": [
+            1,
+            3,
+            4
+        ],
+        "uuid": "60d0ba66-d343-404b-a6e6-5c141db11a54",
+        "name": ""
+    },
+    "model": "mirrorsvc.mirrorset",
+    "pk": 2
+},
+{
+    "fields": {
+        "owner": 5,
+        "extra_admins": [],
+        "mirrors": [
+            3
+        ],
+        "uuid": "48b4f876-0b3e-44ee-8a2d-09866d54f706",
+        "name": ""
+    },
+    "model": "mirrorsvc.mirrorset",
+    "pk": 3
+},
+{
+    "fields": {
+        "uuid": "df5f0463-f8c8-4207-a6d7-5feb4011be2b",
+        "refresh_in_progress": false,
+        "url": "http://example.com/",
+        "series": "trusty",
+        "extra_admins": [],
+        "components": "main",
+        "owner": 5,
+        "public": false
+    },
+    "model": "mirrorsvc.mirror",
+    "pk": 1
+},
+{
+    "fields": {
+        "uuid": "829bd2cd-eaaf-4244-a6a6-569cab027a6c",
+        "refresh_in_progress": false,
+        "url": "http://2.example.com/",
+        "series": "trusty",
+        "extra_admins": [],
+        "components": "main",
+        "owner": 5,
+        "public": false
+    },
+    "model": "mirrorsvc.mirror",
+    "pk": 2
+},
+{
+    "fields": {
+        "uuid": "a472aae3-0324-4551-9ea1-bad9e2447db1",
+        "refresh_in_progress": false,
+        "url": "http://3.example.com/",
+        "series": "trusty",
+        "extra_admins": [],
+        "components": "main",
+        "owner": 5,
+        "public": false
+    },
+    "model": "mirrorsvc.mirror",
+    "pk": 3
+},
+{
+    "fields": {
+        "uuid": "57bdfeb4-9a67-4c8d-8e71-147591cc826d",
+        "refresh_in_progress": false,
+        "url": "http://4.example.com/",
+        "series": "trusty",
+        "extra_admins": [],
+        "components": "main",
+        "owner": 5,
+        "public": false
+    },
+    "model": "mirrorsvc.mirror",
+    "pk": 4
+},
+{
+    "fields": {
+        "apt_mirror_prefix": "i386",
+        "name": "x86"
+    },
+    "model": "mirrorsvc.architecture",
+    "pk": 1
+},
+{
+    "fields": {
+        "apt_mirror_prefix": "amd64",
+        "name": "x86 64-bit"
+    },
+    "model": "mirrorsvc.architecture",
+    "pk": 2
+},
+{
+    "fields": {
+        "apt_mirror_prefix": "src",
+        "name": "Source"
+    },
+    "model": "mirrorsvc.architecture",
+    "pk": 3
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.104Z",
+        "mirrorset": 1,
+        "uuid": "470688a8-7294-4c17-b020-1d67aebaf972"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 1
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.251Z",
+        "mirrorset": 2,
+        "uuid": "550b80c8-0632-4f1e-b3d2-63392d82eeea"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 2
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.295Z",
+        "mirrorset": 3,
+        "uuid": "f8e81e20-b6c3-4c92-b95a-8b8e9845aadd"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 3
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.361Z",
+        "mirrorset": 1,
+        "uuid": "c0412976-b9bd-4085-9c10-400a2261dbd1"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 4
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.400Z",
+        "mirrorset": 2,
+        "uuid": "c97fe86d-916e-4f6b-a102-68f8f37d74fc"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 5
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.444Z",
+        "mirrorset": 3,
+        "uuid": "af126da8-3573-4a14-b716-feb7649c0a5c"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 6
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.498Z",
+        "mirrorset": 1,
+        "uuid": "32d15c0d-53c3-4aba-bfdd-4f08be1d90bc"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 7
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.551Z",
+        "mirrorset": 2,
+        "uuid": "e22d5fed-fff6-490d-ba34-5825eb7cd196"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 8
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.593Z",
+        "mirrorset": 3,
+        "uuid": "4fa83ae6-f3c8-4732-8bca-f0517b8cf50c"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 9
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.640Z",
+        "mirrorset": 1,
+        "uuid": "eadaa794-77c6-4797-8be8-c06e2bfa0021"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 10
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.689Z",
+        "mirrorset": 2,
+        "uuid": "01563925-ba3f-476d-b496-2d9da8956268"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 11
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.733Z",
+        "mirrorset": 3,
+        "uuid": "a6ba9c12-af59-45b8-9fb5-2d3587942097"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 12
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.774Z",
+        "mirrorset": 1,
+        "uuid": "696c3384-b77b-4eac-b72b-ca840737b18a"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 13
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.820Z",
+        "mirrorset": 2,
+        "uuid": "35bfb3d1-c50f-440a-a92c-f749c80b9f89"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 14
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.863Z",
+        "mirrorset": 3,
+        "uuid": "00473394-9dc2-426b-8e7b-fdcd23b951eb"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 15
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.913Z",
+        "mirrorset": 1,
+        "uuid": "a04d3ea6-4690-4272-aa68-7e7a8868589c"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 16
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:07.956Z",
+        "mirrorset": 2,
+        "uuid": "43565902-ba72-4de8-a0f6-ce5292ea3e0f"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 17
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.020Z",
+        "mirrorset": 3,
+        "uuid": "3355b284-dbf6-4700-ad15-206e1e89baf0"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 18
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.062Z",
+        "mirrorset": 1,
+        "uuid": "d6ba9bc0-c454-499f-a4cd-6a8306fab3ee"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 19
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.102Z",
+        "mirrorset": 2,
+        "uuid": "fa41ee29-45d5-45b2-88ae-311b20ff6b59"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 20
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.196Z",
+        "mirrorset": 3,
+        "uuid": "98e037c2-8541-45c9-a33b-cd2959e6dba6"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 21
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.238Z",
+        "mirrorset": 1,
+        "uuid": "b771680d-5654-452f-b679-3adff760154a"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 22
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.284Z",
+        "mirrorset": 2,
+        "uuid": "552574dc-7947-4c5e-8246-22572b8e8eaf"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 23
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.322Z",
+        "mirrorset": 3,
+        "uuid": "5196ff80-3184-4cec-8522-2d140e6c9793"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 24
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.368Z",
+        "mirrorset": 1,
+        "uuid": "4131eedc-8979-4f28-b2a6-1a93bc1d5279"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 25
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.414Z",
+        "mirrorset": 2,
+        "uuid": "42f9a1e5-6aa5-4944-8c76-4b7112069cac"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 26
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.466Z",
+        "mirrorset": 3,
+        "uuid": "ceca852d-d266-4f80-9cdb-93c7fb8d7c3b"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 27
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.512Z",
+        "mirrorset": 1,
+        "uuid": "e7a206d4-e019-4553-9e3c-7e8832b569ff"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 28
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.555Z",
+        "mirrorset": 2,
+        "uuid": "afd897ba-6eca-4a13-a200-38cc04eb9a6f"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 29
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.609Z",
+        "mirrorset": 3,
+        "uuid": "223c03b8-6f59-46aa-87b8-75bcef6088c6"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 30
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.649Z",
+        "mirrorset": 1,
+        "uuid": "644c75d4-c068-430a-b97f-1ef77f5823b5"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 31
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.747Z",
+        "mirrorset": 2,
+        "uuid": "a92a9983-5e6d-49d4-9b73-7432d7374268"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 32
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.799Z",
+        "mirrorset": 3,
+        "uuid": "eb26b3ed-58db-4c0d-93c9-76a6bc0c675c"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 33
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.838Z",
+        "mirrorset": 1,
+        "uuid": "336ba32f-eba7-4f98-a7ce-996b74cf53d9"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 34
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.879Z",
+        "mirrorset": 2,
+        "uuid": "a248a5a0-d3e0-456b-9e81-d5a1232f3df5"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 35
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.941Z",
+        "mirrorset": 3,
+        "uuid": "0a6adf22-e035-4adc-b53f-ca9c0313b9b2"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 36
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:08.991Z",
+        "mirrorset": 1,
+        "uuid": "c28c40a3-ff13-4096-8773-1cadfb94e368"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 37
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.030Z",
+        "mirrorset": 2,
+        "uuid": "87fea807-1f18-48d7-9794-574663d1fbb9"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 38
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.082Z",
+        "mirrorset": 3,
+        "uuid": "d50a65f0-461c-4727-a797-0589fc002110"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 39
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.123Z",
+        "mirrorset": 1,
+        "uuid": "b3480374-7cb3-4748-9e13-6e4a9928af49"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 40
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.169Z",
+        "mirrorset": 2,
+        "uuid": "3cbf0018-c836-4fe7-ae06-3a7557d9799a"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 41
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.225Z",
+        "mirrorset": 3,
+        "uuid": "b1b5ab77-260e-4c9e-a08f-2f03c507fd77"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 42
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.269Z",
+        "mirrorset": 1,
+        "uuid": "5086f147-479b-439b-8c2e-731214f0e83e"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 43
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.314Z",
+        "mirrorset": 2,
+        "uuid": "26dc17c1-2c19-405c-8e1a-226f81a2b9b9"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 44
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.360Z",
+        "mirrorset": 3,
+        "uuid": "e2c73d86-79f6-4245-9152-89c89e93b54d"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 45
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.395Z",
+        "mirrorset": 1,
+        "uuid": "b5a2e1de-8b3b-4490-b2b5-5f3da3dbb318"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 46
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.447Z",
+        "mirrorset": 2,
+        "uuid": "75d51698-d66f-4770-a4ca-4bae6043df87"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 47
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.496Z",
+        "mirrorset": 3,
+        "uuid": "bbf90018-8368-4a3f-86cd-b4f3b649d180"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 48
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.537Z",
+        "mirrorset": 1,
+        "uuid": "8f1a7345-7006-4d60-aa4f-1609855c890d"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 49
+},
+{
+    "fields": {
+        "timestamp": "2015-11-13T11:53:09.583Z",
+        "mirrorset": 2,
+        "uuid": "eda315e6-bb34-4c0c-a957-ee9c675668df"
+    },
+    "model": "mirrorsvc.snapshot",
+    "pk": 50
+}
+]

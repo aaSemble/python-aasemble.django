@@ -12,36 +12,34 @@ from .models import PackageSource, Repository, Series
 
 
 class RepositoryTestCase(TestCase):
-    fixtures = ['buildsvc.json']
-
     def test_unicode(self):
-        repo = Repository.objects.get(id=1)
-        self.assertEquals(str(repo), 'sorenh/sorenh')
+        repo = Repository.objects.get(id=12)
+        self.assertEquals(str(repo), 'eric/eric5')
 
     def test_lookup_by_user_with_extra_admin(self):
-        sorenh = auth_models.User.objects.get(id=1)
-        self.assertEquals(set([1, 2, 3]), set([repo.id for repo in Repository.lookup_by_user(sorenh)]))
+        charles = auth_models.User.objects.get(id=3)
+        self.assertEquals(set([2, 3]), set([repo.id for repo in Repository.lookup_by_user(charles)]))
 
     def test_lookup_by_user_without_extra_admin(self):
-        alterego = auth_models.User.objects.get(id=2)
-        self.assertEquals(set([3]), set([repo.id for repo in Repository.lookup_by_user(alterego)]))
+        frank = auth_models.User.objects.get(id=4)
+        self.assertEquals(set([3]), set([repo.id for repo in Repository.lookup_by_user(frank)]))
 
     def test_lookup_by_user_with_multiple_groups(self):
-        alterego2 = auth_models.User.objects.get(id=3)
-        self.assertEquals(set([2, 3]), set([repo.id for repo in Repository.lookup_by_user(alterego2)]))
+        brandon = auth_models.User.objects.get(id=2)
+        self.assertEquals(set([1, 3]), set([repo.id for repo in Repository.lookup_by_user(brandon)]))
 
     def test_user_can_modify_own_repo(self):
-        sorenh = auth_models.User.objects.get(id=1)
-        self.assertTrue(Repository.objects.get(id=1).user_can_modify(sorenh))
-        self.assertTrue(Repository.objects.get(id=2).user_can_modify(sorenh))
+        eric = auth_models.User.objects.get(id=5)
+        self.assertTrue(Repository.objects.get(id=4).user_can_modify(eric))
+        self.assertTrue(Repository.objects.get(id=12).user_can_modify(eric))
 
     def test_user_can_modify_other_repo(self):
-        sorenh = auth_models.User.objects.get(id=1)
-        self.assertTrue(Repository.objects.get(id=3).user_can_modify(sorenh))
+        charles = auth_models.User.objects.get(id=3)
+        self.assertTrue(Repository.objects.get(id=3).user_can_modify(charles))
 
     def test_user_can_not_modify_other_repo(self):
-        alterego = auth_models.User.objects.get(id=2)
-        self.assertFalse(Repository.objects.get(id=1).user_can_modify(alterego))
+        brandon = auth_models.User.objects.get(id=2)
+        self.assertFalse(Repository.objects.get(id=12).user_can_modify(brandon))
 
     def test_ensure_key_noop_when_key_id_set(self):
         repo = Repository.objects.get(id=1)
@@ -50,7 +48,7 @@ class RepositoryTestCase(TestCase):
             self.assertFalse(run_cmd.called)
 
     def test_ensure_key_generates_when_needed(self):
-        repo = Repository.objects.get(id=2)
+        repo = Repository.objects.get(id=13)
         repo.ensure_key()
         self.assertEquals(repo.key_id, 'FAKEID')
 
@@ -81,47 +79,47 @@ class RepositoryTestCase(TestCase):
         self.assertEquals(series.name, 'somethingelse')
 
     def test_unique_reponame_raises_integrity_error(self):
-        self.assertRaises(IntegrityError, Repository.objects.create, user_id=1, name='sorenh')
+        self.assertRaises(IntegrityError, Repository.objects.create, user_id=5, name='eric4')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
     def test_basedir(self):
-        repo = Repository.objects.get(id=2)
-        self.assertEquals(repo.basedir, '/some/dir/sorenh/other')
+        repo = Repository.objects.get(id=12)
+        self.assertEquals(repo.basedir, '/some/dir/eric/eric5')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
     def test_confdir(self):
-        repo = Repository.objects.get(id=2)
-        self.assertEquals(repo.confdir(), '/some/dir/sorenh/other/conf')
+        repo = Repository.objects.get(id=12)
+        self.assertEquals(repo.confdir(), '/some/dir/eric/eric5/conf')
 
     @override_settings(BUILDSVC_REPOS_BASE_PUBLIC_DIR='/some/public/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
     def test_outdir(self):
-        repo = Repository.objects.get(id=2)
-        self.assertEquals(repo.outdir(), '/some/public/dir/sorenh/other')
+        repo = Repository.objects.get(id=12)
+        self.assertEquals(repo.outdir(), '/some/public/dir/eric/eric5')
 
     @override_settings(BUILDSVC_REPOS_BASE_PUBLIC_DIR='/some/public/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
     def test_buildlogdir(self):
-        repo = Repository.objects.get(id=2)
-        self.assertEquals(repo.buildlogdir, '/some/public/dir/sorenh/other/buildlogs')
+        repo = Repository.objects.get(id=12)
+        self.assertEquals(repo.buildlogdir, '/some/public/dir/eric/eric5/buildlogs')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
     def test_gpghome(self):
-        repo = Repository.objects.get(id=2)
-        self.assertEquals(repo.gpghome(), '/some/dir/sorenh/other/.gnupg')
+        repo = Repository.objects.get(id=12)
+        self.assertEquals(repo.gpghome(), '/some/dir/eric/eric5/.gnupg')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/public/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
     def test_ensure_directory_structure(self):
         with mock.patch('aasemble.django.apps.buildsvc.models.recursive_render') as recursive_render:
-            repo = Repository.objects.get(id=2)
+            repo = Repository.objects.get(id=12)
             repo.ensure_directory_structure()
 
             srcdir = os.path.join(os.path.dirname(__file__), 'templates', 'buildsvc', 'reprepro')
-            dstdir = '/some/public/dir/sorenh/other'
+            dstdir = '/some/public/dir/eric/eric5'
             context = {'repository': repo}
             recursive_render.assert_called_with(srcdir, dstdir, context)
 
@@ -162,13 +160,11 @@ class RepositoryTestCase(TestCase):
 
     @override_settings(BUILDSVC_REPOS_BASE_URL='http://example.com/some/dir')
     def test_baseurl(self):
-        repo = Repository.objects.get(id=2)
-        self.assertEquals(repo.base_url, 'http://example.com/some/dir/sorenh/other')
+        repo = Repository.objects.get(id=12)
+        self.assertEquals(repo.base_url, 'http://example.com/some/dir/eric/eric5')
 
 
 class PackageSourceTestCase(TestCase):
-    fixtures = ['buildsvc.json']
-
     @mock.patch('aasemble.django.apps.buildsvc.tasks.reprepro')
     def test_post_delete(self, reprepro):
         ps = PackageSource.objects.create(series_id=1,
