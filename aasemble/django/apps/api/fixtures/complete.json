@@ -643,7 +643,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "fd0e978c-4b6d-4174-9491-070fe1736110",
         "series": 4,
         "last_built_name": null,
@@ -658,7 +657,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "f0f63852-1b9a-438f-b7b3-e1595d9d72b3",
         "series": 5,
         "last_built_name": null,
@@ -673,7 +671,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "3e5d6dca-de90-4e82-bb2f-c12b81a7504f",
         "series": 6,
         "last_built_name": null,
@@ -688,7 +685,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "7809613c-d9e5-4530-87e0-9a12fcd0fc2f",
         "series": 7,
         "last_built_name": null,
@@ -703,7 +699,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "3fb944de-da7f-45b4-9a68-7853ec1c30f0",
         "series": 8,
         "last_built_name": null,
@@ -718,7 +713,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "ef23256b-290a-46ea-8e40-985ac134410c",
         "series": 9,
         "last_built_name": null,
@@ -733,7 +727,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "dc7d7156-fcd4-4c9d-9eca-2f28741284cb",
         "series": 10,
         "last_built_name": null,
@@ -748,7 +741,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "83c085df-980a-4ad8-8ed5-5807601c068b",
         "series": 4,
         "last_built_name": null,
@@ -763,7 +755,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "8a100a7c-91c0-4006-9e7f-b63cee6e0995",
         "series": 5,
         "last_built_name": null,
@@ -778,7 +769,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "fba87f9f-187b-4221-8121-9de30c5084f1",
         "series": 6,
         "last_built_name": null,
@@ -793,7 +783,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "fdbeace9-536f-4c9a-bb0b-9cb798a9e033",
         "series": 7,
         "last_built_name": null,
@@ -808,7 +797,6 @@
     "fields": {
         "last_seen_revision": null,
         "last_built_version": null,
-        "webhook_registered": false,
         "uuid": "b161fde2-4d8d-4f4a-8a73-1aeb5c99d478",
         "series": 8,
         "last_built_name": null,
