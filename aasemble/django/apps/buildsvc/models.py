@@ -5,6 +5,8 @@ import shutil
 import tempfile
 import uuid
 
+from allauth.socialaccount.models import SocialToken
+
 import deb822
 
 from django.conf import settings
@@ -15,6 +17,8 @@ from django.forms import ModelForm
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.module_loading import import_string
+
+import github3
 
 from six.moves.urllib.parse import urlparse
 
@@ -224,6 +228,8 @@ class ExternalDependency(models.Model):
     def user_can_modify(self, user):
         return self.own_series.user_can_modify(user)
 
+class NotAValidGithubRepository(Exception):
+    pass
 
 @python_2_unicode_compatible
 class PackageSource(models.Model):
@@ -235,6 +241,7 @@ class PackageSource(models.Model):
     last_built_version = models.CharField(max_length=64, null=True, blank=True)
     last_built_name = models.CharField(max_length=64, null=True, blank=True)
     build_counter = models.IntegerField(default=0)
+    webhook_registered = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s/%s' % (self.git_url, self.branch)
@@ -313,6 +320,38 @@ class PackageSource(models.Model):
 
     def user_can_modify(self, user):
         return self.series.user_can_modify(user)
+
+    def github_owner_repo(self):
+        github_prefix = 'https://github.com/'
+
+        if not self.git_url.startswith(github_prefix):
+            raise NotAValidGithubRepository()
+
+        owner_repo = self.git_url[len(github_prefix):]
+
+        parts = owner_repo.split('/')
+
+        if len(parts) != 2:
+            raise NotAValidGithubRepository()
+
+        return (parts[0], parts[1])
+
+    def register_webhook(self):
+        try:
+            owner, repo = self.github_owner_repo()
+        except NotAValidGithubRepository:
+            return False
+
+        for token in SocialToken.objects.filter(account__in=self.series.repository.user.socialaccount_set.filter(provider='github')):
+            gh = github3.GitHub(token=token.token)
+            repo = gh.repository(owner, repo)
+            if repo.create_hook(name='web', config={'url': settings.GITHUB_WEBHOOK_URL,
+                                                    'content_type': 'json'}):
+                self.webhook_registered = True
+                self.save()
+                return True
+
+        return False
 
 
 class BuildRecord(models.Model):
