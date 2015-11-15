@@ -8,7 +8,7 @@ import mock
 
 from aasemble.django.tests import AasembleTestCase as TestCase
 
-from .models import PackageSource, Repository, Series, NotAValidGithubRepository
+from .models import NotAValidGithubRepository, PackageSource, Repository, Series
 
 
 class RepositoryTestCase(TestCase):

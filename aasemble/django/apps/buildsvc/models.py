@@ -228,8 +228,10 @@ class ExternalDependency(models.Model):
     def user_can_modify(self, user):
         return self.own_series.user_can_modify(user)
 
+
 class NotAValidGithubRepository(Exception):
     pass
+
 
 @python_2_unicode_compatible
 class PackageSource(models.Model):
