@@ -19,11 +19,15 @@
         <tr>
           <td><small><a href="{% url "buildsvc:package_source" source_id=source.id %}">{% bootstrap_icon "pencil" %}</a></small></td>
           <td><a href="{{ source.git_url }}">{{ source.git_url }}</a></td>
-          <td><a href="{{ source.github_repository.url }}/tree/{{ source.branch }}">{{ source.branch }}</a></td>
+          <td><a href="{{ source.git_url }}/tree/{{ source.branch }}">{{ source.branch }}</a></td>
           <td><a href="#">{{ source.series }}</a></td>
-          {% with source.git_url|add:"/commit/"|add:source.last_built_version as last_built_commit_url %}
-          <td><a href="{{ last_built_commit_url }}">{{ source.last_built_version }}</a></td>
-          {% endwith %}
+          {% if source.last_built_version == None %}
+              <td>None</td>
+          {% else %}
+              {% with source.git_url|add:"/commit/"|add:source.last_built_version as last_built_commit_url %}
+              <td><a href="{{ last_built_commit_url }}">{{ source.last_built_version }}</a></td>
+              {% endwith %}
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
