@@ -26,5 +26,5 @@ def poll_one(package_source_id):
 @shared_task(ignore_result=True)
 def poll_all():
     from .models import PackageSource
-    for ps in PackageSource.objects.all():
+    for ps in PackageSource.objects.filter(webhook_registered=False):
         poll_one.delay(ps.id)
