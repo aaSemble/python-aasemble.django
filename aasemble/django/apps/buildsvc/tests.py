@@ -251,31 +251,6 @@ class PackageSourceTestCase(TestCase):
         ps.refresh_from_db()
         self.assertFalse(ps.webhook_registered)
 
-
-    @mock.patch('github3.GitHub')
-    @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
-    def test_register_webhook_fails_does_not_update_db(self, GitHub):
-        ps = PackageSource.objects.create(series_id=1,
-                                          git_url='https://github.com/owner/repo',
-                                          branch='master',
-                                          last_built_name='something')
-
-        self.assertFalse(ps.webhook_registered)
-
-        connection = GitHub.return_value
-        repository = connection.repository.return_value
-        repository.create_hook.return_value = None
-
-        ps.register_webhook()
-
-        connection.repository.assert_called_with('owner', 'repo')
-        repository.create_hook.assert_called_with(name='web',
-                                                  config={'url': 'https://example.com/api/github/',
-                                                          'content_type': 'json'})
-
-        ps.refresh_from_db()
-        self.assertFalse(ps.webhook_registered)
-
     @mock.patch('github3.GitHub')
     @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
     def test_register_webhook_already_registered_updates_db(self, GitHub):
@@ -288,6 +263,7 @@ class PackageSourceTestCase(TestCase):
 
         class Response(object):
             status_code = 422
+
             def json(self):
                 return {u'documentation_url': u'https://developer.github.com/v3/repos/hooks/#create-a-hook',
                         u'errors': [{u'code': u'custom',
@@ -319,5 +295,4 @@ class PackageSourceTestCase(TestCase):
                                           webhook_registered=True)
 
         self.assertTrue(ps.register_webhook())
-
-        connection = GitHub.assert_not_called()
+        GitHub.assert_not_called()
