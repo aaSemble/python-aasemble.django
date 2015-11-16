@@ -30,9 +30,9 @@ class APIv1RepositoryTests(APIv1Tests):
             self.assertEquals(resp.status_code, 200)
 
     def test_fetch_external_dependencies(self):
-        # Use alterego2 to make sure it works with users who are members
+        # Use brandon to make sure it works with users who are members
         # of multiple groups
-        authenticate(self.client, 'eric')
+        authenticate(self.client, 'brandon')
         response = self.client.get(self.list_url)
 
         for repo in response.data['results']:
