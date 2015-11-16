@@ -8,7 +8,7 @@ import mock
 
 from aasemble.django.tests import AasembleTestCase as TestCase
 
-from .models import PackageSource, Repository, Series
+from .models import NotAValidGithubRepository, PackageSource, Repository, Series
 
 
 class RepositoryTestCase(TestCase):
@@ -173,3 +173,78 @@ class PackageSourceTestCase(TestCase):
                                           last_built_name='something')
         ps.delete()
         reprepro.delay.assert_called_with(1, 'removesrc', 'aasemble', 'something')
+
+    def test_github_owner_repo(self):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://github.com/owner/repo',
+                                          branch='master',
+                                          last_built_name='something')
+        self.assertEquals(('owner', 'repo'), ps.github_owner_repo())
+
+    def test_github_owner_repo_not_github(self):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://example.com/git',
+                                          branch='master',
+                                          last_built_name='something')
+        self.assertRaises(NotAValidGithubRepository, ps.github_owner_repo)
+
+    def test_github_owner_repo_too_many_parts(self):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://github.com/part1/part2/part3',
+                                          branch='master',
+                                          last_built_name='something')
+        self.assertRaises(NotAValidGithubRepository, ps.github_owner_repo)
+
+    def test_github_owner_repo_too_few_parts(self):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://github.com/part1',
+                                          branch='master',
+                                          last_built_name='something')
+        self.assertRaises(NotAValidGithubRepository, ps.github_owner_repo)
+
+    @mock.patch('github3.GitHub')
+    @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
+    def test_register_webhook(self, GitHub):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://github.com/owner/repo',
+                                          branch='master',
+                                          last_built_name='something')
+
+        self.assertFalse(ps.webhook_registered)
+        ps.register_webhook()
+
+        GitHub.assert_called_with(token='2348562349569324875692387562364598732645')
+
+        connection = GitHub.return_value
+        connection.repository.assert_called_with('owner', 'repo')
+
+        repository = connection.repository.return_value
+        repository.create_hook.assert_called_with(name='web',
+                                                  config={'url': 'https://example.com/api/github/',
+                                                          'content_type': 'json'})
+        ps.refresh_from_db()
+        self.assertTrue(ps.webhook_registered)
+
+    @mock.patch('github3.GitHub')
+    @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
+    def test_register_webhook_fails_does_not_update_db(self, GitHub):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://github.com/owner/repo',
+                                          branch='master',
+                                          last_built_name='something')
+
+        self.assertFalse(ps.webhook_registered)
+
+        connection = GitHub.return_value
+        repository = connection.repository.return_value
+        repository.create_hook.return_value = None
+
+        ps.register_webhook()
+
+        connection.repository.assert_called_with('owner', 'repo')
+        repository.create_hook.assert_called_with(name='web',
+                                                  config={'url': 'https://example.com/api/github/',
+                                                          'content_type': 'json'})
+
+        ps.refresh_from_db()
+        self.assertFalse(ps.webhook_registered)
