@@ -10,6 +10,7 @@ from rest_framework.response import Response
 
 LOG = logging.getLogger(__name__)
 
+
 class MyUserAdapter(DefaultAccountAdapter):
     def populate_username(self, request, user):
         if not user.username:
