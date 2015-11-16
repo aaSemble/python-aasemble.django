@@ -129,6 +129,23 @@ class APIv1RepositoryTests(APIv1Tests):
 
         self.client.patch(repo['self'], data, format='json')
 
+    def test_delete_deleted_repository(self):
+        repo = self.test_create_repository()
+
+        response = self.client.delete(repo['self'])
+
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.delete(repo['self'])
+
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_repository_invalid_token(self):
+        repo = self.test_create_repository()
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.delete(repo['self'])
+        self.assertEquals(response.status_code, 401)
+
 
 class APIv2RepositoryTests(APIv1RepositoryTests):
     list_url = '/api/v2/repositories/'
