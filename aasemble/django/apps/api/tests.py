@@ -20,9 +20,9 @@ class APIv1RepositoryTests(APIv1Tests):
     list_url = '/api/v1/repositories/'
 
     def test_fetch_sources(self):
-        # Use alterego2 to make sure it works with users who are members
+        # Use user brandon to make sure it works with users who are members
         # of multiple groups
-        authenticate(self.client, 'eric')
+        authenticate(self.client, 'brandon')
         response = self.client.get(self.list_url)
 
         for repo in response.data['results']:
