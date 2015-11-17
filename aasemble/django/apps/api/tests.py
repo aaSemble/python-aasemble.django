@@ -245,6 +245,19 @@ class APIv1SourceTests(APIv1Tests):
         response = self.client.get(source['self'])
         self.assertEquals(response.status_code, 404)
 
+    def test_delete_source_other_user(self):
+        source = self.test_create_source()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(source['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_source_super_user(self):
+        source = self.test_create_source()
+        authenticate(self.client, 'george')
+        response = self.client.delete(source['self'])
+        self.assertEquals(response.status_code, 204)
+
+
 
 class APIv2SourceTests(APIv1SourceTests):
     list_url = '/api/v2/sources/'
