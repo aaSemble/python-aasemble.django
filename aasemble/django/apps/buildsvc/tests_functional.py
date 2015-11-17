@@ -49,22 +49,36 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         text_found = re.search(r'Sources', page_header.text)
         self.assertNotEqual(text_found, None)
 		
-    def test_source_package (self):
+    def test_source_package (self) :
+        '''This test perform a basic package addition and deletion.
+           This test consist of following steps
+           1. Create a session cookie for given user.This step includes a
+              user creation.
+           2. Create a group. This will serve as Extra admin for test repo.
+           3. Create a test repo under user that wwe have created in step 1
+           4. Create a series with the repo of step 3.
+           5. Try to create a Package.
+           6. Verify if the package has been created.
+           7. Try to delete the package
+           8. Verify if the package has been deleted
+           9. Peform cleanup like delete user. repo etc that we have created.
+        '''
         session_cookie = create_session_cookie(username='myuser', password='123456')
         group = create_default_group(name='mygrp')
-        self.assertEqual(group.name, 'mygrp')
+        self.assertEqual(group.name, 'mygrp', "group not created")
         repo = create_default_repo(name='myrepo', username='myuser')
-        self.assertEqual(repo.name, 'myrepo')
+        self.assertEqual(repo.name, 'myrepo', "Repo not created")
         series = create_series(name='myseries', reponame='myrepo')
-        self.assertEqual(series.name, 'myseries')
+        self.assertEqual(series.name, 'myseries', "Series not created")
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(session_cookie)
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
         self.create_new_package_source(git_url=git_url, branch='master', series='myrepo/myseries')
-        self.verify_package_source(git_url=git_url)
+        self.assertEqual(self.verify_package_source(git_url=git_url), True, 'Package not created')
         self.delete_package_source()
+        self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
         #We will follow opposite order as that of creation
         delete_series(name='myseries')
         delete_repo(name='myrepo')
@@ -91,7 +105,12 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def verify_package_source(self, git_url):
         self.sources_button.click()
         #It will report an exception if element not found
-        self.selenium.find_element(by.By.LINK_TEXT, git_url)
+        try:
+            self.selenium.find_element(by.By.LINK_TEXT, git_url)
+        except:
+            return False
+        else:
+            return True
 
     @property
     def sources_button(self):
