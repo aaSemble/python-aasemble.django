@@ -339,19 +339,30 @@ class PackageSource(models.Model):
         return (parts[0], parts[1])
 
     def register_webhook(self):
+        if self.webhook_registered:
+            return True
+
         try:
             owner, repo = self.github_owner_repo()
         except NotAValidGithubRepository:
             return False
 
-        for token in SocialToken.objects.filter(account__in=self.series.repository.user.socialaccount_set.filter(provider='github')):
-            gh = github3.GitHub(token=token.token)
-            repo = gh.repository(owner, repo)
-            if repo.create_hook(name='web', config={'url': settings.GITHUB_WEBHOOK_URL,
-                                                    'content_type': 'json'}):
+        try:
+            for token in SocialToken.objects.filter(account__in=self.series.repository.user.socialaccount_set.filter(provider='github')):
+                gh = github3.GitHub(token=token.token)
+                repo = gh.repository(owner, repo)
+                if repo.create_hook(name='web', config={'url': settings.GITHUB_WEBHOOK_URL,
+                                                        'content_type': 'json'}):
+                    self.webhook_registered = True
+                    self.save()
+                    return True
+        except github3.GitHubError as exc:
+            msgs = [e['message'] for e in exc.errors]
+            if 'Hook already exists on this repository' in msgs:
                 self.webhook_registered = True
                 self.save()
-                return True
+            else:
+                raise
 
         return False
 
