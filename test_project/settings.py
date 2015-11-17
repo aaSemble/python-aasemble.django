@@ -69,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'aasemble.django.apps.main.context_processors.internal_name_change',
             ],
         },
     },
@@ -182,6 +183,6 @@ REST_AUTH_SERIALIZERS = {
 # Import local development server settings. settings_local is not present in git, not relevant for production deployment
 
 try:
-	from settings_local import *
+    from settings_local import *
 except ImportError as e:
-	pass
+    pass
