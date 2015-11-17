@@ -4,7 +4,7 @@ django-celery
 dj-static
 python-debian
 djangorestframework
-git+https://github.com/sorenh/drf-nested-routers@escape-regexes#egg=drf-nested-routers
+git+https://github.com/alanjds/drf-nested-routers
 chardet
 pytz
 mysqlclient
