@@ -292,6 +292,24 @@ class APIv1SourceTests(APIv1Tests):
         response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 204)
 
+    def test_delete_source_invalid_token(self):
+        source = self.test_create_source()
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.delete(source['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_source_deactivated_super_user(self):
+        source = self.test_create_source()
+        authenticate(self.client, 'harold')
+        response = self.client.delete(source['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_source_deactivated_other_user(self):
+        source = self.test_create_source()
+        authenticate(self.client, 'frank')
+        response = self.client.delete(source['self'])
+        self.assertEquals(response.status_code, 401)
+
 
 class APIv2SourceTests(APIv1SourceTests):
     list_url = '/api/v2/sources/'
