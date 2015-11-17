@@ -258,7 +258,6 @@ class APIv1SourceTests(APIv1Tests):
         self.assertEquals(response.status_code, 204)
 
 
-
 class APIv2SourceTests(APIv1SourceTests):
     list_url = '/api/v2/sources/'
 
