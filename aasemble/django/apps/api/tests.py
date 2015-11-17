@@ -127,7 +127,8 @@ class APIv1RepositoryTests(APIv1Tests):
         repo = self.test_create_repository()
         data = {'user': 'testuser2'}
 
-        self.client.patch(repo['self'], data, format='json')
+        response = self.client.patch(repo['self'], data, format='json')
+        self.assertNotEquals(response.data['user'], 'testuser2', '"user" read-only field changed')
 
     def test_delete_deleted_repository(self):
         repo = self.test_create_repository()
