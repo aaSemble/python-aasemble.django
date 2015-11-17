@@ -158,6 +158,18 @@ class APIv1RepositoryTests(APIv1Tests):
         response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 204)
 
+    def test_delete_repository_deactivated_super_user(self):
+        repo = self.test_create_repository()
+        authenticate(self.client, 'harold')
+        response = self.client.delete(repo['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_repository_deactivated_other_user(self):
+        repo = self.test_create_repository()
+        authenticate(self.client, 'frank')
+        response = self.client.delete(repo['self'])
+        self.assertEquals(response.status_code, 401)
+
 
 class APIv2RepositoryTests(APIv1RepositoryTests):
     list_url = '/api/v2/repositories/'
