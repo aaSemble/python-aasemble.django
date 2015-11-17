@@ -33,7 +33,7 @@ class MirrorViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user) | self.queryset.filter(public=True)
+        return self.queryset.filter(owner_id=self.request.user.id) | self.queryset.filter(public=True)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -59,7 +59,7 @@ class MirrorSetViewSet(viewsets.ModelViewSet):
     lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
+        return self.queryset.filter(owner_id=self.request.user.id)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -79,7 +79,7 @@ class SnapshotViewSet(mixins.CreateModelMixin,
     lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
     def get_queryset(self):
-        return self.queryset.filter(mirrorset__owner=self.request.user)
+        return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
 
 
 class RepositoryViewSet(viewsets.ModelViewSet):
