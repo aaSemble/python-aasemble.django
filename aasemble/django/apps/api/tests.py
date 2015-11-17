@@ -184,6 +184,15 @@ class APIv1RepositoryTests(APIv1Tests):
         response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 401)
 
+    def test_create_same_name_repository_different_user(self):
+        data = {'name': 'testrepo'}
+        authenticate(self.client, 'eric')
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        authenticate(self.client, 'dennis')
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+
 
 class APIv2RepositoryTests(APIv1RepositoryTests):
     list_url = '/api/v2/repositories/'
