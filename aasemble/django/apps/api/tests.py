@@ -445,6 +445,19 @@ class APIv1MirrorsetTests(APIv1Tests):
 
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrors': ['This field is required.']})
+
+    def test_create_mirrorset(self):
+        data = {'url': 'http://example.com/',
+                'series': ['trusty'],
+                'components': ['main']}
+        authenticate(self.client, 'eric')
+        response = self.client.post(self.list_url.replace('mirror_sets', 'mirrors'), data, format='json')
+        self.assertEquals(response.status_code, 201)
+        data = {'mirrors': [response.data['self']]}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        return response.data
 
 
 class APIv2MirrorsetTests(APIv1MirrorsetTests):
