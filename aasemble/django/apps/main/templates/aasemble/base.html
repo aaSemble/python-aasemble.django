@@ -7,7 +7,7 @@
     <link href="{% static "aasemble/main/dashboard.css" %}" rel="stylesheet">
 {% endblock %}
 
-{% block bootstrap3_title %}Overcast Cloud{% endblock %}
+{% block bootstrap3_title %}{{ title }}{% endblock %}
 {% block bootstrap3_content %}
 
     <!-- Custom styles for this template -->
@@ -21,7 +21,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Overcast Cloud</a>
+          <a class="navbar-brand" href="#">{{ title }}</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           {% if request.user.is_authenticated %}
