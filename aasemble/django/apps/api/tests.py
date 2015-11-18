@@ -459,6 +459,35 @@ class APIv1MirrorsetTests(APIv1Tests):
         self.assertEquals(response.status_code, 201)
         return response.data
 
+    def test_delete_mirrorset(self):
+        mirrorset = self.test_create_mirrorset()
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 204)
+
+    def test_delete_mirrorset_invalid_token(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirrorset_other_user(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirrorset_deactivated_super_user(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, 'harold')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirrorset_deactivated_other_user(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, 'frank')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 401)
+
 
 class APIv2MirrorsetTests(APIv1MirrorsetTests):
     list_url = '/api/v2/mirror_sets/'
