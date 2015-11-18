@@ -50,14 +50,14 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.assertNotEqual(text_found, None)
 		
     def test_source_package (self) :
-        '''This test perform a basic package addition and deletion.
-           This test consist of following steps
-           1. Create a session cookie for given user.This step includes a
+        '''This test performs a basic package addition and deletion.
+           This test consists of following steps:
+           1. Create a session cookie for given user. This step includes a
               user creation.
-           2. Create a group. This will serve as Extra admin for test repo.
+           2. Create a group. This will serve as 'Extra admin' for test repo.
            3. Create a test repo under user that we have created in step 1
            4. Create a series with the repo of step 3.
-           5. Try to create a Package.
+           5. Try to create a package.
            6. Verify if the package has been created.
            7. Try to delete the package
            8. Verify if the package has been deleted
@@ -87,9 +87,9 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
 
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create
-        a package. This consist of following steps.
-        1. Click on new button..
-        2. Enter Values like git_url, branch and series.
+        a package. This consists of following steps:
+        1. Click on new button.
+        2. Enter values like git_url, branch and series.
         3. Click submit.
         INPUT: git_url, branch and series (All string type)'''
         self.new_submit_button.click()
@@ -107,9 +107,9 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
 
     def delete_package_source(self):
         '''This is the helper method to delete a package.
-        This consist of followwinng steps:
+        This consists of followwinng steps:
         1. Click on source button.
-        2. Click on edit button for first package.
+        2. Click on edit button for package.
         3. click on delete button.'''
         self.sources_button.click()
         self.package_edit_button.click()
