@@ -374,6 +374,37 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertEquals(data, response.data)
         return response.data
 
+    def test_delete_mirror(self):
+        mirror = self.test_create_mirror()
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get(mirror['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirror_other_user(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirror_invalid_token(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirror_deactivated_super_user(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, 'harold')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirror_deactivated_other_user(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, 'frank')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 401)
+
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
     def test_refresh_mirror(self, refresh_mirror):
         mirror = self.test_create_mirror()
