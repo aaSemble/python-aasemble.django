@@ -432,3 +432,20 @@ class GithubHookViewTestCase(APIv1Tests):
         from .tasks import github_push_event
         github_push_event("https://github.com/eric/project0")
         poll_one.delay.assert_called_with(1)
+
+
+class APIv1MirrorsetTests(APIv1Tests):
+    list_url = '/api/v1/mirror_sets/'
+
+    def test_create_mirrorset_empty_fails_400(self):
+        # TODO: The funny thing is, this scenario succeeds in creating mirrorset
+        # on the prod server returning a status code of 201 CREATED. Check why.
+        data = {}
+        authenticate(self.client, 'eric')
+
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+
+
+class APIv2MirrorsetTests(APIv1MirrorsetTests):
+    list_url = '/api/v2/mirror_sets/'
