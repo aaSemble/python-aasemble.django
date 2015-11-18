@@ -55,7 +55,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
            1. Create a session cookie for given user.This step includes a
               user creation.
            2. Create a group. This will serve as Extra admin for test repo.
-           3. Create a test repo under user that wwe have created in step 1
+           3. Create a test repo under user that we have created in step 1
            4. Create a series with the repo of step 3.
            5. Try to create a Package.
            6. Verify if the package has been created.
@@ -152,7 +152,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     
     @property
     def package_edit_button(self):
-        '''Finds first package edit. 
+        '''Finds package edit button. 
         NOTE: Only one package is expected at once'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
 
