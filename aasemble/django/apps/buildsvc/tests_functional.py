@@ -61,8 +61,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
            6. Verify if the package has been created.
            7. Try to delete the package
            8. Verify if the package has been deleted
-           9. Peform cleanup like delete user. repo etc that we have created.
-        '''
+           9. Peform cleanup like delete user. repo etc that we have created.'''
         session_cookie = create_session_cookie(username='myuser', password='123456')
         group = create_default_group(name='mygrp')
         self.assertEqual(group.name, 'mygrp', "group not created")
@@ -87,6 +86,12 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
 
 
     def create_new_package_source(self, git_url, branch, series):
+        '''This is the helper method to create
+        a package. This consist of following steps.
+        1. Click on new button..
+        2. Enter Values like git_url, branch and series.
+        3. Click submit.
+        INPUT: git_url, branch and series (All string type)'''
         self.new_submit_button.click()
         self.git_url.send_keys(git_url)
         self.branch.send_keys(branch)
@@ -94,15 +99,27 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.new_submit_button.submit()
 
     def select_from_dropdown_menu(self, series):
+        '''This is the helper method to select a given
+        series from drop-down box
+        INPUT: series (string type)'''
         mySelect = Select(self.selenium.find_element_by_id("id_series"))
         mySelect.select_by_visible_text(series)
 
     def delete_package_source(self):
+        '''This is the helper method to delete a package.
+        This consist of followwinng steps:
+        1. Click on source button.
+        2. Click on edit button for first package.
+        3. click on delete button.'''
         self.sources_button.click()
         self.package_edit_button.click()
         self.delete_button.click()
 
     def verify_package_source(self, git_url):
+        '''This is the helper method to verify whether
+        a package exist or not on basis on url.
+        INPUT: git_url (string type)
+        RETURN: TRUE if package found and FALSE on otherwise case'''
         self.sources_button.click()
         #It will report an exception if element not found
         try:
@@ -114,26 +131,33 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
 
     @property
     def sources_button(self):
+        '''Finds source button'''
         return self.selenium.find_element(by.By.LINK_TEXT, 'Sources')
 
     @property
     def new_submit_button(self):
+        '''Finds NEW and Submit button. Both buttons have same class name
+        and live in diffrent views thus giving us opportunity of code reuse'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.btn.btn-primary')
 
     @property
     def git_url(self):
+        '''Finds box for entering git url'''
         return self.selenium.find_element(by.By.ID, 'id_git_url')
 
     @property
     def branch(self):
+        '''Finds box for entering branch name'''
         return self.selenium.find_element(by.By.ID, 'id_branch')
     
     @property
     def package_edit_button(self):
-        #It will find first element
+        '''Finds first package edit. 
+        NOTE: Only one package is expected at once'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
 
     @property
     def delete_button(self):
+        '''Finds package delete button'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.btn.btn-danger')
 
