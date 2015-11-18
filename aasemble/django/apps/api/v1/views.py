@@ -31,7 +31,7 @@ class MirrorViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.MirrorSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user) | self.queryset.filter(public=True)
+        return self.queryset.filter(owner_id=self.request.user.id) | self.queryset.filter(public=True)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -55,7 +55,7 @@ class MirrorSetViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.MirrorSetSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(owner=self.request.user)
+        return self.queryset.filter(owner_id=self.request.user.id)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -73,7 +73,7 @@ class SnapshotViewSet(mixins.CreateModelMixin,
     serializer_class = serializers.SnapshotSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(mirrorset__owner=self.request.user)
+        return self.queryset.filter(mirrorset__owner_id=self.request.user_id)
 
 
 class RepositoryViewSet(viewsets.ModelViewSet):
