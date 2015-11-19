@@ -72,7 +72,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(session_cookie)
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
-        self.sources_button.click()
+        #self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
         self.create_new_package_source(git_url=git_url, branch='master', series='myrepo/myseries')
         self.assertEqual(self.verify_package_source(git_url=git_url), True, 'Package not created')
