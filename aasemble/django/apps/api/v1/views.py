@@ -73,7 +73,7 @@ class SnapshotViewSet(mixins.CreateModelMixin,
     serializer_class = serializers.SnapshotSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(mirrorset__owner_id=self.request.user_id)
+        return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
 
 
 class RepositoryViewSet(viewsets.ModelViewSet):
