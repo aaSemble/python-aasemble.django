@@ -133,7 +133,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def sources_button(self):
         '''Finds source button'''
         print self.selenium.page_source
-        return self.selenium.find_element(by.By.LINK_TEXT, 'Sources')
+        return self.selenium.find_element(by.By.PartialLinkText, '/buildsvc/sources/')
 
     @property
     def new_submit_button(self):
