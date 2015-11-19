@@ -111,7 +111,8 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         1. Click on source button.
         2. Click on edit button for package.
         3. click on delete button.'''
-        self.sources_button.click()
+        #self.sources_button.click()
+        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.package_edit_button.click()
         self.delete_button.click()
 
@@ -120,7 +121,8 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         a package exist or not on basis on url.
         INPUT: git_url (string type)
         RETURN: TRUE if package found and FALSE on otherwise case'''
-        self.sources_button.click()
+        #self.sources_button.click()
+        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         #It will report an exception if element not found
         try:
             self.selenium.find_element(by.By.LINK_TEXT, git_url)
