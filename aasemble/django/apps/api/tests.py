@@ -527,6 +527,28 @@ class APIv1SnapshotTests(APIv1Tests):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['This field is required.']})
 
+    def test_create_snapshot(self):
+        data = {'url': 'http://example.com/',
+                'series': ['trusty'],
+                'components': ['main']}
+        authenticate(self.client, 'eric')
+        response = self.client.post(self.list_url.replace('snapshots', 'mirrors'), data, format='json')
+        self.assertEquals(response.status_code, 201)
+        # print('first assert OK')
+        data = {'mirrors': [response.data['self']]}
+        response = self.client.post(self.list_url.replace('snapshots', 'mirror_sets'), data, format='json')
+        self.assertEquals(response.status_code, 201)
+        # print('second assert OK')
+        data = {'mirrorset': response.data['self']}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        return response.data
+
+    def test_delete_snapshot_not_allowed(self):
+        snapshot = self.test_create_snapshot()
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 403)
+
 
 class APIv2SnapshotTests(APIv1SnapshotTests):
     list_url = '/api/v2/snapshots/'
