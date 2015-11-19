@@ -50,7 +50,6 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         text_found = re.search(r'Sources', page_header.text)
         self.assertNotEqual(text_found, None)
 
-
     def test_source_package(self):
         '''This test performs a basic package addition and deletion.
            This test consists of following steps:
@@ -74,18 +73,17 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(session_cookie)
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
-        #self.sources_button.click()
+        # self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
         self.create_new_package_source(git_url=git_url, branch='master', series='myrepo/myseries')
         self.assertEqual(self.verify_package_source(git_url=git_url), True, 'Package not created')
         self.delete_package_source()
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
-        #We will follow opposite order as that of creation
+        # We will follow opposite order as that of creation
         delete_series(name='myseries')
         delete_repo(name='myrepo')
         delete_group(name='mygrp')
         delete_user(username='myuser')
-
 
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create
@@ -100,14 +98,12 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.select_from_dropdown_menu(series)
         self.new_submit_button.submit()
 
-
     def select_from_dropdown_menu(self, series):
         '''This is the helper method to select a given
         series from drop-down box
         INPUT: series (string type)'''
         mySelect = Select(self.selenium.find_element_by_id("id_series"))
         mySelect.select_by_visible_text(series)
-
 
     def delete_package_source(self):
         '''This is the helper method to delete a package.
@@ -125,7 +121,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         INPUT: git_url (string type)
         RETURN: TRUE if package found and FALSE on otherwise case'''
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
-        #It will report an exception if element not found
+        # It will report an exception if element not found
         try:
             self.selenium.find_element(by.By.LINK_TEXT, git_url)
         except:
@@ -133,32 +129,27 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         else:
             return True
 
-
     @property
     def new_submit_button(self):
         '''Finds NEW and Submit button. Both buttons have same class name
         and live in diffrent views thus giving us opportunity of code reuse'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.btn.btn-primary')
 
-
     @property
     def git_url(self):
         '''Finds box for entering git url'''
         return self.selenium.find_element(by.By.ID, 'id_git_url')
-
 
     @property
     def branch(self):
         '''Finds box for entering branch name'''
         return self.selenium.find_element(by.By.ID, 'id_branch')
 
-
     @property
     def package_edit_button(self):
         '''Finds package edit button. 
         NOTE: Only one package is expected at once'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
-
 
     @property
     def delete_button(self):

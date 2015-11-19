@@ -114,7 +114,7 @@ def create_default_group(name):
     # creating the group with all permissions
     permissions = Permission.objects.all()
     Group.objects.create(name=name)
-    group =  Group.objects.get(name=name)
+    group = Group.objects.get(name=name)
     # We need to add each permission one by one
     for permission in permissions:
         group.permissions.add(permission)
@@ -126,7 +126,7 @@ def create_default_repo(name, username):
     # We will give a static key_id value to avoid any confict.
     # geting the user. Make sure this already added before you pass it here
     user = User.objects.get(username=username)
-    Repository.objects.create(user=user, name=name, key_id='12345') #Hope key id is unique.
+    Repository.objects.create(user=user, name=name, key_id='12345')
     return Repository.objects.get(name=name)
 
 
