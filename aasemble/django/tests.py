@@ -5,13 +5,13 @@ from django.conf import settings
 from django.contrib.auth import (
     BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY
 )
-from django.contrib.auth.models import User, Group, Permission
-from aasemble.django.apps.buildsvc.models import Series, Repository
+from django.contrib.auth.models import Group, Permission, User
 from django.contrib.sessions.backends.db import SessionStore
 from django.test import TestCase, override_settings
 
 from aasemble.django.exceptions import CommandFailed
 from aasemble.django.utils import run_cmd
+from aasemble.django.apps.buildsvc.models import Repository, Series
 
 stdout_stderr_script = '''#!/bin/sh
 
@@ -109,27 +109,29 @@ class UtilsTestCase(AasembleTestCase):
         finally:
             os.unlink(tmpfile)
 
+
 def create_default_group(name):
-    #creating the group with all permissions
+    # creating the group with all permissions
     permissions = Permission.objects.all()
     Group.objects.create(name=name)
     group =  Group.objects.get(name=name)
-    #We need to add each permission one by one
+    # We need to add each permission one by one
     for permission in permissions:
         group.permissions.add(permission)
     return group
-    
+
+
 def create_default_repo(name, username):
-    #Repo will be local repo.
-    #We will give a static key_id value to avoid any confict.
-    #geting the user. Make sure this already added before you pass it here
+    # Repo will be local repo.
+    # We will give a static key_id value to avoid any confict.
+    # geting the user. Make sure this already added before you pass it here
     user = User.objects.get(username=username)
     Repository.objects.create(user=user, name=name, key_id='12345') #Hope key id is unique.
     return Repository.objects.get(name=name)
-    
+
 
 def create_series(name, reponame):
-    #geting the repo. Make sure this already added before you pass it here
+    # geting the repo. Make sure this already added before you pass it here
     repo = Repository.objects.get(name=reponame)
     Series.objects.create(name=name, repository=repo)
     return Series.objects.get(name=name)
@@ -139,13 +141,16 @@ def delete_repo(name):
     repo = Repository.objects.get(name=name)
     repo.delete()
 
+
 def delete_series(name):
     series = Series.objects.get(name=name)
     series.delete()
 
+
 def delete_group(name):
     group = Group.objects.get(name=name)
     group.delete()
+
 
 def delete_user(username):
     user = User.objects.get(username=username)

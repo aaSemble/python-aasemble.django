@@ -3,10 +3,11 @@ import re
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test.utils import skipIf
-from selenium.webdriver.common.by import By
+
 from selenium.webdriver.common import by
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
+
 from aasemble.django.tests import *
 
 
@@ -48,8 +49,9 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         page_header = self.selenium.find_element_by_class_name('page-header')
         text_found = re.search(r'Sources', page_header.text)
         self.assertNotEqual(text_found, None)
-		
-    def test_source_package (self) :
+
+
+    def test_source_package(self):
         '''This test performs a basic package addition and deletion.
            This test consists of following steps:
            1. Create a session cookie for given user. This step includes a
@@ -98,6 +100,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.select_from_dropdown_menu(series)
         self.new_submit_button.submit()
 
+
     def select_from_dropdown_menu(self, series):
         '''This is the helper method to select a given
         series from drop-down box
@@ -105,13 +108,13 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         mySelect = Select(self.selenium.find_element_by_id("id_series"))
         mySelect.select_by_visible_text(series)
 
+
     def delete_package_source(self):
         '''This is the helper method to delete a package.
         This consists of followwinng steps:
         1. Click on source button.
         2. Click on edit button for package.
         3. click on delete button.'''
-        #self.sources_button.click()
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.package_edit_button.click()
         self.delete_button.click()
@@ -121,7 +124,6 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         a package exist or not on basis on url.
         INPUT: git_url (string type)
         RETURN: TRUE if package found and FALSE on otherwise case'''
-        #self.sources_button.click()
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         #It will report an exception if element not found
         try:
@@ -131,11 +133,6 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         else:
             return True
 
-    @property
-    def sources_button(self):
-        '''Finds source button'''
-        print self.selenium.page_source
-        return self.selenium.find_element(by.By.PARTIAL_LINK_TEXT, '/buildsvc/sources/')
 
     @property
     def new_submit_button(self):
@@ -143,21 +140,25 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         and live in diffrent views thus giving us opportunity of code reuse'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.btn.btn-primary')
 
+
     @property
     def git_url(self):
         '''Finds box for entering git url'''
         return self.selenium.find_element(by.By.ID, 'id_git_url')
 
+
     @property
     def branch(self):
         '''Finds box for entering branch name'''
         return self.selenium.find_element(by.By.ID, 'id_branch')
-    
+
+
     @property
     def package_edit_button(self):
         '''Finds package edit button. 
         NOTE: Only one package is expected at once'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
+
 
     @property
     def delete_button(self):
