@@ -374,6 +374,37 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertEquals(data, response.data)
         return response.data
 
+    def test_delete_mirror(self):
+        mirror = self.test_create_mirror()
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get(mirror['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirror_other_user(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirror_invalid_token(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirror_deactivated_super_user(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, 'harold')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirror_deactivated_other_user(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, 'frank')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 401)
+
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
     def test_refresh_mirror(self, refresh_mirror):
         mirror = self.test_create_mirror()
@@ -401,3 +432,62 @@ class GithubHookViewTestCase(APIv1Tests):
         from .tasks import github_push_event
         github_push_event("https://github.com/eric/project0")
         poll_one.delay.assert_called_with(1)
+
+
+class APIv1MirrorsetTests(APIv1Tests):
+    list_url = '/api/v1/mirror_sets/'
+
+    def test_create_mirrorset_empty_fails_400(self):
+        # TODO: The funny thing is, this scenario succeeds in creating mirrorset
+        # on the prod server returning a status code of 201 CREATED. Check why.
+        data = {}
+        authenticate(self.client, 'eric')
+
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrors': ['This field is required.']})
+
+    def test_create_mirrorset(self):
+        data = {'url': 'http://example.com/',
+                'series': ['trusty'],
+                'components': ['main']}
+        authenticate(self.client, 'eric')
+        response = self.client.post(self.list_url.replace('mirror_sets', 'mirrors'), data, format='json')
+        self.assertEquals(response.status_code, 201)
+        data = {'mirrors': [response.data['self']]}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        return response.data
+
+    def test_delete_mirrorset(self):
+        mirrorset = self.test_create_mirrorset()
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 204)
+
+    def test_delete_mirrorset_invalid_token(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirrorset_other_user(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirrorset_deactivated_super_user(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, 'harold')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_mirrorset_deactivated_other_user(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, 'frank')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 401)
+
+
+class APIv2MirrorsetTests(APIv1MirrorsetTests):
+    list_url = '/api/v2/mirror_sets/'
