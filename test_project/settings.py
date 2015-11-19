@@ -174,9 +174,8 @@ REST_SESSION_LOGIN = False
 
 DEFAULT_FROM_EMAIL = 'noreply@aasemble.com'
 
-
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'aasemble.django.apps.api.v1.serializers.UserDetailsSerializer'
+    'USER_DETAILS_SERIALIZER': 'aasemble.django.apps.api.serializers.UserDetailsSerializer'
 }
 
 # Import local development server settings. settings_local is not present in git, not relevant for production deployment
