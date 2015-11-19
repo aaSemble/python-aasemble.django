@@ -329,7 +329,8 @@ class APIv1AuthTests(APIv1Tests):
                            'company': u'No Company',
                            'email': u'eric@example.com',
                            'avatar': u'https://avatars.githubusercontent.com/u/1234565?v=3',
-                           'real_name': u'Eric Ericson'})
+                           'real_name': u'Eric Ericson',
+                           'github_token': '2348765218564329856923487569324878732645'})
 
 
 class APIv2AuthTests(APIv1AuthTests):
@@ -348,6 +349,11 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertEquals(response.data, {'url': ['This field is required.'],
                                           'series': ['This field is required.'],
                                           'components': ['This field is required.']})
+
+    def test_create_mirror_no_auth_fails_401(self):
+        data = {}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
 
     def test_create_mirror_invalid_url_fails(self):
         data = {'url': 'not-a-url',
@@ -446,6 +452,11 @@ class APIv1MirrorsetTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrors': ['This field is required.']})
+
+    def test_create_mirrorset_no_auth_fails_401(self):
+        data = {}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
 
     def test_create_mirrorset(self):
         data = {'url': 'http://example.com/',
