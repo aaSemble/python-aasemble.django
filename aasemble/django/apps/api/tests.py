@@ -329,7 +329,8 @@ class APIv1AuthTests(APIv1Tests):
                            'company': u'No Company',
                            'email': u'eric@example.com',
                            'avatar': u'https://avatars.githubusercontent.com/u/1234565?v=3',
-                           'real_name': u'Eric Ericson'})
+                           'real_name': u'Eric Ericson',
+                           'github_token': '2348765218564329856923487569324878732645'})
 
 
 class APIv2AuthTests(APIv1AuthTests):
