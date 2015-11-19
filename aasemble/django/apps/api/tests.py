@@ -355,6 +355,12 @@ class APIv1MirrorTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
+    def test_create_mirror_incorrect_auth_fails_401(self):
+        data = {}
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
+
     def test_create_mirror_invalid_url_fails(self):
         data = {'url': 'not-a-url',
                 'series': ['trusty'],
@@ -455,6 +461,12 @@ class APIv1MirrorsetTests(APIv1Tests):
 
     def test_create_mirrorset_no_auth_fails_401(self):
         data = {}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
+
+    def test_create_mirrorset_incorrect_auth_fails_401(self):
+        data = {}
+        authenticate(self.client, token='invalidtoken')
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
