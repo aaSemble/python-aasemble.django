@@ -8,7 +8,7 @@ from selenium.webdriver.common import by
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
 
-from aasemble.django.tests import *
+from aasemble.django.tests import create_session_cookie, create_default_group, create_default_repo, create_series, delete_repo, delete_series, delete_group, delete_user
 
 
 @skipIf(os.environ.get('SKIP_SELENIUM_TESTS', '') == '1',
@@ -147,7 +147,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
 
     @property
     def package_edit_button(self):
-        '''Finds package edit button. 
+        '''Finds package edit button.
         NOTE: Only one package is expected at once'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
 
@@ -155,4 +155,3 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def delete_button(self):
         '''Finds package delete button'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.btn.btn-danger')
-
