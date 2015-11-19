@@ -9,8 +9,8 @@ from django.contrib.auth.models import Group, Permission, User
 from django.contrib.sessions.backends.db import SessionStore
 from django.test import TestCase, override_settings
 
-from aasemble.django.exceptions import CommandFailed
 from aasemble.django.apps.buildsvc.models import Repository, Series
+from aasemble.django.exceptions import CommandFailed
 from aasemble.django.utils import run_cmd
 
 stdout_stderr_script = '''#!/bin/sh
