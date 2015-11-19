@@ -132,7 +132,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     @property
     def sources_button(self):
         '''Finds source button'''
-		print self.selenium.page_source
+        print self.selenium.page_source
         return self.selenium.find_element(by.By.LINK_TEXT, 'Sources')
 
     @property
