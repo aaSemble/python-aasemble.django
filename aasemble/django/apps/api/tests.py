@@ -502,3 +502,19 @@ class APIv1MirrorsetTests(APIv1Tests):
 
 class APIv2MirrorsetTests(APIv1MirrorsetTests):
     list_url = '/api/v2/mirror_sets/'
+
+
+class APIv1SnapshotTests(APIv1Tests):
+    list_url = '/api/v1/snapshots/'
+
+    def test_create_snapshot_empty_fails_400(self):
+        data = {}
+        authenticate(self.client, 'eric')
+
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrorset': ['This field is required.']})
+
+
+class APIv2SnapshotTests(APIv1SnapshotTests):
+    list_url = '/api/v2/snapshots/'
