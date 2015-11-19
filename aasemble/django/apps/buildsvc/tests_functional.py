@@ -73,7 +73,9 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(session_cookie)
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
-        # self.sources_button.click()
+        # Make sure window is maximum size
+        self.selenium.set_window_size(1024, 768)
+        self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
         self.create_new_package_source(git_url=git_url, branch='master', series='myrepo/myseries')
         self.assertEqual(self.verify_package_source(git_url=git_url), True, 'Package not created')
@@ -111,7 +113,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         1. Click on source button.
         2. Click on edit button for package.
         3. click on delete button.'''
-        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.sources_button.click()
         self.package_edit_button.click()
         self.delete_button.click()
 
@@ -120,7 +122,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         a package exist or not on basis on url.
         INPUT: git_url (string type)
         RETURN: TRUE if package found and FALSE on otherwise case'''
-        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.sources_button.click()
         # It will report an exception if element not found
         try:
             self.selenium.find_element(by.By.LINK_TEXT, git_url)
@@ -155,3 +157,8 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def delete_button(self):
         '''Finds package delete button'''
         return self.selenium.find_element(by.By.CSS_SELECTOR, '.btn.btn-danger')
+
+    @property
+    def sources_button(self):
+        '''Finds package source button'''
+        return self.selenium.find_element(by.By.LINK_TEXT, 'Sources')
