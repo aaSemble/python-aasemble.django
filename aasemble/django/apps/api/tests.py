@@ -561,11 +561,9 @@ class APIv1SnapshotTests(APIv1Tests):
         authenticate(self.client, 'eric')
         response = self.client.post(self.list_url.replace('snapshots', 'mirrors'), data, format='json')
         self.assertEquals(response.status_code, 201)
-        # print('first assert OK')
         data = {'mirrors': [response.data['self']]}
         response = self.client.post(self.list_url.replace('snapshots', 'mirror_sets'), data, format='json')
         self.assertEquals(response.status_code, 201)
-        # print('second assert OK')
         data = {'mirrorset': response.data['self']}
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
