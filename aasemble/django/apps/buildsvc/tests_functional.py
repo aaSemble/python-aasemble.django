@@ -60,8 +60,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
            2. Try to create a package.
            3. Verify if the package has been created.
            4. Try to delete the package
-           5. Verify if the package has been deleted
-           6. Peform cleanup like delete user. repo etc that we have created.'''
+           5. Verify if the package has been deleted'''
         session_cookie = create_session_for_given_user(username='dennis')
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(session_cookie)
