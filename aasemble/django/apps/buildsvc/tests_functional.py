@@ -8,7 +8,7 @@ from selenium.webdriver.common import by
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
 
-from aasemble.django.tests import create_session_for_given_user, create_session_cookie
+from aasemble.django.tests import create_session_cookie, create_session_for_given_user
 
 
 @skipIf(os.environ.get('SKIP_SELENIUM_TESTS', '') == '1',
@@ -72,7 +72,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
         self.create_new_package_source(git_url=git_url, branch='master', series='dennis/aasemble')
         self.assertEqual(self.verify_package_source(git_url=git_url), True, 'Package not created')
-        self.delete_package_source(git_url=git_url)
+        self.delete_package_source()
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
 
     def create_new_package_source(self, git_url, branch, series):
@@ -95,7 +95,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         mySelect = Select(self.selenium.find_element_by_id("id_series"))
         mySelect.select_by_visible_text(series)
 
-    def delete_package_source(self, git_url):
+    def delete_package_source(self):
         '''This is the helper method to delete a package.
         This consists of followwinng steps:
         1. Click on source button.
