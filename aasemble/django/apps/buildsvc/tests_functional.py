@@ -95,7 +95,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         mySelect = Select(self.selenium.find_element_by_id("id_series"))
         mySelect.select_by_visible_text(series)
 
-    def delete_package_source(self):
+    def delete_package_source(self, git_url):
         '''This is the helper method to delete a package.
         This consists of followwinng steps:
         1. Click on source button.
