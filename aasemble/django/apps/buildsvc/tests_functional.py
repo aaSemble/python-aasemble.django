@@ -8,12 +8,14 @@ from selenium.webdriver.common import by
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
 
-from aasemble.django.tests import create_default_group, create_default_repo, create_series, create_session_cookie, delete_group, delete_repo, delete_series, delete_user
+from aasemble.django.tests import create_session_for_given_user, create_session_cookie
 
 
 @skipIf(os.environ.get('SKIP_SELENIUM_TESTS', '') == '1',
         'Skipping Selenium based test, because SKIP_SELENIUM_TESTS=1')
 class RepositoryFunctionalTests(StaticLiveServerTestCase):
+    fixtures = ['complete.json']
+
     @classmethod
     def setUpClass(cls):
         super(RepositoryFunctionalTests, cls).setUpClass()
@@ -51,41 +53,28 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.assertNotEqual(text_found, None)
 
     def test_source_package(self):
+        def test_source_package(self):
         '''This test performs a basic package addition and deletion.
            This test consists of following steps:
-           1. Create a session cookie for given user. This step includes a
-              user creation.
-           2. Create a group. This will serve as 'Extra admin' for test repo.
-           3. Create a test repo under user that we have created in step 1
-           4. Create a series with the repo of step 3.
-           5. Try to create a package.
-           6. Verify if the package has been created.
-           7. Try to delete the package
-           8. Verify if the package has been deleted
-           9. Peform cleanup like delete user. repo etc that we have created.'''
-        session_cookie = create_session_cookie(username='myuser', password='123456')
-        group = create_default_group(name='mygrp')
-        self.assertEqual(group.name, 'mygrp', "group not created")
-        repo = create_default_repo(name='myrepo', username='myuser')
-        self.assertEqual(repo.name, 'myrepo', "Repo not created")
-        series = create_series(name='myseries', reponame='myrepo')
-        self.assertEqual(series.name, 'myseries', "Series not created")
+           1. Create a session cookie for given user. We are using a existing
+               user 'Dennis' which is already added as fixture.
+           2. Try to create a package.
+           3. Verify if the package has been created.
+           4. Try to delete the package
+           5. Verify if the package has been deleted
+           6. Peform cleanup like delete user. repo etc that we have created.'''
+        session_cookie = create_session_for_given_user(username='dennis')
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(session_cookie)
+        # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
-        # Make sure window is maximum size
         self.selenium.set_window_size(1024, 768)
         self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
-        self.create_new_package_source(git_url=git_url, branch='master', series='myrepo/myseries')
+        self.create_new_package_source(git_url=git_url, branch='master', series='dennis/aasemble')
         self.assertEqual(self.verify_package_source(git_url=git_url), True, 'Package not created')
-        self.delete_package_source()
+        self.delete_package_source(git_url=git_url)
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
-        # We will follow opposite order as that of creation
-        delete_series(name='myseries')
-        delete_repo(name='myrepo')
-        delete_group(name='mygrp')
-        delete_user(username='myuser')
 
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create

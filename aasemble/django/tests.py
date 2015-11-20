@@ -5,11 +5,10 @@ from django.conf import settings
 from django.contrib.auth import (
     BACKEND_SESSION_KEY, HASH_SESSION_KEY, SESSION_KEY
 )
-from django.contrib.auth.models import Group, Permission, User
+from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
 from django.test import TestCase, override_settings
 
-from aasemble.django.apps.buildsvc.models import Repository, Series
 from aasemble.django.exceptions import CommandFailed
 from aasemble.django.utils import run_cmd
 
@@ -30,6 +29,25 @@ def create_session_cookie(username, password):
     user = User.objects.create_user(username=username, password=password)
 
     # Then create the authenticated session using the new user credentials
+    session = SessionStore()
+    session[SESSION_KEY] = user.pk
+    session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
+    session[HASH_SESSION_KEY] = user.get_session_auth_hash()
+    session.save()
+
+    # Finally, create the cookie dictionary
+    cookie = {
+        'name': settings.SESSION_COOKIE_NAME,
+        'value': session.session_key,
+        'secure': False,
+        'path': '/',
+    }
+    return cookie
+
+
+def create_session_for_given_user(username):
+    user = User.objects.get(username=username)
+    # Then create the authenticated session using the given credentials
     session = SessionStore()
     session[SESSION_KEY] = user.pk
     session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
@@ -108,50 +126,3 @@ class UtilsTestCase(AasembleTestCase):
 
         finally:
             os.unlink(tmpfile)
-
-
-def create_default_group(name):
-    # creating the group with all permissions
-    permissions = Permission.objects.all()
-    Group.objects.create(name=name)
-    group = Group.objects.get(name=name)
-    # We need to add each permission one by one
-    for permission in permissions:
-        group.permissions.add(permission)
-    return group
-
-
-def create_default_repo(name, username):
-    # Repo will be local repo.
-    # We will give a static key_id value to avoid any confict.
-    # geting the user. Make sure this already added before you pass it here
-    user = User.objects.get(username=username)
-    Repository.objects.create(user=user, name=name, key_id='12345')
-    return Repository.objects.get(name=name)
-
-
-def create_series(name, reponame):
-    # geting the repo. Make sure this already added before you pass it here
-    repo = Repository.objects.get(name=reponame)
-    Series.objects.create(name=name, repository=repo)
-    return Series.objects.get(name=name)
-
-
-def delete_repo(name):
-    repo = Repository.objects.get(name=name)
-    repo.delete()
-
-
-def delete_series(name):
-    series = Series.objects.get(name=name)
-    series.delete()
-
-
-def delete_group(name):
-    group = Group.objects.get(name=name)
-    group.delete()
-
-
-def delete_user(username):
-    user = User.objects.get(username=username)
-    user.delete()
