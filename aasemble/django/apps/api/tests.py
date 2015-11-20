@@ -458,6 +458,19 @@ class APIv1MirrorTests(APIv1Tests):
         self.client.post(mirror['self'] + 'refresh/')
         self.assertTrue(refresh_mirror.delay.call_args_list)
 
+    def test_get_correct_mirror_for_user(self):
+        mirror1 = self.test_create_mirror()
+
+        data = {'url': 'http://example2.com/',
+                'series': ['trusty'],
+                'components': ['main']}
+        authenticate(self.client, 'aaron')
+        self.client.post(self.list_url, data, format='json')
+        response = self.client.get(self.list_url)
+        self.assertEquals(len(response.data['results']), 1, 'did not return only 1 mirror')
+        self.assertEquals(response.data['results'][0]['url'], 'http://example2.com/', 'url not the same as created')
+        self.assertNotEquals(response.data['results'][0]['url'], 'http://example.com/', 'url same as previous url')
+
 
 class APIv2MirrorTests(APIv1MirrorTests):
     list_url = '/api/v2/mirrors/'
