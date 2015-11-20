@@ -386,12 +386,26 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertEquals(data, response.data)
         return response.data
 
+    def test_patch_mirror(self):
+        mirror = self.test_create_mirror()
+        data = {'public': True}
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['public'], True)
+        return response.data
+
     def test_delete_mirror(self):
         mirror = self.test_create_mirror()
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 204)
         response = self.client.get(mirror['self'])
         self.assertEquals(response.status_code, 404)
+
+    def test_delete_public_mirror_other_user(self):
+        mirror = self.test_patch_mirror()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 403)
 
     def test_delete_mirror_other_user(self):
         mirror = self.test_create_mirror()
@@ -470,6 +484,13 @@ class APIv1MirrorsetTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
+    def test_create_mirrorset_invalid_mirrors(self):
+        authenticate(self.client, 'eric')
+        data = {'mirrors': ['Invalid Mirrors URL']}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
+
     def test_create_mirrorset(self):
         data = {'url': 'http://example.com/',
                 'series': ['trusty'],
@@ -527,6 +548,12 @@ class APIv1SnapshotTests(APIv1Tests):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['This field is required.']})
 
+    def test_create_snapshot_incorrect_auth_fails_401(self):
+        data = {}
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
+
     def test_create_snapshot(self):
         data = {'url': 'http://example.com/',
                 'series': ['trusty'],
@@ -544,10 +571,41 @@ class APIv1SnapshotTests(APIv1Tests):
         self.assertEquals(response.status_code, 201)
         return response.data
 
+    def test_create_snapshot_invalid_mirrorset(self):
+        authenticate(self.client, 'eric')
+        data = {'mirrorset': 'Invalid Mirrorset URL'}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrorset': ['Invalid hyperlink - No URL match.']})
+
     def test_delete_snapshot_not_allowed(self):
         snapshot = self.test_create_snapshot()
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 403)
+
+    def test_delete_snapshot_invalid_token(self):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_snapshot_other_user(self):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_snapshot_deactivated_super_user(self):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, 'harold')
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 401)
+
+    def test_delete_snapshot_deactivated_other_user(self):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, 'frank')
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 401)
 
 
 class APIv2SnapshotTests(APIv1SnapshotTests):
