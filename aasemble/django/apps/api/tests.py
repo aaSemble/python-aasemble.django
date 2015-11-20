@@ -470,6 +470,13 @@ class APIv1MirrorsetTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
+    def test_create_mirrorset_invalid_mirrors(self):
+        authenticate(self.client, 'eric')
+        data = {'mirrors': ['Invalid Mirrors URL']}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
+
     def test_create_mirrorset(self):
         data = {'url': 'http://example.com/',
                 'series': ['trusty'],
@@ -543,6 +550,13 @@ class APIv1SnapshotTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         return response.data
+
+    def test_create_snapshot_invalid_mirrorset(self):
+        authenticate(self.client, 'eric')
+        data = {'mirrorset': 'Invalid Mirrorset URL'}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrorset': ['Invalid hyperlink - No URL match.']})
 
     def test_delete_snapshot_not_allowed(self):
         snapshot = self.test_create_snapshot()
