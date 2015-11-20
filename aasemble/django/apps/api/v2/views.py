@@ -6,7 +6,7 @@ import django.db.utils
 
 from rest_auth.registration.views import SocialLoginView
 
-from rest_framework import mixins, viewsets
+from rest_framework import filters, mixins, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
@@ -158,6 +158,8 @@ class BuildViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = buildsvc_models.BuildRecord.objects.all()
     serializer_class = serializers.BuildRecordSerializer
+    filter_backends = (filters.OrderingFilter,)
+    ordering = ('build_started',)
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 

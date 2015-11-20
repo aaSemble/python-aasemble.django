@@ -203,15 +203,36 @@ class APIv1BuildTests(APIv1Tests):
     list_url = '/api/v1/builds/'
 
     def test_fetch_builds(self):
-        # Use alterego2 to make sure it works with users who are members
-        # of multiple groups
         authenticate(self.client, 'eric')
         response = self.client.get(self.list_url)
         self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['count'], 10)
 
 
 class APIv2BuildTests(APIv1BuildTests):
     list_url = '/api/v2/builds/'
+
+    def test_builds_default_order(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.list_url)
+
+        prev_build = None
+        for build in response.data['results']:
+            if prev_build:
+                self.assertGreater(build['build_started'],
+                                   prev_build['build_started'])
+            prev_build = build
+
+    def test_builds_specific_order(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.list_url + '?ordering=-build_started')
+
+        prev_build = None
+        for build in response.data['results']:
+            if prev_build:
+                self.assertLess(build['build_started'],
+                                prev_build['build_started'])
+            prev_build = build
 
 
 class APIv1SourceTests(APIv1Tests):
