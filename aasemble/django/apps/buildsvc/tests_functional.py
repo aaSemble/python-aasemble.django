@@ -53,7 +53,6 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.assertNotEqual(text_found, None)
 
     def test_source_package(self):
-        def test_source_package(self):
         '''This test performs a basic package addition and deletion.
            This test consists of following steps:
            1. Create a session cookie for given user. We are using a existing
