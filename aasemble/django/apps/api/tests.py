@@ -386,12 +386,26 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertEquals(data, response.data)
         return response.data
 
+    def test_patch_mirror(self):
+        mirror = self.test_create_mirror()
+        data = {'public': True}
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['public'], True)
+        return response.data
+
     def test_delete_mirror(self):
         mirror = self.test_create_mirror()
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 204)
         response = self.client.get(mirror['self'])
         self.assertEquals(response.status_code, 404)
+
+    def test_delete_public_mirror_other_user(self):
+        mirror = self.test_patch_mirror()
+        authenticate(self.client, 'aaron')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 403)
 
     def test_delete_mirror_other_user(self):
         mirror = self.test_create_mirror()
