@@ -459,7 +459,7 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertTrue(refresh_mirror.delay.call_args_list)
 
     def test_get_correct_mirror_for_user(self):
-        mirror1 = self.test_create_mirror()
+        self.test_create_mirror()
 
         data = {'url': 'http://example2.com/',
                 'series': ['trusty'],
