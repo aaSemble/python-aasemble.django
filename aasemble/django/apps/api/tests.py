@@ -498,8 +498,9 @@ class APIv1MirrorsetTests(APIv1Tests):
     list_url = '/api/v1/mirror_sets/'
 
     def test_create_mirrorset_empty_fails_400(self):
-        # TODO: The funny thing is, this scenario succeeds in creating mirrorset
-        # on the prod server returning a status code of 201 CREATED. Check why.
+        # An issue with django-rest-framework will result in returning a status
+        # code of 201 CREATED on production or Django's development server.
+        # This is a known issue: https://github.com/tomchristie/django-rest-framework/issues/3647
         data = {}
         authenticate(self.client, 'eric')
 
