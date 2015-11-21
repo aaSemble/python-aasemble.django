@@ -471,6 +471,14 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertEquals(response.data['results'][0]['url'], 'http://example2.com/', 'url not the same as created')
         self.assertNotEquals(response.data['results'][0]['url'], 'http://example.com/', 'url same as previous url')
 
+    @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
+    def test_refresh_mirror_status(self, refresh_mirror):
+        mirror = self.test_create_mirror()
+        response = self.client.post(mirror['self'] + 'refresh/')
+        self.assertEquals(response.data['status'], 'update scheduled')
+        response = self.client.post(mirror['self'] + 'refresh/')
+        self.assertEquals(response.data['status'], 'update already scheduled')
+
 
 class APIv2MirrorTests(APIv1MirrorTests):
     list_url = '/api/v2/mirrors/'
