@@ -469,7 +469,6 @@ class APIv1MirrorTests(APIv1Tests):
         response = self.client.get(self.list_url)
         self.assertEquals(len(response.data['results']), 1, 'did not return only 1 mirror')
         self.assertEquals(response.data['results'][0]['url'], 'http://example2.com/', 'url not the same as created')
-        self.assertNotEquals(response.data['results'][0]['url'], 'http://example.com/', 'url same as previous url')
 
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
     def test_refresh_mirror_status(self, refresh_mirror):
