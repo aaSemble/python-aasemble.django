@@ -3,7 +3,7 @@
 
 {% block aasemble_container %}
 <div class="jumbotron">
-  <h1>Welcome to Overcast Cloud</h1>
+  <h1>Welcome to {{ title }}</h1>
   <p>There's not much to see here without logging in...</p>
   <p><a class="btn btn-primary btn-lg" href="/accounts/github/login/" role="button" id="login_button">Log in</a></p>
 </div>
@@ -43,7 +43,7 @@
   
   <hr>
   <footer>
-    <p>&copy; Overcast Cloud 2015</p>
+    <p>&copy; {{ title }} 2015</p>
   </footer>
 </div>
 
