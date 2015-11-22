@@ -458,6 +458,26 @@ class APIv1MirrorTests(APIv1Tests):
         self.client.post(mirror['self'] + 'refresh/')
         self.assertTrue(refresh_mirror.delay.call_args_list)
 
+    def test_get_correct_mirror_for_user(self):
+        self.test_create_mirror()
+
+        data = {'url': 'http://example2.com/',
+                'series': ['trusty'],
+                'components': ['main']}
+        authenticate(self.client, 'aaron')
+        self.client.post(self.list_url, data, format='json')
+        response = self.client.get(self.list_url)
+        self.assertEquals(len(response.data['results']), 1, 'did not return only 1 mirror')
+        self.assertEquals(response.data['results'][0]['url'], 'http://example2.com/', 'url not the same as created')
+
+    @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
+    def test_refresh_mirror_status(self, refresh_mirror):
+        mirror = self.test_create_mirror()
+        response = self.client.post(mirror['self'] + 'refresh/')
+        self.assertEquals(response.data['status'], 'update scheduled')
+        response = self.client.post(mirror['self'] + 'refresh/')
+        self.assertEquals(response.data['status'], 'update already scheduled')
+
 
 class APIv2MirrorTests(APIv1MirrorTests):
     list_url = '/api/v2/mirrors/'
@@ -485,8 +505,9 @@ class APIv1MirrorsetTests(APIv1Tests):
     list_url = '/api/v1/mirror_sets/'
 
     def test_create_mirrorset_empty_fails_400(self):
-        # TODO: The funny thing is, this scenario succeeds in creating mirrorset
-        # on the prod server returning a status code of 201 CREATED. Check why.
+        # An issue with django-rest-framework will result in returning a status
+        # code of 201 CREATED on production or Django's development server.
+        # This is a known issue: https://github.com/tomchristie/django-rest-framework/issues/3647
         data = {}
         authenticate(self.client, 'eric')
 
