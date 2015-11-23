@@ -482,7 +482,6 @@ class APIv1MirrorTests(APIv1Tests):
 class APIv2MirrorTests(APIv1MirrorTests):
     list_url = '/api/v2/mirrors/'
 
-
 class GithubHookViewTestCase(APIv1Tests):
     @mock.patch('aasemble.django.apps.api.tasks.github_push_event')
     def test_hook(self, github_push_event):
@@ -499,6 +498,45 @@ class GithubHookViewTestCase(APIv1Tests):
         from .tasks import github_push_event
         github_push_event("https://github.com/eric/project0")
         poll_one.delay.assert_called_with(1)
+
+class APIv2TagsTests(APIv1Tests):
+    list_url = '/api/v2/snapshots/'
+
+    def test_create_snapshot_tag(self):
+        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/',
+                'tags':[{'tag':'firsttag'}, {'tag':'secondtag'}]}
+        authenticate(self.client, 'eric')
+        response = self.client.post(self.list_url , data, format='json')
+        self.assertEquals(response.status_code, 201)
+        data['self']= response.data['self']
+        data['timestamp'] = response.data['timestamp']
+        self.assertEquals(data, response.data)
+        return response.data
+
+    def test_update_snapshot_tag(self):
+        data = {'tags':[{'tag':'thirdtag'}]}
+        authenticate(self.client, 'eric')
+        response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
+        self.assertEquals(response.status_code, 200)
+        data['self']= response.data['self']
+        data['timestamp'] = response.data['timestamp']
+        data['mirrorset'] = response.data['mirrorset']
+        self.assertEquals(data, response.data)
+        return response.data
+
+    def test_update_snapshot_mirrorset_403(self):
+        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/'}
+        authenticate(self.client, 'eric')
+        response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data,format='json')
+        self.assertEquals(response.status_code, 403)
+        return response.data
+
+    def test_update_snapshot_timestamp_403(self):
+        data = {'timestamp': '2015-11-13T11:53:09.496Z'}
+        authenticate(self.client, 'eric')
+        response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data,format='json')
+        self.assertEquals(response.status_code, 403)
+        return response.data
 
 
 class APIv1MirrorsetTests(APIv1Tests):
@@ -650,3 +688,4 @@ class APIv1SnapshotTests(APIv1Tests):
 
 class APIv2SnapshotTests(APIv1SnapshotTests):
     list_url = '/api/v2/snapshots/'
+

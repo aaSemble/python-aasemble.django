@@ -3,7 +3,7 @@ from django.test import TestCase
 
 import mock
 
-from .models import Mirror, MirrorSet, Snapshot
+from .models import Mirror, MirrorSet, Snapshot, Tags
 
 
 class SnapshotTestCase(TestCase):
@@ -14,6 +14,7 @@ class SnapshotTestCase(TestCase):
         ms = MirrorSet.objects.create(name='ms1', owner=user)
         ms.mirrors.add(m)
         s = Snapshot.objects.create(mirrorset=ms)
+        Tags.objects.create(snapshot=s, tag='test')
         perform_snapshot.delay.assert_called_with(s.id)
 
     @mock.patch('aasemble.django.apps.mirrorsvc.models.Snapshot.sync_dists')
@@ -25,6 +26,7 @@ class SnapshotTestCase(TestCase):
         ms = MirrorSet.objects.create(name='ms1', owner=user)
         ms.mirrors.add(m)
         s = Snapshot.objects.create(mirrorset=ms)
+        Tags.objects.create(snapshot=s, tag='test')
         perform_snapshot(s.id)
         sync_dists.assert_called_with()
         symlink_pool.assert_called_with()

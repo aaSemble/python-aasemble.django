@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.exceptions import DuplicateResourceException
+from django.core.exceptions import PermissionDenied
 
 from . import serializers
 
@@ -65,11 +66,7 @@ class MirrorSetViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class SnapshotViewSet(mixins.CreateModelMixin,
-                      mixins.RetrieveModelMixin,
-                      mixins.DestroyModelMixin,
-                      mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
+class SnapshotViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows mirrors to be viewed or edited.
     """
@@ -80,6 +77,12 @@ class SnapshotViewSet(mixins.CreateModelMixin,
 
     def get_queryset(self):
         return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
+
+    def perform_update(self, serializer):
+        if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
+            raise PermissionDenied
+        serializer.save(owner=self.request.user)
+
 
 
 class RepositoryViewSet(viewsets.ModelViewSet):
