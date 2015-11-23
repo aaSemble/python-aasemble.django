@@ -701,6 +701,7 @@ class APIv1SnapshotTests(APIv1Tests):
         data = {'mirrorset': snapshot['mirrorset']}
         response = self.client.patch(snapshot['self'], data, format='json')
         self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
 
     def test_delete_snapshot_not_allowed(self):
         snapshot = self.test_create_snapshot()

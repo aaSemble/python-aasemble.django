@@ -80,7 +80,7 @@ class SnapshotViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
-            raise ValidationError("{'detail': 'Method \"PATCH\" not allowed.'}")
+            raise ValidationError([{'detail': 'Method "PATCH" not allowed.'}])
         serializer.save(owner=self.request.user)
 
 

@@ -180,4 +180,4 @@ class Tags(models.Model):
         super(Tags, self).save(*args, **kwargs)
 
     def user_can_modify(self, user):
-        return user == self.snapshot.user_can_modify(user)
+        return self.snapshot.user_can_modify(user)
