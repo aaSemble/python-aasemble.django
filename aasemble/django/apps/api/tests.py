@@ -583,6 +583,45 @@ class APIv1MirrorsetTests(APIv1Tests):
         self.assertEquals(response.status_code, 201)
         return response.data
 
+    def test_patch_mirrorset_invalid_mirror(self):
+        mirrorset = self.test_create_mirrorset()
+        data = {'mirrors': ['Invalid Mirrors URL']}
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
+
+    def test_patch_mirrorset(self):
+        mirrorset = self.test_create_mirrorset()
+        data = {'url': 'http://example1.com/',
+                'series': ['trusty'],
+                'components': ['main']}
+        mirror = self.client.post(self.list_url.replace('mirror_sets', 'mirrors'), data, format='json')
+        self.assertEquals(mirror.status_code, 201)
+        data = {'mirrors': [mirror.data['self']]}
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['mirrors'], [mirror.data['self']])
+
+    def test_patch_mirrorset_invalid_token(self):
+        mirrorset = self.test_create_mirrorset()
+        data = {}
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+
+    def test_patch_mirrorset_other_user(self):
+        mirrorset = self.test_create_mirrorset()
+        data = {}
+        authenticate(self.client, 'aaron')
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 404)
+
+    def test_patch_mirrorset_no_data(self):
+        mirrorset = self.test_create_mirrorset()
+        data = {}
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+
     def test_delete_mirrorset(self):
         mirrorset = self.test_create_mirrorset()
         response = self.client.delete(mirrorset['self'])
@@ -655,6 +694,14 @@ class APIv1SnapshotTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['Invalid hyperlink - No URL match.']})
+
+    def test_patch_snapshot_not_allowed(self):
+        snapshot = self.test_create_snapshot()
+        # no new mirror set is created because test case intend is different
+        data = {'mirrorset': snapshot['mirrorset']}
+        response = self.client.patch(snapshot['self'], data, format='json')
+        self.assertEquals(response.status_code, 405)
+        self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
 
     def test_delete_snapshot_not_allowed(self):
         snapshot = self.test_create_snapshot()
