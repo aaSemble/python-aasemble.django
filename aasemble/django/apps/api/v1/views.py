@@ -6,10 +6,11 @@ import django.db.utils
 
 from rest_auth.registration.views import SocialLoginView
 
-from rest_framework import mixins, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
+
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.exceptions import DuplicateResourceException
@@ -75,6 +76,7 @@ class SnapshotViewSet(viewsets.ModelViewSet):
         if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
             raise ValidationError({'detail': 'Method "PATCH" not allowed.'})
         serializer.save(owner=self.request.user)
+
 
 class RepositoryViewSet(viewsets.ModelViewSet):
     """
