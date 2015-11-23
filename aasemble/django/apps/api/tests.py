@@ -506,7 +506,7 @@ class APIv2TagsTests(APIv1Tests):
 
     def test_create_snapshot_tag(self):
         data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/',
-                'tags': [{'tag': 'firsttag'}, {'tag': 'secondtag'}]}
+                'tags': ['firsttag', 'secondtag']}
         authenticate(self.client, 'eric')
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
@@ -516,7 +516,7 @@ class APIv2TagsTests(APIv1Tests):
         return response.data
 
     def test_update_snapshot_tag(self):
-        data = {'tags': [{'tag': 'thirdtag'}]}
+        data = {'tags': ['thirdtag']}
         authenticate(self.client, 'eric')
         response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
         self.assertEquals(response.status_code, 200)

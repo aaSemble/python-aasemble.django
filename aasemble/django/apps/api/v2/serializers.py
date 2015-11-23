@@ -46,12 +46,6 @@ class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('self', 'mirrors')
 
 
-class TagsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = mirrorsvc_models.Tags
-        fields = ('tag',)
-
-
 class MirrorSetField(serializers.HyperlinkedRelatedField):
     def get_queryset(self):
         if hasattr(self, 'context') and 'request' in self.context:
@@ -59,22 +53,40 @@ class MirrorSetField(serializers.HyperlinkedRelatedField):
 
         return super(MirrorSetField, self).get_queryset()
 
+class TagsSerializer(serializers.ListField):
+    child=serializers.CharField()
+
+    def to_internal_value(self, data):
+        tags = data
+        tag_val=[]
+        for tag in tags:
+            tag_val.append(dict(tag = tag))
+        return tag_val
+
+    def to_representation(self, data):
+        tags = data.all()
+        tag_val=[]
+        for tag in tags:
+            tag_val.append(tag.tag)
+        return tag_val
+
+            
 
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_snapshot-detail', read_only=True, source='*', lookup_field='uuid')
     mirrorset = MirrorSetField(view_name='v2_mirrorset-detail', queryset=mirrorsvc_models.MirrorSet.objects.none(), lookup_field='uuid')
-    tags = TagsSerializer(many=True, required=False)
+    tags = TagsSerializer(required=False)
 
     class Meta:
         model = mirrorsvc_models.Snapshot
         fields = ('self', 'timestamp', 'mirrorset', 'tags')
-
+ 
     def create(self, validated_data):
         if 'tags' in validated_data:
             tags_data = validated_data.pop('tags')
             snapshot = mirrorsvc_models.Snapshot.objects.create(**validated_data)
             for tag_data in tags_data:
-                mirrorsvc_models.Tags.objects.create(snapshot=snapshot, **tag_data)
+               mirrorsvc_models.Tags.objects.create(snapshot=snapshot, **tag_data)
         else:
             snapshot = mirrorsvc_models.Snapshot.objects.create(**validated_data)
         return snapshot
