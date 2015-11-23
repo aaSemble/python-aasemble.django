@@ -163,3 +163,21 @@ class Snapshot(models.Model):
     def perform_snapshot(self):
         self.sync_dists()
         self.symlink_pool()
+
+    def user_can_modify(self, user):
+        return user == self.mirrorset.owner
+
+
+class Tags(models.Model):
+    snapshot = models.ForeignKey(Snapshot, related_name='tags')
+    tag = models.CharField(max_length=200)
+
+    class meta:
+        unique_together = ('snapshot', 'tag',)
+
+    def save(self, *args, **kwargs):
+        self.tag = self.tag.strip()
+        super(Tags, self).save(*args, **kwargs)
+
+    def user_can_modify(self, user):
+        return self.snapshot.user_can_modify(user)

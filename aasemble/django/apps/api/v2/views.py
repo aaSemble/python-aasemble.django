@@ -6,8 +6,9 @@ import django.db.utils
 
 from rest_auth.registration.views import SocialLoginView
 
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.decorators import detail_route
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from aasemble.django.apps.buildsvc import models as buildsvc_models
@@ -65,11 +66,7 @@ class MirrorSetViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class SnapshotViewSet(mixins.CreateModelMixin,
-                      mixins.RetrieveModelMixin,
-                      mixins.DestroyModelMixin,
-                      mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
+class SnapshotViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows mirrors to be viewed or edited.
     """
@@ -80,6 +77,11 @@ class SnapshotViewSet(mixins.CreateModelMixin,
 
     def get_queryset(self):
         return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
+
+    def perform_update(self, serializer):
+        if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
+            raise ValidationError({'detail': 'Method "PATCH" not allowed.'})
+        serializer.save(owner=self.request.user)
 
 
 class RepositoryViewSet(viewsets.ModelViewSet):
