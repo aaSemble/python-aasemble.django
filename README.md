@@ -1,5 +1,6 @@
 [![Travis-CI Status](https://travis-ci.org/aaSemble/python-aasemble.django.svg)](https://travis-ci.org/aaSemble/python-aasemble.django)
 [![Circle CI Status](https://circleci.com/gh/aaSemble/python-aasemble.django.svg?style=svg)](https://circleci.com/gh/aaSemble/python-aasemble.django)
+[![codecov.io](https://codecov.io/github/aaSemble/python-aasemble.django/coverage.svg?branch=master)](https://codecov.io/github/aaSemble/python-aasemble.django?branch=master)
 
 # aaSemble web services
 
@@ -47,5 +48,7 @@ To execute a specific test suite:
 ```
 python manage.py test aasemble.django.apps.api.tests.APIv1RepositoryTests
 ```
+
+We use codecov to report test coverage. Install their [browser plugin](https://github.com/codecov/browser-extension) to see the coverage results overlayed over the code on Github. It's pretty awesome.
 
 That should do it. Have fun!
