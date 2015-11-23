@@ -528,14 +528,14 @@ class APIv2TagsTests(APIv1Tests):
         data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/'}
         authenticate(self.client, 'eric')
         response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data,format='json')
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 400)
         return response.data
 
     def test_update_snapshot_timestamp_403(self):
         data = {'timestamp': '2015-11-13T11:53:09.496Z'}
         authenticate(self.client, 'eric')
         response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data,format='json')
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 400)
         return response.data
 
 
@@ -700,13 +700,12 @@ class APIv1SnapshotTests(APIv1Tests):
         # no new mirror set is created because test case intend is different
         data = {'mirrorset': snapshot['mirrorset']}
         response = self.client.patch(snapshot['self'], data, format='json')
-        self.assertEquals(response.status_code, 405)
-        self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
+        self.assertEquals(response.status_code, 400)
 
     def test_delete_snapshot_not_allowed(self):
         snapshot = self.test_create_snapshot()
         response = self.client.delete(snapshot['self'])
-        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.status_code, 204)
 
     def test_delete_snapshot_invalid_token(self):
         snapshot = self.test_create_snapshot()
