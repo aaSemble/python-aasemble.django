@@ -545,6 +545,13 @@ class APIv1MirrorsetTests(APIv1Tests):
         self.assertEquals(response.status_code, 201)
         return response.data
 
+    def test_patch_mirrorset_invalid_mirror(self):
+        mirrorset = self.test_create_mirrorset()
+        data = {'mirrors': ['Invalid Mirrors URL']}
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
+
     def test_delete_mirrorset(self):
         mirrorset = self.test_create_mirrorset()
         response = self.client.delete(mirrorset['self'])
@@ -617,6 +624,14 @@ class APIv1SnapshotTests(APIv1Tests):
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['Invalid hyperlink - No URL match.']})
+
+    def test_patch_snapshot_not_allowed(self):
+        snapshot = self.test_create_snapshot()
+        # no new mirror set is created because test case intend is different
+        data = {'mirrorset': snapshot['mirrorset']}
+        response = self.client.patch(snapshot['self'], data, format='json')
+        self.assertEquals(response.status_code, 405)
+        self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
 
     def test_delete_snapshot_not_allowed(self):
         snapshot = self.test_create_snapshot()
