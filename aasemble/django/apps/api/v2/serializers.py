@@ -80,7 +80,7 @@ class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = mirrorsvc_models.Snapshot
         fields = ('self', 'timestamp', 'mirrorset', 'tags')
- 
+
     def create(self, validated_data):
         if 'tags' in validated_data:
             tags_data = validated_data.pop('tags')
