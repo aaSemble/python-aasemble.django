@@ -53,24 +53,24 @@ class MirrorSetField(serializers.HyperlinkedRelatedField):
 
         return super(MirrorSetField, self).get_queryset()
 
+
 class TagsSerializer(serializers.ListField):
-    child=serializers.CharField()
+    child = serializers.CharField()
 
     def to_internal_value(self, data):
         tags = data
-        tag_val=[]
+        tag_val = []
         for tag in tags:
-            tag_val.append(dict(tag = tag))
+            tag_val.append(dict(tag=tag))
         return tag_val
 
     def to_representation(self, data):
         tags = data.all()
-        tag_val=[]
+        tag_val = []
         for tag in tags:
             tag_val.append(tag.tag)
         return tag_val
 
-            
 
 class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
     self = serializers.HyperlinkedRelatedField(view_name='v2_snapshot-detail', read_only=True, source='*', lookup_field='uuid')
@@ -86,7 +86,7 @@ class SnapshotSerializer(serializers.HyperlinkedModelSerializer):
             tags_data = validated_data.pop('tags')
             snapshot = mirrorsvc_models.Snapshot.objects.create(**validated_data)
             for tag_data in tags_data:
-               mirrorsvc_models.Tags.objects.create(snapshot=snapshot, **tag_data)
+                mirrorsvc_models.Tags.objects.create(snapshot=snapshot, **tag_data)
         else:
             snapshot = mirrorsvc_models.Snapshot.objects.create(**validated_data)
         return snapshot
