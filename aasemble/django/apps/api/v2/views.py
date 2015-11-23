@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.exceptions import DuplicateResourceException
-from django.core.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError
 
 from . import serializers
 
@@ -80,7 +80,7 @@ class SnapshotViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
-            raise PermissionDenied
+            raise ValidationError('Mirrorset/Timestamp cannot be updated')
         serializer.save(owner=self.request.user)
 
 
