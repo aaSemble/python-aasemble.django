@@ -14,16 +14,27 @@ def authenticate(client, username=None, token=None):
 
 class APIv1Tests(APITestCase):
     fixtures = ['complete.json']
+    base_url = '/api/v1/'
 
+    def __init__(self, *args, **kwargs):
+        super(APIv1Tests, self).__init__(*args, **kwargs)
+        self.repository_list_url = self.base_url + 'repositories/'
+        self.mirrorset_list_url = self.base_url + 'mirror_sets/'
+        self.snapshot_list_url = self.base_url + 'snapshots/'
+        self.mirror_list_url = self.base_url + 'mirrors/'
+        self.self_url = self.base_url + 'auth/user/'
+        self.source_list_url = self.base_url + 'sources/'
+        self.build_list_url = self.base_url + 'builds/'
 
-class APIv1RepositoryTests(APIv1Tests):
-    list_url = '/api/v1/repositories/'
+    ####################
+    # Repository tests #
+    ####################
 
     def test_fetch_sources(self):
         # Use user brandon to make sure it works with users who are members
         # of multiple groups
         authenticate(self.client, 'brandon')
-        response = self.client.get(self.list_url)
+        response = self.client.get(self.repository_list_url)
 
         for repo in response.data['results']:
             resp = self.client.get(repo['sources'])
@@ -33,7 +44,7 @@ class APIv1RepositoryTests(APIv1Tests):
         # Use brandon to make sure it works with users who are members
         # of multiple groups
         authenticate(self.client, 'brandon')
-        response = self.client.get(self.list_url)
+        response = self.client.get(self.repository_list_url)
 
         for repo in response.data['results']:
             resp = self.client.get(repo['external_dependencies'])
@@ -43,13 +54,13 @@ class APIv1RepositoryTests(APIv1Tests):
         data = {}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'name': ['This field is required.']})
 
     def test_create_repository_no_auth_fails_401(self):
         data = {}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
@@ -57,7 +68,7 @@ class APIv1RepositoryTests(APIv1Tests):
         data = {}
         authenticate(self.client, token='invalidtoken')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
 
         self.assertEquals(response.status_code, 401)
 
@@ -65,10 +76,10 @@ class APIv1RepositoryTests(APIv1Tests):
         data = {'name': 'testrepo'}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
 
         self.assertEquals(response.status_code, 201)
-        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.repository_list_url), response.data['self'])
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo',
                            'binary_source_list': 'deb http://127.0.0.1:8000/apt/eric/testrepo aasemble main',
@@ -86,18 +97,18 @@ class APIv1RepositoryTests(APIv1Tests):
     def test_create_duplicate_repository_same_group_different_members(self):
         data = {'name': 'testrepo'}
         authenticate(self.client, 'brandon')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         authenticate(self.client, 'charles')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
 
     def test_create_duplicate_repository(self):
         data = {'name': 'testrepo'}
         authenticate(self.client, 'eric')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 409)
 
     def test_delete_repository(self):
@@ -113,7 +124,7 @@ class APIv1RepositoryTests(APIv1Tests):
     def test_delete_repository_same_group_different_member(self):
         data = {'name': 'testrepo'}
         authenticate(self.client, 'brandon')
-        repo = self.client.post(self.list_url, data, format='json')
+        repo = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(repo.status_code, 201)
         authenticate(self.client, 'charles')
         response = self.client.delete(repo.data['self'])
@@ -223,61 +234,31 @@ class APIv1RepositoryTests(APIv1Tests):
     def test_create_same_name_repository_different_user(self):
         data = {'name': 'testrepo'}
         authenticate(self.client, 'eric')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         authenticate(self.client, 'dennis')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
 
-
-class APIv2RepositoryTests(APIv1RepositoryTests):
-    list_url = '/api/v2/repositories/'
-
-
-class APIv1BuildTests(APIv1Tests):
-    list_url = '/api/v1/builds/'
+    ###############
+    # Build tests #
+    ###############
 
     def test_fetch_builds(self):
         authenticate(self.client, 'eric')
-        response = self.client.get(self.list_url)
+        response = self.client.get(self.build_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 10)
 
-
-class APIv2BuildTests(APIv1BuildTests):
-    list_url = '/api/v2/builds/'
-
-    def test_builds_default_order(self):
-        authenticate(self.client, 'eric')
-        response = self.client.get(self.list_url)
-
-        prev_build = None
-        for build in response.data['results']:
-            if prev_build:
-                self.assertGreater(build['build_started'],
-                                   prev_build['build_started'])
-            prev_build = build
-
-    def test_builds_specific_order(self):
-        authenticate(self.client, 'eric')
-        response = self.client.get(self.list_url + '?ordering=-build_started')
-
-        prev_build = None
-        for build in response.data['results']:
-            if prev_build:
-                self.assertLess(build['build_started'],
-                                prev_build['build_started'])
-            prev_build = build
-
-
-class APIv1SourceTests(APIv1Tests):
-    list_url = '/api/v1/sources/'
+    ################
+    # Source tests #
+    ################
 
     def test_create_source_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.source_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'git_repository': ['This field is required.'],
                                           'git_branch': ['This field is required.'],
@@ -287,7 +268,7 @@ class APIv1SourceTests(APIv1Tests):
         data = {'git_repository': 'not a valid url'}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.source_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'git_repository': ['Enter a valid URL.'],
                                           'git_branch': ['This field is required.'],
@@ -295,7 +276,7 @@ class APIv1SourceTests(APIv1Tests):
 
     def test_create_source_no_auth_fails_401(self):
         data = {}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.source_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
@@ -303,23 +284,23 @@ class APIv1SourceTests(APIv1Tests):
         data = {}
         authenticate(self.client, token='invalidtoken')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.source_list_url, data, format='json')
 
         self.assertEquals(response.status_code, 401)
 
     def test_create_source(self):
         authenticate(self.client, 'eric')
 
-        response = self.client.get(self.list_url.replace('sources', 'repositories'))
+        response = self.client.get(self.source_list_url.replace('sources', 'repositories'))
 
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
                 'git_branch': 'master',
                 'repository': response.data['results'][0]['self']}
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.source_list_url, data, format='json')
 
         self.assertEquals(response.status_code, 201)
-        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.source_list_url), response.data['self'])
         data['self'] = response.data['self']
         data['builds'] = data['self'] + 'builds/'
         self.assertEquals(response.data, data)
@@ -368,40 +349,15 @@ class APIv1SourceTests(APIv1Tests):
         response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 401)
 
-
-class APIv2SourceTests(APIv1SourceTests):
-    list_url = '/api/v2/sources/'
-
-
-class APIv1AuthTests(APIv1Tests):
-    self_url = '/api/v1/auth/user/'
-
-    def test_get_user_details(self):
-        authenticate(self.client, 'eric')
-
-        response = self.client.get(self.self_url, format='json')
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.data,
-                          {'username': u'eric',
-                           'company': u'No Company',
-                           'email': u'eric@example.com',
-                           'avatar': u'https://avatars.githubusercontent.com/u/1234565?v=3',
-                           'real_name': u'Eric Ericson',
-                           'github_token': '2348765218564329856923487569324878732645'})
-
-
-class APIv2AuthTests(APIv1AuthTests):
-    self_url = '/api/v2/auth/user/'
-
-
-class APIv1MirrorTests(APIv1Tests):
-    list_url = '/api/v1/mirrors/'
+    ################
+    # Mirror tests #
+    ################
 
     def test_create_mirror_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'url': ['This field is required.'],
                                           'series': ['This field is required.'],
@@ -409,14 +365,14 @@ class APIv1MirrorTests(APIv1Tests):
 
     def test_create_mirror_no_auth_fails_401(self):
         data = {}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
     def test_create_mirror_incorrect_auth_fails_401(self):
         data = {}
         authenticate(self.client, token='invalidtoken')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
     def test_create_mirror_invalid_url_fails(self):
@@ -425,7 +381,7 @@ class APIv1MirrorTests(APIv1Tests):
                 'components': ['main']}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'url': ['Enter a valid URL.']})
 
@@ -435,9 +391,9 @@ class APIv1MirrorTests(APIv1Tests):
                 'components': ['main']}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
-        self.assertTrue(response.data['self'].startswith('http://testserver' + self.list_url), response.data['self'])
+        self.assertTrue(response.data['self'].startswith('http://testserver' + self.mirror_list_url), response.data['self'])
         data['self'] = response.data['self']
         data['refresh_in_progress'] = False
         data['public'] = False
@@ -540,8 +496,8 @@ class APIv1MirrorTests(APIv1Tests):
                 'series': ['trusty'],
                 'components': ['main']}
         authenticate(self.client, 'aaron')
-        self.client.post(self.list_url, data, format='json')
-        response = self.client.get(self.list_url)
+        self.client.post(self.mirror_list_url, data, format='json')
+        response = self.client.get(self.mirror_list_url)
         self.assertEquals(len(response.data['results']), 1, 'did not return only 1 mirror')
         self.assertEquals(response.data['results'][0]['url'], 'http://example2.com/', 'url not the same as created')
 
@@ -553,71 +509,9 @@ class APIv1MirrorTests(APIv1Tests):
         response = self.client.post(mirror['self'] + 'refresh/')
         self.assertEquals(response.data['status'], 'update already scheduled')
 
-
-class APIv2MirrorTests(APIv1MirrorTests):
-    list_url = '/api/v2/mirrors/'
-
-
-class GithubHookViewTestCase(APIv1Tests):
-    @mock.patch('aasemble.django.apps.api.tasks.github_push_event')
-    def test_hook(self, github_push_event):
-        with open(os.path.join(os.path.dirname(__file__), 'example-hook.json'), 'r') as fp:
-            res = self.client.post('/api/events/github/',
-                                   data=fp.read(),
-                                   content_type='application/json',
-                                   HTTP_X_GITHUB_EVENT='push')
-        self.assertEquals(res.data, {'ok': 'thanks'})
-        github_push_event.delay.assert_called_with("https://github.com/baxterthehacker/public-repo")
-
-    @mock.patch('aasemble.django.apps.buildsvc.tasks.poll_one')
-    def test_github_push_event(self, poll_one):
-        from .tasks import github_push_event
-        github_push_event("https://github.com/eric/project0")
-        poll_one.delay.assert_called_with(1)
-
-
-class APIv2TagsTests(APIv1Tests):
-    list_url = '/api/v2/snapshots/'
-
-    def test_create_snapshot_tag(self):
-        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/',
-                'tags': ['firsttag', 'secondtag']}
-        authenticate(self.client, 'eric')
-        response = self.client.post(self.list_url, data, format='json')
-        self.assertEquals(response.status_code, 201)
-        data['self'] = response.data['self']
-        data['timestamp'] = response.data['timestamp']
-        self.assertEquals(data, response.data)
-        return response.data
-
-    def test_update_snapshot_tag(self):
-        data = {'tags': ['thirdtag']}
-        authenticate(self.client, 'eric')
-        response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
-        self.assertEquals(response.status_code, 200)
-        data['self'] = response.data['self']
-        data['timestamp'] = response.data['timestamp']
-        data['mirrorset'] = response.data['mirrorset']
-        self.assertEquals(data, response.data)
-        return response.data
-
-    def test_update_snapshot_mirrorset_400(self):
-        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/'}
-        authenticate(self.client, 'eric')
-        response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
-        self.assertEquals(response.status_code, 400)
-        return response.data
-
-    def test_update_snapshot_timestamp_403(self):
-        data = {'timestamp': '2015-11-13T11:53:09.496Z'}
-        authenticate(self.client, 'eric')
-        response = self.client.patch(self.list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
-        self.assertEquals(response.status_code, 400)
-        return response.data
-
-
-class APIv1MirrorsetTests(APIv1Tests):
-    list_url = '/api/v1/mirror_sets/'
+    ####################
+    # Mirror set tests #
+    ####################
 
     def test_create_mirrorset_empty_fails_400(self):
         # An issue with django-rest-framework will result in returning a status
@@ -626,26 +520,26 @@ class APIv1MirrorsetTests(APIv1Tests):
         data = {}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrors': ['This field is required.']})
 
     def test_create_mirrorset_no_auth_fails_401(self):
         data = {}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
     def test_create_mirrorset_incorrect_auth_fails_401(self):
         data = {}
         authenticate(self.client, token='invalidtoken')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
     def test_create_mirrorset_invalid_mirrors(self):
         authenticate(self.client, 'eric')
         data = {'mirrors': ['Invalid Mirrors URL']}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
 
@@ -654,10 +548,10 @@ class APIv1MirrorsetTests(APIv1Tests):
                 'series': ['trusty'],
                 'components': ['main']}
         authenticate(self.client, 'eric')
-        response = self.client.post(self.list_url.replace('mirror_sets', 'mirrors'), data, format='json')
+        response = self.client.post(self.mirrorset_list_url.replace('mirror_sets', 'mirrors'), data, format='json')
         self.assertEquals(response.status_code, 201)
         data = {'mirrors': [response.data['self']]}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         return response.data
 
@@ -673,7 +567,7 @@ class APIv1MirrorsetTests(APIv1Tests):
         data = {'url': 'http://example1.com/',
                 'series': ['trusty'],
                 'components': ['main']}
-        mirror = self.client.post(self.list_url.replace('mirror_sets', 'mirrors'), data, format='json')
+        mirror = self.client.post(self.mirrorset_list_url.replace('mirror_sets', 'mirrors'), data, format='json')
         self.assertEquals(mirror.status_code, 201)
         data = {'mirrors': [mirror.data['self']]}
         response = self.client.patch(mirrorset['self'], data, format='json')
@@ -729,17 +623,13 @@ class APIv1MirrorsetTests(APIv1Tests):
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 401)
 
-
-class APIv2MirrorsetTests(APIv1MirrorsetTests):
-    list_url = '/api/v2/mirror_sets/'
-
-
-class APIv1SnapshotTests(APIv1Tests):
-    list_url = '/api/v1/snapshots/'
+    ##################
+    # Snapshot tests #
+    ##################
 
     def test_create_snapshot_no_auth_fails_401(self):
         data = {}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
@@ -747,14 +637,14 @@ class APIv1SnapshotTests(APIv1Tests):
         data = {}
         authenticate(self.client, 'eric')
 
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['This field is required.']})
 
     def test_create_snapshot_incorrect_auth_fails_401(self):
         data = {}
         authenticate(self.client, token='invalidtoken')
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
     def test_create_snapshot(self):
@@ -762,20 +652,20 @@ class APIv1SnapshotTests(APIv1Tests):
                 'series': ['trusty'],
                 'components': ['main']}
         authenticate(self.client, 'eric')
-        response = self.client.post(self.list_url.replace('snapshots', 'mirrors'), data, format='json')
+        response = self.client.post(self.snapshot_list_url.replace('snapshots', 'mirrors'), data, format='json')
         self.assertEquals(response.status_code, 201)
         data = {'mirrors': [response.data['self']]}
-        response = self.client.post(self.list_url.replace('snapshots', 'mirror_sets'), data, format='json')
+        response = self.client.post(self.snapshot_list_url.replace('snapshots', 'mirror_sets'), data, format='json')
         self.assertEquals(response.status_code, 201)
         data = {'mirrorset': response.data['self']}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         return response.data
 
     def test_create_snapshot_invalid_mirrorset(self):
         authenticate(self.client, 'eric')
         data = {'mirrorset': 'Invalid Mirrorset URL'}
-        response = self.client.post(self.list_url, data, format='json')
+        response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['Invalid hyperlink - No URL match.']})
 
@@ -824,6 +714,101 @@ class APIv1SnapshotTests(APIv1Tests):
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 401)
 
+    ##############
+    # Auth tests #
+    ##############
 
-class APIv2SnapshotTests(APIv1SnapshotTests):
-    list_url = '/api/v2/snapshots/'
+    def test_get_user_details(self):
+        authenticate(self.client, 'eric')
+
+        response = self.client.get(self.self_url, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data,
+                          {'username': u'eric',
+                           'company': u'No Company',
+                           'email': u'eric@example.com',
+                           'avatar': u'https://avatars.githubusercontent.com/u/1234565?v=3',
+                           'real_name': u'Eric Ericson',
+                           'github_token': '2348765218564329856923487569324878732645'})
+
+
+class APIv2Tests(APIv1Tests):
+    base_url = '/api/v2/'
+
+    def test_builds_default_order(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.build_list_url)
+
+        prev_build = None
+        for build in response.data['results']:
+            if prev_build:
+                self.assertGreater(build['build_started'],
+                                   prev_build['build_started'])
+            prev_build = build
+
+    def test_builds_specific_order(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.build_list_url + '?ordering=-build_started')
+
+        prev_build = None
+        for build in response.data['results']:
+            if prev_build:
+                self.assertLess(build['build_started'],
+                                prev_build['build_started'])
+            prev_build = build
+
+    def test_create_snapshot_tag(self):
+        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/',
+                'tags': ['firsttag', 'secondtag']}
+        authenticate(self.client, 'eric')
+        response = self.client.post(self.snapshot_list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        data['self'] = response.data['self']
+        data['timestamp'] = response.data['timestamp']
+        self.assertEquals(data, response.data)
+        return response.data
+
+    def test_update_snapshot_tag(self):
+        data = {'tags': ['thirdtag']}
+        authenticate(self.client, 'eric')
+        response = self.client.patch(self.snapshot_list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
+        self.assertEquals(response.status_code, 200)
+        data['self'] = response.data['self']
+        data['timestamp'] = response.data['timestamp']
+        data['mirrorset'] = response.data['mirrorset']
+        self.assertEquals(data, response.data)
+        return response.data
+
+    def test_update_snapshot_mirrorset_400(self):
+        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/'}
+        authenticate(self.client, 'eric')
+        response = self.client.patch(self.snapshot_list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
+        self.assertEquals(response.status_code, 400)
+        return response.data
+
+    def test_update_snapshot_timestamp_403(self):
+        data = {'timestamp': '2015-11-13T11:53:09.496Z'}
+        authenticate(self.client, 'eric')
+        response = self.client.patch(self.snapshot_list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
+        self.assertEquals(response.status_code, 400)
+        return response.data
+
+
+class GithubHookViewTestCase(APITestCase):
+    fixtures = ['complete.json']
+
+    @mock.patch('aasemble.django.apps.api.tasks.github_push_event')
+    def test_hook(self, github_push_event):
+        with open(os.path.join(os.path.dirname(__file__), 'example-hook.json'), 'r') as fp:
+            res = self.client.post('/api/events/github/',
+                                   data=fp.read(),
+                                   content_type='application/json',
+                                   HTTP_X_GITHUB_EVENT='push')
+        self.assertEquals(res.data, {'ok': 'thanks'})
+        github_push_event.delay.assert_called_with("https://github.com/baxterthehacker/public-repo")
+
+    @mock.patch('aasemble.django.apps.buildsvc.tasks.poll_one')
+    def test_github_push_event(self, poll_one):
+        from .tasks import github_push_event
+        github_push_event("https://github.com/eric/project0")
+        poll_one.delay.assert_called_with(1)
