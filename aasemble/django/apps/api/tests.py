@@ -1,10 +1,11 @@
 import os.path
-from six.moves.urllib.parse import urlparse
 
 import mock
 
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
+
+from six.moves.urllib.parse import urlparse
 
 
 def authenticate(client, username=None, token=None):
