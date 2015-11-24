@@ -51,6 +51,7 @@ class APIv1RepositoryTests(APIv1Tests):
         data = {}
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
     def test_create_repository_incorrect_auth_fails_401(self):
         data = {}
@@ -262,6 +263,7 @@ class APIv1SourceTests(APIv1Tests):
         data = {}
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
     def test_create_source_incorrect_auth_fails_401(self):
         data = {}
@@ -375,6 +377,7 @@ class APIv1MirrorTests(APIv1Tests):
         data = {}
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
     def test_create_mirror_incorrect_auth_fails_401(self):
         data = {}
@@ -559,6 +562,7 @@ class APIv1MirrorsetTests(APIv1Tests):
         data = {}
         response = self.client.post(self.list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
 
     def test_create_mirrorset_incorrect_auth_fails_401(self):
         data = {}
@@ -661,6 +665,12 @@ class APIv2MirrorsetTests(APIv1MirrorsetTests):
 class APIv1SnapshotTests(APIv1Tests):
     list_url = '/api/v1/snapshots/'
 
+    def test_create_snapshot_no_auth_fails_401(self):
+        data = {}
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Authentication credentials were not provided.'})
+
     def test_create_snapshot_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
@@ -705,7 +715,14 @@ class APIv1SnapshotTests(APIv1Tests):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
 
-    def test_delete_snapshot_not_allowed(self):
+    def test_delete_snapshot_no_auth(self):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, token=' ')
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token header. No credentials provided.'})
+
+    def test_delete_snapshot(self):
         snapshot = self.test_create_snapshot()
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 204)
@@ -715,6 +732,7 @@ class APIv1SnapshotTests(APIv1Tests):
         authenticate(self.client, token='invalidtoken')
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_delete_snapshot_other_user(self):
         snapshot = self.test_create_snapshot()
