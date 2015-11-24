@@ -11,7 +11,6 @@ import deb822
 
 from django.conf import settings
 from django.contrib.auth import models as auth_models
-from django.core.cache import cache
 from django.db import models
 from django.forms import ModelForm
 from django.template.loader import render_to_string
