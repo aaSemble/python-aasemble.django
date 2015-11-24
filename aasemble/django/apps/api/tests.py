@@ -83,6 +83,15 @@ class APIv1RepositoryTests(APIv1Tests):
         self.assertEquals(response.data, expected_result)
         return response.data
 
+    def test_create_duplicate_repository_same_group_different_members(self):
+        data = {'name': 'testrepo'}
+        authenticate(self.client, 'brandon')
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+        authenticate(self.client, 'charles')
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(response.status_code, 201)
+
     def test_create_duplicate_repository(self):
         data = {'name': 'testrepo'}
         authenticate(self.client, 'eric')
@@ -99,6 +108,15 @@ class APIv1RepositoryTests(APIv1Tests):
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get(repo['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_repository_same_group_different_member(self):
+        data = {'name': 'testrepo'}
+        authenticate(self.client, 'brandon')
+        repo = self.client.post(self.list_url, data, format='json')
+        self.assertEquals(repo.status_code, 201)
+        authenticate(self.client, 'charles')
+        response = self.client.delete(repo.data['self'])
         self.assertEquals(response.status_code, 404)
 
     def test_patch_repository(self):
@@ -173,6 +191,22 @@ class APIv1RepositoryTests(APIv1Tests):
         authenticate(self.client, 'george')
         response = self.client.patch(repo['self'], data, format='json')
         self.assertEquals(response.status_code, 200)
+
+    def test_patch_repository_deactivated_super_user(self):
+        repo = self.test_create_repository()
+        data = {'name': 'testrepo2'}
+        authenticate(self.client, 'harold')
+        response = self.client.patch(repo['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_patch_repository_deactivated_other_user(self):
+        repo = self.test_create_repository()
+        data = {'name': 'testrepo2'}
+        authenticate(self.client, 'frank')
+        response = self.client.patch(repo['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_delete_repository_deactivated_super_user(self):
         repo = self.test_create_repository()
