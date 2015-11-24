@@ -440,6 +440,22 @@ class APIv1MirrorTests(APIv1Tests):
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, {'detail': 'You do not have permission to perform this action.'})
 
+    def test_patch_public_mirror_deactivated_other_user(self):
+        mirror = self.test_patch_mirror()
+        data = {'public': False}
+        authenticate(self.client, 'harold')
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_patch_public_mirror_deactivated_super_user(self):
+        mirror = self.test_patch_mirror()
+        data = {'public': False}
+        authenticate(self.client, 'frank')
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
     def test_delete_mirror(self):
         mirror = self.test_create_mirror()
         response = self.client.delete(mirror['self'])
