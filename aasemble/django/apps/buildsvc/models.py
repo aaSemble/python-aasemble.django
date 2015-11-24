@@ -11,7 +11,6 @@ import deb822
 
 from django.conf import settings
 from django.contrib.auth import models as auth_models
-from django.core.cache import cache
 from django.db import models
 from django.forms import ModelForm
 from django.template.loader import render_to_string
@@ -427,20 +426,8 @@ class BuildRecord(models.Model):
 
         return path
 
-    @property
-    def base_url(self):
-        cache_key = 'source_%s_base_url' % (self.source_id,)
-
-        val = cache.get(cache_key)
-
-        if val is None:
-            val = self.source.series.repository.base_url
-            cache.set(cache_key, val, 5)
-
-        return val
-
     def buildlog_url(self):
-        return '%s/buildlogs/%s' % (self.base_url, self.logpath())
+        return '%s/buildlogs/%s' % (self.source.series.repository.base_url, self.logpath())
 
 
 @python_2_unicode_compatible
