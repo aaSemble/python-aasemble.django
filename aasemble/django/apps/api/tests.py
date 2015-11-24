@@ -5,6 +5,8 @@ import mock
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from six.moves.urllib.parse import urlparse
+
 
 def authenticate(client, username=None, token=None):
     if token is None:
@@ -15,6 +17,7 @@ def authenticate(client, username=None, token=None):
 class APIv1Tests(APITestCase):
     fixtures = ['complete.json']
     base_url = '/api/v1/'
+    source_should_be_embedded_in_build = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -249,6 +252,14 @@ class APIv1Tests(APITestCase):
         response = self.client.get(self.build_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 10)
+
+    def test_source_is_linked_or_nested(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.build_list_url)
+        if self.source_should_be_embedded_in_build:
+            self.assertTrue(isinstance(response.data['results'][0]['source'], dict))
+        else:
+            urlparse(response.data['results'][0]['source'])
 
     ################
     # Source tests #
@@ -758,7 +769,7 @@ class APIv2Tests(APIv1Tests):
             prev_build = build
 
     def test_create_snapshot_tag(self):
-        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/',
+        data = {'mirrorset': 'http://testserver{0}60d0ba66-d343-404b-a6e6-5c141db11a54/'.format(self.mirrorset_list_url),
                 'tags': ['firsttag', 'secondtag']}
         authenticate(self.client, 'eric')
         response = self.client.post(self.snapshot_list_url, data, format='json')
@@ -792,6 +803,11 @@ class APIv2Tests(APIv1Tests):
         response = self.client.patch(self.snapshot_list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
         self.assertEquals(response.status_code, 400)
         return response.data
+
+
+class APIv3Tests(APIv2Tests):
+    base_url = '/api/v3/'
+    source_should_be_embedded_in_build = True
 
 
 class GithubHookViewTestCase(APITestCase):

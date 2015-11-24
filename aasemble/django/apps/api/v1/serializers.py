@@ -8,6 +8,7 @@ class aaSembleAPIv1Serializers(object):
     view_prefix = 'v1'
     default_lookup_field = 'pk'
     snapshots_have_tags = False
+    builds_nest_source = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()
@@ -164,7 +165,10 @@ class aaSembleAPIv1Serializers(object):
     def BuildRecordSerializerFactory(selff):
         class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
             self = serializers.HyperlinkedRelatedField(view_name='{0}_buildrecord-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
-            source = serializers.HyperlinkedRelatedField(view_name='{0}_packagesource-detail'.format(selff.view_prefix), read_only=True, lookup_field=selff.default_lookup_field)
+            if selff.builds_nest_source:
+                source = selff.PackageSourceSerializer()
+            else:
+                source = serializers.HyperlinkedRelatedField(view_name='{0}_packagesource-detail'.format(selff.view_prefix), read_only=True, lookup_field=selff.default_lookup_field)
 
             class Meta:
                 model = buildsvc_models.BuildRecord
