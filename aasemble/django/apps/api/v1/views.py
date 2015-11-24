@@ -2,6 +2,7 @@ from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
 from django.conf import settings
+from django.conf.urls import include, url
 import django.db.utils
 
 from rest_auth.registration.views import SocialLoginView
@@ -11,11 +12,13 @@ from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
+from rest_framework_nested import routers
+
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.exceptions import DuplicateResourceException
 
-from . import serializers
+from . import serializers as serializers_
 
 
 class GithubLogin(SocialLoginView):
@@ -24,134 +27,211 @@ class GithubLogin(SocialLoginView):
     client_class = OAuth2Client
 
 
-class MirrorViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows mirrors to be viewed or edited.
-    """
-    queryset = mirrorsvc_models.Mirror.objects.all()
-    serializer_class = serializers.MirrorSerializer
+class aaSembleV1Views(object):
+    view_prefix = 'v1'
+    default_lookup_field = 'pk'
+    default_lookup_value_regex = '[^/]+'
+    serializers = serializers_.aaSembleAPIv1Serializers()
 
-    def get_queryset(self):
-        return self.queryset.filter(owner_id=self.request.user.id) | self.queryset.filter(public=True)
+    def __init__(self):
+        self.MirrorViewSet = self.MirrorViewSetFactory()
+        self.MirrorSetViewSet = self.MirrorSetViewSetFactory()
+        self.SnapshotViewSet = self.SnapshotViewSetFactory()
+        self.RepositoryViewSet = self.RepositoryViewSetFactory()
+        self.SeriesViewSet = self.SeriesViewSetFactory()
+        self.PackageSourceViewSet = self.PackageSourceViewSetFactory()
+        self.ExternalDependencyViewSet = self.ExternalDependencyViewSetFactory()
+        self.BuildViewSet = self.BuildViewSetFactory()
+        self.urls = self.build_urls()
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def MirrorViewSetFactory(selff):
+        class MirrorViewSet(viewsets.ModelViewSet):
+            """
+            API endpoint that allows mirrors to be viewed or edited.
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = mirrorsvc_models.Mirror.objects.all()
+            serializer_class = selff.serializers.MirrorSerializer
 
-    @detail_route(methods=['post'])
-    def refresh(self, request, pk=None):
-        mirror = self.get_object()
-        scheduled = mirror.schedule_update_mirror()
-        if scheduled:
-            status = 'update scheduled'
-        else:
-            status = 'update already scheduled'
-        return Response({'status': status})
+            def get_queryset(self):
+                return self.queryset.filter(owner_id=self.request.user.id) | self.queryset.filter(public=True)
 
+            def perform_create(self, serializer):
+                serializer.save(owner=self.request.user)
 
-class MirrorSetViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows mirrors to be viewed or edited.
-    """
-    queryset = mirrorsvc_models.MirrorSet.objects.all()
-    serializer_class = serializers.MirrorSetSerializer
+            @detail_route(methods=['post'])
+            def refresh(self, request, **kwargs):
+                mirror = self.get_object()
+                scheduled = mirror.schedule_update_mirror()
+                if scheduled:
+                    status = 'update scheduled'
+                else:
+                    status = 'update already scheduled'
+                return Response({'status': status})
 
-    def get_queryset(self):
-        return self.queryset.filter(owner_id=self.request.user.id)
+        return MirrorViewSet
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def MirrorSetViewSetFactory(selff):
+        class MirrorSetViewSet(viewsets.ModelViewSet):
+            """
+            API endpoint that allows mirrors to be viewed or edited.
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = mirrorsvc_models.MirrorSet.objects.all()
+            serializer_class = selff.serializers.MirrorSetSerializer
 
+            def get_queryset(self):
+                return self.queryset.filter(owner_id=self.request.user.id)
 
-class SnapshotViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows mirrors to be viewed or edited.
-    """
-    queryset = mirrorsvc_models.Snapshot.objects.all()
-    serializer_class = serializers.SnapshotSerializer
+            def perform_create(self, serializer):
+                serializer.save(owner=self.request.user)
 
-    def get_queryset(self):
-        return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
+        return MirrorSetViewSet
 
-    def perform_update(self, serializer):
-        if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
-            raise ValidationError({'detail': 'Method "PATCH" not allowed.'})
-        serializer.save(owner=self.request.user)
+    def SnapshotViewSetFactory(selff):
+        class SnapshotViewSet(viewsets.ModelViewSet):
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            """
+            API endpoint that allows mirrors to be viewed or edited.
+            """
+            queryset = mirrorsvc_models.Snapshot.objects.all()
+            serializer_class = selff.serializers.SnapshotSerializer
 
+            def get_queryset(self):
+                return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
 
-class RepositoryViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows repositories to be viewed or edited.
-    """
-    queryset = buildsvc_models.Repository.objects.all()
-    serializer_class = serializers.RepositorySerializer
+            def perform_update(self, serializer):
+                if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
+                    raise ValidationError({'detail': 'Method "PATCH" not allowed.'})
+                serializer.save(owner=self.request.user)
 
-    def get_queryset(self):
-        return buildsvc_models.Repository.lookup_by_user(self.request.user)
+        return SnapshotViewSet
 
-    def perform_create(self, serializer):
-        try:
-            serializer.save(user=self.request.user)
-        except django.db.utils.IntegrityError:
-            raise DuplicateResourceException()
+    def RepositoryViewSetFactory(selff):
+        class RepositoryViewSet(viewsets.ModelViewSet):
+            """
+            API endpoint that allows repositories to be viewed or edited.
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = buildsvc_models.Repository.objects.all()
+            serializer_class = selff.serializers.RepositorySerializer
 
+            def get_queryset(self):
+                return buildsvc_models.Repository.lookup_by_user(self.request.user)
 
-class SeriesViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows series to be viewed or edited.
-    """
-    queryset = buildsvc_models.Series.objects.all()
-    serializer_class = serializers.SeriesSerializer
+            def perform_create(self, serializer):
+                try:
+                    serializer.save(user=self.request.user)
+                except django.db.utils.IntegrityError:
+                    raise DuplicateResourceException()
 
-    def get_queryset(self):
-        return self.queryset.filter(repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
+        return RepositoryViewSet
 
+    def SeriesViewSetFactory(selff):
+        class SeriesViewSet(viewsets.ModelViewSet):
+            """
+            API endpoint that allows series to be viewed or edited.
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = buildsvc_models.Series.objects.all()
+            serializer_class = selff.serializers.SeriesSerializer
 
-class PackageSourceViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows series to be viewed or edited.
-    """
-    queryset = buildsvc_models.PackageSource.objects.all()
-    serializer_class = serializers.PackageSourceSerializer
+            def get_queryset(self):
+                return self.queryset.filter(repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
 
-    def get_queryset(self):
-        qs = self.queryset.filter(series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
-        if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
-            fn, args, kwargs = self.request.resolver_match
-            if 'repository_pk' in kwargs:
-                qs = qs.filter(series__repository=kwargs['repository_pk'])
+        return SeriesViewSet
 
-        return qs
+    def get_qs_filter(selff, kwargs, base_key, base_value):
+        key = '{0}__{1}'.format(base_key, selff.default_lookup_field)
+        value = '{0}_{1}'.format(base_value, selff.default_lookup_field)
+        return {key: kwargs[value]}
 
+    def PackageSourceViewSetFactory(selff):
+        class PackageSourceViewSet(viewsets.ModelViewSet):
+            """
+            API endpoint that allows series to be viewed or edited.
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = buildsvc_models.PackageSource.objects.all()
+            serializer_class = selff.serializers.PackageSourceSerializer
 
-class ExternalDependencyViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows external dependencies to be viewed or edited.
-    """
-    queryset = buildsvc_models.ExternalDependency.objects.all()
-    serializer_class = serializers.ExternalDependencySerializer
+            def get_queryset(self):
+                qs = self.queryset.filter(series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
+                if 'repository_{0}'.format(selff.default_lookup_field) in self.kwargs:
+                    qs = qs.filter(**selff.get_qs_filter(self.kwargs, 'series__repository', 'repository'))
 
-    def get_queryset(self):
-        qs = self.queryset.filter(own_series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
-        if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
-            fn, args, kwargs = self.request.resolver_match
-            if 'repository_pk' in kwargs:
-                qs = qs.filter(own_series__repository=kwargs['repository_pk'])
+                return qs
 
-        return qs
+        return PackageSourceViewSet
 
+    def ExternalDependencyViewSetFactory(selff):
+        class ExternalDependencyViewSet(viewsets.ModelViewSet):
+            """
+            API endpoint that allows external dependencies to be viewed or edited.
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = buildsvc_models.ExternalDependency.objects.all()
+            serializer_class = selff.serializers.ExternalDependencySerializer
 
-class BuildViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint that allows builds viewed
-    """
-    queryset = buildsvc_models.BuildRecord.objects.all()
-    serializer_class = serializers.BuildRecordSerializer
+            def get_queryset(self):
+                qs = self.queryset.filter(own_series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
 
-    def get_queryset(self):
-        qs = self.queryset.filter(source__series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
-        if hasattr(self, 'request') and hasattr(self.request, 'resolver_match'):
-            fn, args, kwargs = self.request.resolver_match
-            if 'source_pk' in kwargs:
-                qs = qs.filter(source=kwargs['source_pk'])
+                if 'repository_{0}'.format(selff.default_lookup_field) in self.kwargs:
+                    qs = qs.filter(**selff.get_qs_filter(self.kwargs, 'own_series__repository', 'repository'))
 
-        return qs
+                return qs
+
+        return ExternalDependencyViewSet
+
+    def BuildViewSetFactory(selff):
+        class BuildViewSet(viewsets.ReadOnlyModelViewSet):
+            """
+            API endpoint that allows builds viewed
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = buildsvc_models.BuildRecord.objects.all()
+            serializer_class = selff.serializers.BuildRecordSerializer
+
+            def get_queryset(self):
+                qs = self.queryset.filter(source__series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
+                if 'source_{0}'.format(selff.default_lookup_field) in self.kwargs:
+                    qs = qs.filter(**selff.get_qs_filter(self.kwargs, 'source', 'source'))
+
+                return qs
+
+        return BuildViewSet
+
+    def build_urls(self):
+        router = routers.DefaultRouter()
+        router.register(r'repositories', self.RepositoryViewSet, base_name='{0}_repository'.format(self.view_prefix))
+        router.register(r'external_dependencies', self.ExternalDependencyViewSet, base_name='{0}_externaldependency'.format(self.view_prefix))
+        router.register(r'sources', self.PackageSourceViewSet, base_name='{0}_packagesource'.format(self.view_prefix))
+        router.register(r'builds', self.BuildViewSet, base_name='{0}_buildrecord'.format(self.view_prefix))
+        router.register(r'mirrors', self.MirrorViewSet, base_name='{0}_mirror'.format(self.view_prefix))
+        router.register(r'mirror_sets', self.MirrorSetViewSet, base_name='{0}_mirrorset'.format(self.view_prefix))
+        router.register(r'snapshots', self.SnapshotViewSet, base_name='{0}_snapshot'.format(self.view_prefix))
+
+        source_router = routers.NestedSimpleRouter(router, r'sources', lookup='source')
+        source_router.register(r'builds', self.BuildViewSet, base_name='{0}_build'.format(self.view_prefix))
+
+        repository_router = routers.NestedSimpleRouter(router, r'repositories', lookup='repository')
+        repository_router.register(r'sources', self.PackageSourceViewSet, base_name='{0}_packagesource'.format(self.view_prefix))
+        repository_router.register(r'external_dependencies', self.ExternalDependencyViewSet, base_name='{0}_externaldependency'.format(self.view_prefix))
+
+        urls = [url(r'^', include(router.urls)),
+                url(r'^', include(repository_router.urls)),
+                url(r'^', include(source_router.urls)),
+                url(r'^auth/', include('rest_auth.urls')),
+                url(r'^auth/github/$', GithubLogin.as_view(), name='github_login')]
+
+        if getattr(settings, 'SIGNUP_OPEN', False):
+            urls += [url(r'^auth/registration/', include('rest_auth.registration.urls'))]
+        return urls
