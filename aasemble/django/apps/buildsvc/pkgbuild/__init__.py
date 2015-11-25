@@ -57,6 +57,8 @@ class PackageBuilder(object):
         self.build_external_dependency_repo_sources()
         self.docker_build_source_package()
         self.docker_build_binary_package()
+        self.build_record.build_finished = timezone.now()
+        self.build_record.save()
 
     def build_external_dependency_repo_keys(self):
         """create a file which has all external dependency repos keys"""

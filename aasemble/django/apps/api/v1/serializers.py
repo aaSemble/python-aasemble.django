@@ -9,6 +9,7 @@ class aaSembleAPIv1Serializers(object):
     default_lookup_field = 'pk'
     snapshots_have_tags = False
     builds_nest_source = False
+    include_build_duration = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()
@@ -173,6 +174,8 @@ class aaSembleAPIv1Serializers(object):
             class Meta:
                 model = buildsvc_models.BuildRecord
                 fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
+                if selff.include_build_duration:
+                    fields += ('duration', 'build_finished')
 
         return BuildRecordSerializer
 

@@ -18,6 +18,7 @@ class APIv1Tests(APITestCase):
     fixtures = ['complete.json']
     base_url = '/api/v1/'
     source_should_be_embedded_in_build = False
+    build_includes_duration = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -263,6 +264,12 @@ class APIv1Tests(APITestCase):
             self.assertTrue(isinstance(response.data['results'][0]['source'], dict))
         else:
             urlparse(response.data['results'][0]['source'])
+
+    def test_duration_included_only_in_v3_and_beyond(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.build_list_url)
+        self.assertEquals(self.build_includes_duration, 'duration' in response.data['results'][0])
+        self.assertEquals(self.build_includes_duration, 'build_finished' in response.data['results'][0])
 
     ################
     # Source tests #
@@ -867,6 +874,16 @@ class APIv2Tests(APIv1Tests):
 class APIv3Tests(APIv2Tests):
     base_url = '/api/v3/'
     source_should_be_embedded_in_build = True
+    build_includes_duration = True
+
+    def test_build_duration(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.build_list_url)
+        for result in response.data['results']:
+            if result['version'] == '1.1+0':
+                self.assertEquals(result['duration'], 81.087)
+            else:
+                self.assertEquals(result['duration'], None)
 
 
 class GithubHookViewTestCase(APITestCase):
