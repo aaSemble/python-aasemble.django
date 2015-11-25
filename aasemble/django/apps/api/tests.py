@@ -302,8 +302,8 @@ class APIv1Tests(APITestCase):
 
         self.assertEquals(response.status_code, 401)
 
-    def test_create_source(self):
-        authenticate(self.client, 'eric')
+    def test_create_source(self, user='eric'):
+        authenticate(self.client, user)
         response = self.client.get(self.source_list_url.replace('sources', 'repositories'))
 
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
@@ -353,6 +353,12 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get(source['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_source_other_member_same_group(self):
+        source = self.test_create_source(user='brandon')
+        authenticate(self.client, 'charles')
+        response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 404)
 
     def test_delete_source_other_user(self):
@@ -421,12 +427,11 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'url': ['Enter a valid URL.']})
 
-    def test_create_mirror(self):
+    def test_create_mirror(self, user='eric'):
         data = {'url': 'http://example.com/',
                 'series': ['trusty'],
                 'components': ['main']}
-        authenticate(self.client, 'eric')
-
+        authenticate(self.client, user)
         response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         self.assertTrue(response.data['self'].startswith('http://testserver' + self.mirror_list_url), response.data['self'])
@@ -436,8 +441,8 @@ class APIv1Tests(APITestCase):
         self.assertEquals(data, response.data)
         return response.data
 
-    def test_patch_mirror(self):
-        mirror = self.test_create_mirror()
+    def test_patch_mirror(self, user='eric'):
+        mirror = self.test_create_mirror(user)
         data = {'public': True}
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 200)
@@ -462,6 +467,22 @@ class APIv1Tests(APITestCase):
         mirror = self.test_patch_mirror()
         data = {'public': False}
         authenticate(self.client, 'aaron')
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, {'detail': 'You do not have permission to perform this action.'})
+
+    def test_patch_mirror_same_group_other_user(self):
+        mirror = self.test_create_mirror(user='brandon')
+        data = {'public': True}
+        authenticate(self.client, 'charles')
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
+
+    def test_patch_public_mirror_same_group_other_user(self):
+        mirror = self.test_patch_mirror(user='brandon')
+        data = {'public': False}
+        authenticate(self.client, 'charles')
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 403)
         self.assertEquals(response.data, {'detail': 'You do not have permission to perform this action.'})
@@ -495,9 +516,22 @@ class APIv1Tests(APITestCase):
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 403)
 
+    def test_delete_public_mirror_same_group_other_user(self):
+        mirror = self.test_patch_mirror(user='brandon')
+        authenticate(self.client, 'charles')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, {'detail': 'You do not have permission to perform this action.'})
+
     def test_delete_mirror_other_user(self):
         mirror = self.test_create_mirror()
         authenticate(self.client, 'aaron')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirror_same_group_other_user(self):
+        mirror = self.test_create_mirror(user='brandon')
+        authenticate(self.client, 'charles')
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 404)
 
