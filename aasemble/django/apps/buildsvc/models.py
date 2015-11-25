@@ -300,7 +300,7 @@ class PackageSource(models.Model):
         tmpdir, self.builddir, br.sha = self.checkout(logger=br.logger)
         br.save()
         try:
-            import pkgbuild
+            from . import pkgbuild
             builder_cls = pkgbuild.choose_builder(self.builddir)
             builder = builder_cls(tmpdir, self, br)
 
@@ -372,6 +372,7 @@ class BuildRecord(models.Model):
     version = models.CharField(max_length=50)
     build_counter = models.IntegerField(default=0)
     build_started = models.DateTimeField(auto_now_add=True)
+    build_finished = models.DateTimeField(blank=True, null=True)
     sha = models.CharField(max_length=100, null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
@@ -428,6 +429,11 @@ class BuildRecord(models.Model):
 
     def buildlog_url(self):
         return '%s/buildlogs/%s' % (self.source.series.repository.base_url, self.logpath())
+
+    @property
+    def duration(self):
+        if self.build_started and self.build_finished:
+            return (self.build_finished - self.build_started).total_seconds()
 
 
 @python_2_unicode_compatible

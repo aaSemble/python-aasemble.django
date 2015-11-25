@@ -1,0 +1,19 @@
+Source: buildsvctest
+Section: misc
+Priority: optional
+Maintainer: Overcast Pkgbuild Service <pkgbuild@overcastcloud.com>
+Build-Depends: debhelper (>= 9.0.0),
+  python-all,
+  dh-python,
+  python-setuptools
+Standards-Version: 3.9.4
+Vcs-Git: https://github.com/sorenh/buildsvctest
+Vcs-Browser: https://github.com/sorenh/buildsvctest
+
+Package: buildsvctest
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+  ${python:Depends}
+Description: Automatically built buildsvctest package
+ This package was built by Overcast package building service using
+ code from the python branch at https://github.com/sorenh/buildsvctest.

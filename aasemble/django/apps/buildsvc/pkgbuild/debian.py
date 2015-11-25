@@ -16,7 +16,7 @@ class DebianBuilder(PackageBuilder):
     @property
     def native_version(self):
         cmd = ['dpkg-parsechangelog', '--show-field', 'Version']
-        v = run_cmd(cmd, cwd=self.builddir).strip()
+        v = run_cmd(cmd, cwd=self.builddir).strip().decode()
         if ':' in v:
             v = v.split(':')[1]
         if '-' in v:

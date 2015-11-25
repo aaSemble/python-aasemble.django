@@ -1,3 +1,15 @@
+matrix:
+  include: 
+    - python: 2.7
+      env: DJANGO_VERSION=1.8 TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
+      sudo: required
+      services:
+        - docker
+    - python: 3.4
+      env: DJANGO_VERSION=1.8 TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
+      sudo: required
+      services:
+        - docker
 language: python
 python:
   - "2.7"
@@ -13,9 +25,10 @@ install:
   - pip install -r test-requirements.txt
   - pip install codecov
 script:
-  - "xvfb-run python -m coverage run --source=aasemble manage.py test -v3"
+  - xvfb-run python -m coverage run --source=aasemble manage.py test -v3 $TEST_ARG
   - "flake8 --ignore=E501 --application-import-names=aasemble aasemble"
   - "python -m coverage report -m"
+fast_finish: true
 after_success:
   - codecov
 deploy:

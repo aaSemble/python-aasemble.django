@@ -19,7 +19,7 @@ class PythonBuilder(PackageBuilder):
         if '\n' in out:
             out = run_it()
 
-        return out
+        return out.decode()
 
     @property
     def native_version(self):
