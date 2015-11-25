@@ -25,7 +25,7 @@ except:
 class PkgBuildTestCase(TestCase):
     @skipIf(not docker_available, 'Docker unavailable')
     def test_build_debian(self):
-        import pkgbuild
+        from . import pkgbuild
 
         basedir = os.path.join(os.path.dirname(__file__), 'test_data', 'debian')
         builddir = os.path.join(basedir, 'build')

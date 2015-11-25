@@ -300,7 +300,7 @@ class PackageSource(models.Model):
         tmpdir, self.builddir, br.sha = self.checkout(logger=br.logger)
         br.save()
         try:
-            import pkgbuild
+            from . import pkgbuild
             builder_cls = pkgbuild.choose_builder(self.builddir)
             builder = builder_cls(tmpdir, self, br)
 
