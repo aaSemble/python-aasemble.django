@@ -13,7 +13,7 @@ import mock
 
 from aasemble.django.tests import AasembleTestCase as TestCase
 
-from .models import NotAValidGithubRepository, PackageSource, BuildRecord, Repository, Series
+from .models import BuildRecord, NotAValidGithubRepository, PackageSource, Repository, Series
 
 try:
     subprocess.check_call(['docker', 'ps'])
@@ -21,8 +21,9 @@ try:
 except:
     docker_available = False
 
+
 class PkgBuildTestCase(TestCase):
-    @skipIf(docker_available == False, 'Docker unavailable')
+    @skipIf(not docker_available, 'Docker unavailable')
     def test_build_debian(self):
         import pkgbuild
 
@@ -31,7 +32,6 @@ class PkgBuildTestCase(TestCase):
 
         builder_cls = pkgbuild.choose_builder(builddir)
         self.assertEquals(builder_cls, pkgbuild.debian.DebianBuilder)
-
 
         start = time.time()
 
@@ -50,7 +50,7 @@ class PkgBuildTestCase(TestCase):
         self.assertGreater(our_timing, br_timing,
                            'Our timing was smaller than measured in the build record')
 
-        self.assertLess(our_timing-br_timing, 5,
+        self.assertLess(our_timing - br_timing, 5,
                         'Our timing differed by more than 5 seconds from that in the build record')
 
         self.assertTrue(os.path.exists(os.path.join(basedir, 'buildsvctest_0.1+10_source.changes')))
