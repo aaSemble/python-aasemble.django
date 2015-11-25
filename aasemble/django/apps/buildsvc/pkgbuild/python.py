@@ -23,13 +23,13 @@ class PythonBuilder(PackageBuilder):
 
     @property
     def native_version(self):
-        return self.retry_if_has_newlines(['python', 'setup.py', '--version'],
-                                          logger=self.build_record.logger)
+        return str(self.retry_if_has_newlines(['python', 'setup.py', '--version'],
+                                              logger=self.build_record.logger))
 
     @property
     def package_name(self):
-        return self.retry_if_has_newlines(['python', 'setup.py', '--name'],
-                                          logger=self.build_record.logger)
+        return str(self.retry_if_has_newlines(['python', 'setup.py', '--name'],
+                                              logger=self.build_record.logger))
 
     @property
     def binary_pkg_name(self):
