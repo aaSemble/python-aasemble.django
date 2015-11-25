@@ -613,11 +613,11 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
 
-    def test_create_mirrorset(self):
+    def test_create_mirrorset(self, user='eric'):
         data = {'url': 'http://example.com/',
                 'series': ['trusty'],
                 'components': ['main']}
-        authenticate(self.client, 'eric')
+        authenticate(self.client, user)
         response = self.client.post(self.mirrorset_list_url.replace('mirror_sets', 'mirrors'), data, format='json')
         self.assertEquals(response.status_code, 201)
         data = {'mirrors': [response.data['self']]}
@@ -658,6 +658,13 @@ class APIv1Tests(APITestCase):
         response = self.client.patch(mirrorset['self'], data, format='json')
         self.assertEquals(response.status_code, 404)
 
+    def test_patch_mirrorset_other_user_same_group(self):
+        mirrorset = self.test_create_mirrorset(user='brandon')
+        data = {}
+        authenticate(self.client, 'charles')
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 404)
+
     def test_patch_mirrorset_no_data(self):
         mirrorset = self.test_create_mirrorset()
         data = {}
@@ -678,6 +685,12 @@ class APIv1Tests(APITestCase):
     def test_delete_mirrorset_other_user(self):
         mirrorset = self.test_create_mirrorset()
         authenticate(self.client, 'aaron')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_mirrorset_other_user_same_group(self):
+        mirrorset = self.test_create_mirrorset(user='brandon')
+        authenticate(self.client, 'charles')
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 404)
 
@@ -717,11 +730,11 @@ class APIv1Tests(APITestCase):
         response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
 
-    def test_create_snapshot(self):
+    def test_create_snapshot(self, user='eric'):
         data = {'url': 'http://example.com/',
                 'series': ['trusty'],
                 'components': ['main']}
-        authenticate(self.client, 'eric')
+        authenticate(self.client, user)
         response = self.client.post(self.snapshot_list_url.replace('snapshots', 'mirrors'), data, format='json')
         self.assertEquals(response.status_code, 201)
         data = {'mirrors': [response.data['self']]}
@@ -769,6 +782,12 @@ class APIv1Tests(APITestCase):
     def test_delete_snapshot_other_user(self):
         snapshot = self.test_create_snapshot()
         authenticate(self.client, 'aaron')
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 404)
+
+    def test_delete_snapshot_other_user_same_group(self):
+        snapshot = self.test_create_snapshot(user='brandon')
+        authenticate(self.client, 'charles')
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 404)
 
