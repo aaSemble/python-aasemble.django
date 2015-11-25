@@ -809,6 +809,20 @@
 },
 {
     "fields": {
+        "last_seen_revision": null,
+        "last_built_version": null,
+        "uuid": "ce4584ff-b315-4cbb-a1be-a5186143e7ce",
+        "series": 3,
+        "last_built_name": null,
+        "build_counter": 0,
+        "git_url": "https://github.com/dennis/project0",
+        "branch": "master"
+    },
+    "model": "buildsvc.packagesource",
+    "pk": 13
+},
+{
+    "fields": {
         "uuid": "1dcc86aa-c925-49b0-9f1e-ffe6839150b7",
         "source": 1,
         "build_started": "2015-11-20T11:37:41.147Z",
