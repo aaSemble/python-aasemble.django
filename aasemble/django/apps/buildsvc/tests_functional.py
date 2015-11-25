@@ -61,7 +61,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
            3. Verify if the package has been created.
            4. Try to delete the package
            5. Verify if the package has been deleted'''
-        session_cookie = create_session_for_given_user(username='dennis')
+        session_cookie = create_session_for_given_user(username='brandon')
         self.selenium.get(self.live_server_url)
         self.selenium.add_cookie(session_cookie)
         # test whether sources page opens after user logs in
