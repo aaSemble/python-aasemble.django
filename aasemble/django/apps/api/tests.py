@@ -304,7 +304,6 @@ class APIv1Tests(APITestCase):
 
     def test_create_source(self):
         authenticate(self.client, 'eric')
-
         response = self.client.get(self.source_list_url.replace('sources', 'repositories'))
 
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
@@ -322,6 +321,29 @@ class APIv1Tests(APITestCase):
         response = self.client.get(data['self'])
         self.assertEquals(response.data, data)
         return response.data
+
+    def test_create_source_with_other_user_repository(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.source_list_url.replace('sources', 'repositories'))
+        data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
+                'git_branch': 'master',
+                'repository': response.data['results'][0]['self']}
+        authenticate(self.client, 'aaron')
+        response = self.client.post(self.source_list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'repository': ['Invalid hyperlink - Object does not exist.']})
+
+    def test_create_source_with_same_group_member_repository(self):
+        data = {'name': 'testrepo'}
+        authenticate(self.client, 'brandon')
+        response = self.client.post(self.repository_list_url, data, format='json')
+        data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
+                'git_branch': 'master',
+                'repository': response.data['self']}
+        authenticate(self.client, 'charles')
+        response = self.client.post(self.source_list_url, data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'repository': ['Invalid hyperlink - Object does not exist.']})
 
     def test_delete_source(self):
         source = self.test_create_source()
