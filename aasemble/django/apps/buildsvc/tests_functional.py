@@ -69,7 +69,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.set_window_size(1024, 768)
         self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
-        self.create_new_package_source(git_url=git_url, branch='master', series='dennis/aasemble')
+        self.create_new_package_source(git_url=git_url, branch='master', series='brandon/aasemble')
         self.assertEqual(self.verify_package_source(git_url=git_url), True, 'Package not created')
         self.delete_package_source()
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
