@@ -19,6 +19,7 @@ script:
   - "xvfb-run python -m coverage run --source=aasemble manage.py test -v3"
   - "flake8 --ignore=E501 --application-import-names=aasemble aasemble"
   - "python -m coverage report -m"
+fast_finish: true
 after_success:
   - codecov
 deploy:
