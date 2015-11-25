@@ -19,17 +19,17 @@ class PythonBuilder(PackageBuilder):
         if '\n' in out:
             out = run_it()
 
-        return out
+        return out.decode()
 
     @property
     def native_version(self):
-        return str(self.retry_if_has_newlines(['python', 'setup.py', '--version'],
-                                              logger=self.build_record.logger))
+        return self.retry_if_has_newlines(['python', 'setup.py', '--version'],
+                                          logger=self.build_record.logger)
 
     @property
     def package_name(self):
-        return str(self.retry_if_has_newlines(['python', 'setup.py', '--name'],
-                                              logger=self.build_record.logger))
+        return self.retry_if_has_newlines(['python', 'setup.py', '--name'],
+                                          logger=self.build_record.logger)
 
     @property
     def binary_pkg_name(self):
