@@ -55,6 +55,8 @@ class aaSembleV1Views(object):
             serializer_class = selff.serializers.MirrorSerializer
 
             def get_queryset(self):
+                if self.request.user.is_superuser:
+                    return self.queryset.all()
                 return self.queryset.filter(owner_id=self.request.user.id) | self.queryset.filter(public=True)
 
             def perform_create(self, serializer):
@@ -83,6 +85,8 @@ class aaSembleV1Views(object):
             serializer_class = selff.serializers.MirrorSetSerializer
 
             def get_queryset(self):
+                if self.request.user.is_superuser:
+                    return self.queryset.all()
                 return self.queryset.filter(owner_id=self.request.user.id)
 
             def perform_create(self, serializer):
@@ -101,6 +105,8 @@ class aaSembleV1Views(object):
             serializer_class = selff.serializers.SnapshotSerializer
 
             def get_queryset(self):
+                if self.request.user.is_superuser:
+                    return self.queryset.all()
                 return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
 
             def perform_update(self, serializer):

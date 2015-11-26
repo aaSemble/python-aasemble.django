@@ -536,6 +536,12 @@ class APIv1Tests(APITestCase):
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 404)
 
+    def test_delete_mirror_super_user(self):
+        mirror = self.test_create_mirror()
+        authenticate(self.client, 'george')
+        response = self.client.delete(mirror['self'])
+        self.assertEquals(response.status_code, 204)
+
     def test_delete_mirror_same_group_other_user(self):
         mirror = self.test_create_mirror(user='brandon')
         authenticate(self.client, 'charles')
@@ -689,6 +695,12 @@ class APIv1Tests(APITestCase):
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 401)
 
+    def test_delete_mirrorset_super_user(self):
+        mirrorset = self.test_create_mirrorset()
+        authenticate(self.client, 'george')
+        response = self.client.delete(mirrorset['self'])
+        self.assertEquals(response.status_code, 204)
+
     def test_delete_mirrorset_other_user(self):
         mirrorset = self.test_create_mirrorset()
         authenticate(self.client, 'aaron')
@@ -791,6 +803,12 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'aaron')
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 404)
+
+    def test_delete_snapshot_super_user(self):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, 'george')
+        response = self.client.delete(snapshot['self'])
+        self.assertEquals(response.status_code, 204)
 
     def test_delete_snapshot_other_user_same_group(self):
         snapshot = self.test_create_snapshot(user='brandon')
