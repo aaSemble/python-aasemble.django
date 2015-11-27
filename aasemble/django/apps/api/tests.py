@@ -270,6 +270,30 @@ class APIv1Tests(APITestCase):
     # Source tests #
     ################
 
+    def test_fetch_sources(self):
+        authenticate(self.client, 'eric')
+        # 3 queries: Authenticate, count results, fetch results
+        with self.assertNumQueries(3):
+            response = self.client.get(self.source_list_url)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['count'], 12)
+
+
+    def test_fetch_sources_by_repository(self):
+        authenticate(self.client, 'eric')
+        response = self.client.get(self.repository_list_url)
+        for res in response.data['results']:
+            if res['name'] == 'eric2':
+                with self.assertNumQueries(3):
+                    response = self.client.get(res['sources'])
+
+                self.assertEquals(response.status_code, 200)
+                self.assertEquals(response.data['count'], 2)
+                return
+        self.assertFalse(True, 'did not find the right repo')
+
+
     def test_create_source_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
