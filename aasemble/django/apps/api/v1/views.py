@@ -105,9 +105,15 @@ class aaSembleV1Views(object):
             serializer_class = selff.serializers.SnapshotSerializer
 
             def get_queryset(self):
-                if self.request.user.is_superuser:
-                    return self.queryset.all()
-                return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
+                tag=self.request.query_params.get('tag', None)
+                if tag is not None:
+                    if self.request.user.is_superuser:
+                        return self.queryset.all(tags__tag=tag)
+                    return self.queryset.filter(mirrorset__owner_id=self.request.user.id, tags__tag=tag)
+                else:
+                    if self.request.user.is_superuser:
+                        return self.queryset.all()
+                    return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
 
             def perform_update(self, serializer):
                 if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:
