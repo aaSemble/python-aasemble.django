@@ -76,9 +76,9 @@ class APIv1Tests(APITestCase):
 
         self.assertEquals(response.status_code, 401)
 
-    def test_create_repository(self):
+    def test_create_repository(self, user='eric'):
         data = {'name': 'testrepo'}
-        authenticate(self.client, 'eric')
+        authenticate(self.client, user)
 
         response = self.client.post(self.repository_list_url, data, format='json')
 
@@ -86,11 +86,11 @@ class APIv1Tests(APITestCase):
         self.assertTrue(response.data['self'].startswith('http://testserver' + self.repository_list_url), response.data['self'])
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo',
-                           'binary_source_list': 'deb http://127.0.0.1:8000/apt/eric/testrepo aasemble main',
-                           'source_source_list': 'deb-src http://127.0.0.1:8000/apt/eric/testrepo aasemble main',
+                           'binary_source_list': 'deb http://127.0.0.1:8000/apt/%s/testrepo aasemble main' % (user,),
+                           'source_source_list': 'deb-src http://127.0.0.1:8000/apt/%s/testrepo aasemble main' % (user,),
                            'self': response.data['self'],
                            'sources': response.data['self'] + 'sources/',
-                           'user': 'eric',
+                           'user': user,
                            'key_id': u''}
 
         self.assertEquals(response.data, expected_result)
@@ -98,20 +98,23 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.data, expected_result)
         return response.data
 
-    def test_create_duplicate_repository_same_group_different_members(self):
+    def test_create_repository_deactivated_user(self, user='frank'):
         data = {'name': 'testrepo'}
-        authenticate(self.client, 'brandon')
+        authenticate(self.client, user)
         response = self.client.post(self.repository_list_url, data, format='json')
-        self.assertEquals(response.status_code, 201)
-        authenticate(self.client, 'charles')
-        response = self.client.post(self.repository_list_url, data, format='json')
-        self.assertEquals(response.status_code, 201)
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_create_repository_deactivated_super_user(self):
+        self.test_create_repository_deactivated_user(user='harold')
+
+    def test_create_duplicate_repository_same_group_different_members(self):
+        self.test_create_repository(user='brandon')
+        self.test_create_repository(user='charles')
 
     def test_create_duplicate_repository(self):
         data = {'name': 'testrepo'}
-        authenticate(self.client, 'eric')
-        response = self.client.post(self.repository_list_url, data, format='json')
-        self.assertEquals(response.status_code, 201)
+        self.test_create_repository()
         response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 409)
 
@@ -126,12 +129,9 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_delete_repository_same_group_different_member(self):
-        data = {'name': 'testrepo'}
-        authenticate(self.client, 'brandon')
-        repo = self.client.post(self.repository_list_url, data, format='json')
-        self.assertEquals(repo.status_code, 201)
+        repo = self.test_create_repository(user='brandon')
         authenticate(self.client, 'charles')
-        response = self.client.delete(repo.data['self'])
+        response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 404)
 
     def test_patch_repository(self):
@@ -236,13 +236,8 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 401)
 
     def test_create_same_name_repository_different_user(self):
-        data = {'name': 'testrepo'}
-        authenticate(self.client, 'eric')
-        response = self.client.post(self.repository_list_url, data, format='json')
-        self.assertEquals(response.status_code, 201)
-        authenticate(self.client, 'dennis')
-        response = self.client.post(self.repository_list_url, data, format='json')
-        self.assertEquals(response.status_code, 201)
+        self.test_create_repository(user='eric')
+        self.test_create_repository(user='dennis')
 
     ###############
     # Build tests #
@@ -627,13 +622,8 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
 
     def test_create_mirrorset(self, user='eric'):
-        data = {'url': 'http://example.com/',
-                'series': ['trusty'],
-                'components': ['main']}
-        authenticate(self.client, user)
-        response = self.client.post(self.mirrorset_list_url.replace('mirror_sets', 'mirrors'), data, format='json')
-        self.assertEquals(response.status_code, 201)
-        data = {'mirrors': [response.data['self']]}
+        response = self.test_create_mirror(user)
+        data = {'mirrors': [response['self']]}
         response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         return response.data
@@ -750,16 +740,8 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 401)
 
     def test_create_snapshot(self, user='eric'):
-        data = {'url': 'http://example.com/',
-                'series': ['trusty'],
-                'components': ['main']}
-        authenticate(self.client, user)
-        response = self.client.post(self.snapshot_list_url.replace('snapshots', 'mirrors'), data, format='json')
-        self.assertEquals(response.status_code, 201)
-        data = {'mirrors': [response.data['self']]}
-        response = self.client.post(self.snapshot_list_url.replace('snapshots', 'mirror_sets'), data, format='json')
-        self.assertEquals(response.status_code, 201)
-        data = {'mirrorset': response.data['self']}
+        response = self.test_create_mirrorset()
+        data = {'mirrorset': response['self']}
         response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
         return response.data
