@@ -34,16 +34,6 @@ class APIv1Tests(APITestCase):
     # Repository tests #
     ####################
 
-    def test_fetch_sources(self):
-        # Use user brandon to make sure it works with users who are members
-        # of multiple groups
-        authenticate(self.client, 'brandon')
-        response = self.client.get(self.repository_list_url)
-
-        for repo in response.data['results']:
-            resp = self.client.get(repo['sources'])
-            self.assertEquals(resp.status_code, 200)
-
     def test_fetch_external_dependencies(self):
         # Use brandon to make sure it works with users who are members
         # of multiple groups
@@ -279,7 +269,6 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 12)
 
-
     def test_fetch_sources_by_repository(self):
         authenticate(self.client, 'eric')
         response = self.client.get(self.repository_list_url)
@@ -292,7 +281,6 @@ class APIv1Tests(APITestCase):
                 self.assertEquals(response.data['count'], 2)
                 return
         self.assertFalse(True, 'did not find the right repo')
-
 
     def test_create_source_empty_fails_400(self):
         data = {}
