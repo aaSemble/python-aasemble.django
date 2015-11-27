@@ -131,7 +131,7 @@ class Snapshot(models.Model):
 
     @property
     def basepath(self):
-        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'snapshots', str(self.id))
+        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'snapshots', str(self.uuid))
         if not os.path.isdir(d):
             os.makedirs(d)
         return d
