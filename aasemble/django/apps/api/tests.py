@@ -98,6 +98,16 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.data, expected_result)
         return response.data
 
+    def test_create_repository_deactivated_user(self, user='frank'):
+        data = {'name': 'testrepo'}
+        authenticate(self.client, user)
+        response = self.client.post(self.repository_list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_create_repository_deactivated_super_user(self):
+        self.test_create_repository_deactivated_user(user='harold')
+
     def test_create_duplicate_repository_same_group_different_members(self):
         self.test_create_repository(user='brandon')
         self.test_create_repository(user='charles')
