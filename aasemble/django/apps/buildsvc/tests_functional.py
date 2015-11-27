@@ -200,4 +200,3 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
             return False
         else:
             return True
-
