@@ -106,8 +106,15 @@ class aaSembleV1Views(object):
 
             def get_queryset(self):
                 if self.request.user.is_superuser:
-                    return self.queryset.all()
-                return self.queryset.filter(mirrorset__owner_id=self.request.user.id)
+                    qs = self.queryset.all()
+                else:
+                    qs = self.queryset.filter(mirrorset__owner_id=self.request.user.id)
+
+                tag = self.request.query_params.get('tag', None)
+                if tag is not None:
+                    qs.filter(tags__tag=tag)
+
+                return qs
 
             def perform_update(self, serializer):
                 if 'mirrorset' in self.request.data or 'timestamp' in self.request.data:

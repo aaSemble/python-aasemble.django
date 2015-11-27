@@ -889,6 +889,15 @@ class APIv2Tests(APIv1Tests):
         self.assertEquals(response.status_code, 400)
         return response.data
 
+    def test_filter_snapshot_tag(self):
+        data = {'tags': ['fourthtag', 'fifthtag']}
+        authenticate(self.client, 'eric')
+        response1 = self.client.patch(self.snapshot_list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
+        self.assertEquals(response1.status_code, 200)
+        response2 = self.client.get(self.base_url + 'snapshots/?tag=fourthtag')
+        self.assertEquals(response1.data, response2.data["results"][0])
+        return response2.data
+
 
 class APIv3Tests(APIv2Tests):
     base_url = '/api/v3/'
