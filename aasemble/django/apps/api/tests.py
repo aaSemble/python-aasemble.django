@@ -86,8 +86,8 @@ class APIv1Tests(APITestCase):
         self.assertTrue(response.data['self'].startswith('http://testserver' + self.repository_list_url), response.data['self'])
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo',
-                           'binary_source_list': 'deb http://127.0.0.1:8000/apt/' + user + '/testrepo aasemble main',
-                           'source_source_list': 'deb-src http://127.0.0.1:8000/apt/' + user + '/testrepo aasemble main',
+                           'binary_source_list': 'deb http://127.0.0.1:8000/apt/%s/testrepo aasemble main' % (user,) ,
+                           'source_source_list': 'deb-src http://127.0.0.1:8000/apt/%s/testrepo aasemble main' % (user,) ,
                            'self': response.data['self'],
                            'sources': response.data['self'] + 'sources/',
                            'user': user,
