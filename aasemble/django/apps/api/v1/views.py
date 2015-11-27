@@ -110,9 +110,9 @@ class aaSembleV1Views(object):
                 else:
                     qs = self.queryset.filter(mirrorset__owner_id=self.request.user.id)
 
-                tag=self.request.query_params.get('tag', None)
+                tag = self.request.query_params.get('tag', None)
                 if tag is not None:
-                     qs.filter(tags__tag=tag)
+                    qs.filter(tags__tag=tag)
 
                 return qs
 
