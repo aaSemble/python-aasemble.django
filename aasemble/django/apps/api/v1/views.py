@@ -14,6 +14,8 @@ from rest_framework.response import Response
 
 from rest_framework_nested import routers
 
+from rest_framework_tracking.mixins import LoggingMixin
+
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.exceptions import DuplicateResourceException
@@ -45,7 +47,7 @@ class aaSembleV1Views(object):
         self.urls = self.build_urls()
 
     def MirrorViewSetFactory(selff):
-        class MirrorViewSet(viewsets.ModelViewSet):
+        class MirrorViewSet(LoggingMixin, viewsets.ModelViewSet):
             """
             API endpoint that allows mirrors to be viewed or edited.
             """
