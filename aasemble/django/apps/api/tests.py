@@ -523,7 +523,7 @@ class APIv1Tests(APITestCase):
     def test_patch_public_mirror_deactivated_other_user(self):
         mirror = self.test_patch_mirror()
         data = {'public': False}
-        authenticate(self.client, 'harold')
+        authenticate(self.client, 'frank')
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
@@ -531,7 +531,7 @@ class APIv1Tests(APITestCase):
     def test_patch_public_mirror_deactivated_super_user(self):
         mirror = self.test_patch_mirror()
         data = {'public': False}
-        authenticate(self.client, 'frank')
+        authenticate(self.client, 'harold')
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
