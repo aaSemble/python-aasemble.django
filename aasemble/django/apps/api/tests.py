@@ -940,7 +940,7 @@ class APIv3Tests(APIv2Tests):
         response = self.client.get(self.build_list_url)
         for result in response.data['results']:
             if result['version'] == '1.1+0':
-                self.assertEquals(result['duration'], 81.087)
+                self.assertEquals(result['duration'], 81)
             else:
                 self.assertEquals(result['duration'], None)
 

@@ -5,12 +5,16 @@ matrix:
       sudo: required
       services:
         - docker
+        - mysql
     - python: 3.4
       env: DJANGO_VERSION="==1.8" TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
       services:
         - docker
+        - mysql
 language: python
+services:
+  - mysql
 python:
   - "2.7"
   - "3.4"
@@ -25,6 +29,7 @@ install:
   - pip install -r test-requirements.txt
   - pip install codecov
 script:
+  - mysql -u root -e'GRANT ALL ON test_aasemble.* TO test@localhost'
   - xvfb-run python -m coverage run --source=aasemble manage.py test -v3 $TEST_ARG
   - "flake8 --ignore=E501 --application-import-names=aasemble aasemble"
   - "python -m coverage report -m"
