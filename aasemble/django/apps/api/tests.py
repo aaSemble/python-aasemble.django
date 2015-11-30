@@ -523,7 +523,7 @@ class APIv1Tests(APITestCase):
     def test_patch_public_mirror_deactivated_other_user(self):
         mirror = self.test_patch_mirror()
         data = {'public': False}
-        authenticate(self.client, 'harold')
+        authenticate(self.client, 'frank')
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
@@ -531,7 +531,7 @@ class APIv1Tests(APITestCase):
     def test_patch_public_mirror_deactivated_super_user(self):
         mirror = self.test_patch_mirror()
         data = {'public': False}
-        authenticate(self.client, 'frank')
+        authenticate(self.client, 'harold')
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
@@ -595,8 +595,11 @@ class APIv1Tests(APITestCase):
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
     def test_refresh_mirror(self, refresh_mirror):
         mirror = self.test_create_mirror()
-        self.client.post(mirror['self'] + 'refresh/')
+        response = self.client.post(mirror['self'] + 'refresh/')
         self.assertTrue(refresh_mirror.delay.call_args_list)
+        self.assertEquals(response.data['status'], 'update scheduled')
+        response = self.client.post(mirror['self'] + 'refresh/')
+        self.assertEquals(response.data['status'], 'update already scheduled')
 
     def test_get_correct_mirror_for_user(self):
         self.test_create_mirror()
@@ -609,14 +612,6 @@ class APIv1Tests(APITestCase):
         response = self.client.get(self.mirror_list_url)
         self.assertEquals(len(response.data['results']), 1, 'did not return only 1 mirror')
         self.assertEquals(response.data['results'][0]['url'], 'http://example2.com/', 'url not the same as created')
-
-    @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
-    def test_refresh_mirror_status(self, refresh_mirror):
-        mirror = self.test_create_mirror()
-        response = self.client.post(mirror['self'] + 'refresh/')
-        self.assertEquals(response.data['status'], 'update scheduled')
-        response = self.client.post(mirror['self'] + 'refresh/')
-        self.assertEquals(response.data['status'], 'update already scheduled')
 
     ####################
     # Mirror set tests #
