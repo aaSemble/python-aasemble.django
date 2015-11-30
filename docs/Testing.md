@@ -18,7 +18,7 @@ Charles just started working for Brandon at BrandonCorp. He's a member of the Br
 
 ### Dennis
 
-Dennis is fairly new user. He has a single repository and a single package source configured. He signed up using Github. He has 1 repositories and 1 package source. He has asked BrandonCorp to help him manage his repository.
+Dennis is fairly new user. He signed up using Github. He has 1 repositories and 1 package source. He has asked BrandonCorp to help him manage his repository.
 
 ### Eric
 
