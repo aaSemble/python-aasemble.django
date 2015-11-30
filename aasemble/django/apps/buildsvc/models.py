@@ -1,4 +1,4 @@
-import logging
+ logging
 import os
 import os.path
 import shutil
@@ -251,7 +251,7 @@ class PackageSource(models.Model):
         cmd = ['git', 'ls-remote', self.git_url,
                'refs/heads/%s' % self.branch]
         stdout = run_cmd(cmd)
-        stdout = stdout.decode()
+        #stdout = stdout.decode()
         sha = stdout.split('\t')[0]
 
         if sha == self.last_seen_revision:
