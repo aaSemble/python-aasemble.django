@@ -103,8 +103,9 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         try:
             poll_one.apply_async(args=[P.id], expires=60)
         except:
-            # Marking Pass even if we got some exception during package build. Our verification
-            # is limited to UI inteface. Form UI, It should be visible (even if it has just started)
+            # Marking Pass even if we got some exception during package build.
+            # Our verification is limited to UI inteface. Form UI, It should
+            # be visible (even if it has just started)
             pass
         finally:
             self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
