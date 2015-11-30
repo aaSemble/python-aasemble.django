@@ -15,4 +15,3 @@ django-allauth
 redis
 django-bootstrap3
 github3.py
-git+https://github.com/mayankkapoor/drf-tracking
