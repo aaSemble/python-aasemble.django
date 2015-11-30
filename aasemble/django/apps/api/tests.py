@@ -327,7 +327,7 @@ class APIv1Tests(APITestCase):
 
     def test_create_source(self, user='eric'):
         authenticate(self.client, user)
-        response = self.client.get(self.source_list_url.replace('sources', 'repositories'))
+        response = self.client.get(self.repository_list_url)
 
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
                 'git_branch': 'master',
@@ -377,6 +377,57 @@ class APIv1Tests(APITestCase):
         response = self.client.post(self.source_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'repository': ['Invalid hyperlink - Object does not exist.']})
+
+    def test_patch_source(self, user='eric'):
+        source = self.test_create_source()
+        repo = self.client.get(self.repository_list_url)
+        data = {'repository': repo.data['results'][1]['self']}
+        response = self.client.patch(source['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['repository'],repo.data['results'][1]['self'])
+
+    def test_patch_source_invalid_data(self):
+        source = self.test_create_source()
+        data={'repository': 'invalid repo URL'}
+        response = self.client.patch(source['self'], data, format='json')
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {'repository': ['Invalid hyperlink - No URL match.']})
+
+    def test_patch_source_invalid_token(self):
+        source = self.test_create_source()
+        authenticate(self.client, token='invalidtoken')
+        data = {}
+        response = self.client.patch(source['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
+
+    def test_patch_source_other_user(self):
+        source = self.test_create_source()
+        authenticate(self.client, 'aaron')
+        data = {}
+        response = self.client.patch(source['self'], data, format='json')
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
+
+    def test_patch_source_super_user(self):
+        source = self.test_create_source()
+        authenticate(self.client, 'george')
+        repo = self.client.get(self.repository_list_url)
+        data = {'repository': repo.data['results'][0]['self']}
+        response = self.client.patch(source['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['repository'],repo.data['results'][0]['self'])
+
+    def test_patch_source_other_deactivated_user(self, user='frank'):
+        source = self.test_create_source()
+        authenticate(self.client, user)
+        data = {}
+        response = self.client.patch(source['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_patch_source_super_deactivated_user(self):
+        self.test_patch_source_other_deactivated_user(user='harold')
 
     def test_delete_source(self):
         source = self.test_create_source()
