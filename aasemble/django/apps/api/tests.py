@@ -44,6 +44,15 @@ class APIv1Tests(APITestCase):
             resp = self.client.get(repo['external_dependencies'])
             self.assertEquals(resp.status_code, 200)
 
+    def test_fetch_repository_invalid_user(self, user='frank'):
+        authenticate(self.client, user)
+        response = self.client.get(self.repository_list_url)
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_fetch_repository_invalid_super_user(self):
+        self.test_fetch_repository_invalid_user(user='harold')
+
     def test_create_repository_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
@@ -335,6 +344,16 @@ class APIv1Tests(APITestCase):
         response = self.client.get(data['self'])
         self.assertEquals(response.data, data)
         return response.data
+
+    def test_create_source_deactivated_user(self, user='frank'):
+        authenticate(self.client, user)
+        data = {}
+        response = self.client.post(self.source_list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_create_source_deactivated_super_user(self):
+        self.test_create_source_deactivated_user(user='harold')
 
     def test_create_source_with_other_user_repository(self):
         authenticate(self.client, 'eric')
