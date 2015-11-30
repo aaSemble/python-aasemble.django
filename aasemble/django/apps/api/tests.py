@@ -384,11 +384,11 @@ class APIv1Tests(APITestCase):
         data = {'repository': repo.data['results'][1]['self']}
         response = self.client.patch(source['self'], data, format='json')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.data['repository'],repo.data['results'][1]['self'])
+        self.assertEquals(response.data['repository'], repo.data['results'][1]['self'])
 
     def test_patch_source_invalid_data(self):
         source = self.test_create_source()
-        data={'repository': 'invalid repo URL'}
+        data = {'repository': 'invalid repo URL'}
         response = self.client.patch(source['self'], data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'repository': ['Invalid hyperlink - No URL match.']})
@@ -416,7 +416,7 @@ class APIv1Tests(APITestCase):
         data = {'repository': repo.data['results'][0]['self']}
         response = self.client.patch(source['self'], data, format='json')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.data['repository'],repo.data['results'][0]['self'])
+        self.assertEquals(response.data['repository'], repo.data['results'][0]['self'])
 
     def test_patch_source_other_deactivated_user(self, user='frank'):
         source = self.test_create_source()
