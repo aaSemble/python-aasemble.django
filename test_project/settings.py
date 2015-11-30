@@ -41,7 +41,6 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
-    'rest_framework_tracking'
 )
 
 MIDDLEWARE_CLASSES = (
