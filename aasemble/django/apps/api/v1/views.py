@@ -108,7 +108,7 @@ class aaSembleV1Views(object):
                 if self.request.user.is_superuser:
                     qs = self.queryset.all()
                 else:
-                    qs = self.queryset.filter(mirrorset__owner_id=self.request.user.id)
+                    qs = self.queryset.filter(mirrorset__owner_id=self.request.user.id).exclude(visible_to_v1_api=False)
 
                 tag = self.request.query_params.get('tag', None)
                 if tag is not None:
