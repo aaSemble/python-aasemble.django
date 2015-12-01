@@ -96,10 +96,8 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
         self.create_new_package_source(git_url=git_url, branch='master', series='brandon/aasemble')
         from .models import PackageSource
-        PackageSourceList = PackageSource.objects.all()
-        for P in PackageSourceList:
-            if P.git_url == git_url:
-                break
+        # Only one package is added with this url
+        P = PackageSource.objects.filter(git_url=git_url)[0]
         try:
             poll_one(P.id)
         except:
