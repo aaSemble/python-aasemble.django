@@ -74,6 +74,31 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.delete_package_source()
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
 
+    def test_overview_button(self):
+        '''This test performs the test for overview button
+        1. Create a session cookie for given user. We are using a existing
+               user 'Dennis' which is already added as fixture.
+        2. Press 'Overview' button.
+        3. Verify whether 'Dashboard' came.'''
+        session_cookie = create_session_for_given_user(username='brandon')
+        self.selenium.get(self.live_server_url)
+        self.selenium.add_cookie(session_cookie)
+        # test whether sources page opens after user logs in
+        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.set_window_size(1024, 768)
+        self.overview_button.click()
+        pageHeader = self.get_page_header_value()
+        self.assertEqual(pageHeader.text, "Dashboard", "Dashboard didn't showed up")
+
+    def get_page_header_value(self):
+        '''Find page header's value'''
+        return self.selenium.find_element(by.By.CLASS_NAME, "page-header")
+
+    @property
+    def overview_button(self):
+        '''Finds overview button'''
+        return self.selenium.find_element(by.By.XPATH, "//a[@href='/' and contains(text(), 'Overview')]")
+
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create
         a package. This consists of following steps:
