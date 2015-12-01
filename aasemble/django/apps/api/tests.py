@@ -357,7 +357,7 @@ class APIv1Tests(APITestCase):
 
     def test_create_source_with_other_user_repository(self):
         authenticate(self.client, 'eric')
-        response = self.client.get(self.source_list_url.replace('sources', 'repositories'))
+        response = self.client.get(self.repository_list_url)
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
                 'git_branch': 'master',
                 'repository': response.data['results'][0]['self']}
@@ -428,6 +428,14 @@ class APIv1Tests(APITestCase):
 
     def test_patch_source_super_deactivated_user(self):
         self.test_patch_source_other_deactivated_user(user='harold')
+
+    def test_patch_source_same_group_other_user(self):
+        source = self.test_create_source(user='brandon')
+        authenticate(self.client, 'charles')
+        data = {}
+        response = self.client.patch(source['self'], data, format='json')
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_source(self):
         source = self.test_create_source()
@@ -539,6 +547,13 @@ class APIv1Tests(APITestCase):
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 200)
 
+    def test_patch_mirror_invalid_token(self):
+        mirror = self.test_create_mirror()
+        data = {}
+        authenticate(self.client, token='invalidtoken')
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+
     def test_patch_mirror_other_user(self):
         mirror = self.test_create_mirror()
         data = {'public': True}
@@ -546,6 +561,14 @@ class APIv1Tests(APITestCase):
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 404)
         self.assertEquals(response.data, {'detail': 'Not found.'})
+
+    def test_patch_mirror_super_user(self):
+        mirror = self.test_create_mirror()
+        data = {'public': True}
+        authenticate(self.client, 'george')
+        response = self.client.patch(mirror['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['public'], True)
 
     def test_patch_public_mirror_other_user(self):
         mirror = self.test_patch_mirror()
@@ -631,17 +654,15 @@ class APIv1Tests(APITestCase):
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 401)
 
-    def test_delete_mirror_deactivated_super_user(self):
+    def test_delete_mirror_deactivated_other_user(self, user='frank'):
         mirror = self.test_create_mirror()
-        authenticate(self.client, 'harold')
+        authenticate(self.client, user)
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 401)
 
-    def test_delete_mirror_deactivated_other_user(self):
+    def test_delete_mirror_deactivated_super_user(self):
         mirror = self.test_create_mirror()
-        authenticate(self.client, 'frank')
-        response = self.client.delete(mirror['self'])
-        self.assertEquals(response.status_code, 401)
+        self.test_delete_mirror_deactivated_other_user(user='harold')
 
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
     def test_refresh_mirror(self, refresh_mirror):
@@ -717,12 +738,13 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrors': ['Invalid hyperlink - No URL match.']})
 
-    def test_patch_mirrorset(self):
+    def test_patch_mirrorset(self, user='eric'):
         mirrorset = self.test_create_mirrorset()
         data = {'url': 'http://example1.com/',
                 'series': ['trusty'],
                 'components': ['main']}
-        mirror = self.client.post(self.mirrorset_list_url.replace('mirror_sets', 'mirrors'), data, format='json')
+        authenticate(self.client, user)
+        mirror = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(mirror.status_code, 201)
         data = {'mirrors': [mirror.data['self']]}
         response = self.client.patch(mirrorset['self'], data, format='json')
@@ -755,6 +777,21 @@ class APIv1Tests(APITestCase):
         data = {}
         response = self.client.patch(mirrorset['self'], data, format='json')
         self.assertEquals(response.status_code, 200)
+
+    def test_patch_mirrorset_super_user(self):
+        mirrorset = self.test_create_mirrorset()
+        self.test_patch_mirrorset(user='george')
+
+    def test_patch_mirrorset_deactivated_user(self, user='frank'):
+        mirrorset = self.test_create_mirrorset()
+        data = {}
+        authenticate(self.client, user)
+        response = self.client.patch(mirrorset['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_patch_mirrorset_deactivated_super_user(self):
+        self.test_patch_mirrorset_deactivated_user(user='harold') 
 
     def test_delete_mirrorset(self):
         mirrorset = self.test_create_mirrorset()
