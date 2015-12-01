@@ -5,13 +5,19 @@ matrix:
       sudo: required
       services:
         - docker
-        - mysql
+      before_install:
+        - sudo apt-get update -qq
+        - sudo apt-get install -qq -y mysql-server
+        - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
     - python: 3.4
       env: DJANGO_VERSION="==1.8" TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
       services:
         - docker
-        - mysql
+      before_install:
+        - sudo apt-get update -qq
+        - sudo apt-get install -qq -y mysql-server
+        - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
 language: python
 services:
   - mysql
