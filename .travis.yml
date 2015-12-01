@@ -1,12 +1,12 @@
 matrix:
   include: 
     - python: 2.7
-      env: DJANGO_VERSION=1.8 TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
+      env: DJANGO_VERSION="==1.8" TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
       services:
         - docker
     - python: 3.4
-      env: DJANGO_VERSION=1.8 TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
+      env: DJANGO_VERSION="==1.8" TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
       services:
         - docker
