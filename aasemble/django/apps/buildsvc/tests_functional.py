@@ -194,7 +194,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         return self.selenium.find_element(by.By.LINK_TEXT, 'Builds')
 
     def verify_build_displayed(self, packageName):
-        '''Finds package source button'''
+        '''Verify whether the Build has started by package name'''
         try:
             self.selenium.find_element(by.By.CSS_SELECTOR, "a[href*='%s']" % packageName)
         except:
