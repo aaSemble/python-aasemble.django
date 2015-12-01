@@ -76,7 +76,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.delete_package_source()
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
 
-    @override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True, CELERY_ALWAYS_EAGER=True, BROKER_BACKEND='memory')
+    #@override_settings(CELERY_EAGER_PROPAGATES_EXCEPTIONS=True, CELERY_ALWAYS_EAGER=True, BROKER_BACKEND='memory')
     # This tests needs celery so overriding the settings
     def test_build_packages(self):
         '''This test perform a package addtion and check whether a build
@@ -101,7 +101,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
             if P.git_url == git_url:
                 break
         try:
-            poll_one.apply_async(args=[P.id], expires=60)
+            poll_one(P.id)
         except:
             # Marking Pass even if we got some exception during package build.
             # Our verification is limited to UI inteface. Form UI, It should
