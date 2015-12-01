@@ -71,11 +71,10 @@ class PackageBuilder(object):
 
     def build_external_dependency_repo_sources(self):
         """create a file which has all external dependency repo sources"""
-        extdeps = self.package_source.series.externaldependency_set.all()
-        if extdeps:
-            with open(os.path.join(self.basedir, 'repos'), 'w') as fp:
-                for extdep in extdeps:
-                    fp.write(extdep.deb_line)
+        lines = [self.package_source.series.binary_source_list(force_trusted=True)]
+        lines += [extdep.deb_line for extdep in self.package_source.series.externaldependency_set.all()]
+        with open(os.path.join(self.basedir, 'repos'), 'w') as fp:
+            fp.write('\n'.join(lines))
 
     def docker_build_source_package(self):
         """Build source package in docker"""
