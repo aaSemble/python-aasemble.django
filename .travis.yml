@@ -1,4 +1,7 @@
 matrix:
+  fast_finish: true
+  allow_failures:
+   - python: "pypy"
   include: 
     - python: 2.7
       env: DJANGO_VERSION="==1.8" TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
@@ -39,7 +42,6 @@ script:
   - xvfb-run python -m coverage run --source=aasemble manage.py test -v3 $TEST_ARG
   - "flake8 --ignore=E501 --application-import-names=aasemble aasemble"
   - "python -m coverage report -m"
-fast_finish: true
 after_success:
   - codecov
 deploy:
