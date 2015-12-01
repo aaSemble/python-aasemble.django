@@ -661,7 +661,7 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 401)
 
     def test_delete_mirror_deactivated_super_user(self):
-        mirror = self.test_create_mirror()
+        self.test_create_mirror()
         self.test_delete_mirror_deactivated_other_user(user='harold')
 
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
@@ -779,7 +779,7 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_patch_mirrorset_super_user(self):
-        mirrorset = self.test_create_mirrorset()
+        self.test_create_mirrorset()
         self.test_patch_mirrorset(user='george')
 
     def test_patch_mirrorset_deactivated_user(self, user='frank'):
@@ -791,7 +791,7 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_patch_mirrorset_deactivated_super_user(self):
-        self.test_patch_mirrorset_deactivated_user(user='harold') 
+        self.test_patch_mirrorset_deactivated_user(user='harold')
 
     def test_delete_mirrorset(self):
         mirrorset = self.test_create_mirrorset()
