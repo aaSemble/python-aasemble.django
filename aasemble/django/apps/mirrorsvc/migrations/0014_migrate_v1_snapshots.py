@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import os
+
 from django.conf import settings
 from django.db import migrations, models
-
-import os
 
 
 def forwards_migrate_snapshots(apps, schema_editor):
