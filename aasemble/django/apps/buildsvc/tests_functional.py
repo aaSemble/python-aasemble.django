@@ -91,7 +91,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
 
     def verify_profile_page(self, username):
         try:
-            self.selenium.find_element(by.By.XPATH, "//dl[@class='dl-horizontal']/dd[contains(text(), %s)]" %username)
+            self.selenium.find_element(by.By.XPATH, "//dl[@class='dl-horizontal']/dd[contains(text(), %s)]" % username)
         except:
             return False
         else:
