@@ -10,8 +10,7 @@ from .models import BuildRecord, PackageSource, PackageSourceForm, Repository, S
 def get_package_source_form(request, *args, **kwargs):
     form = PackageSourceForm(*args, **kwargs)
 
-    sqs = (Series.objects.filter(repository__user=request.user) |
-           Series.objects.filter(repository__extra_admins=request.user.groups.all()))
+    sqs = Series.objects.filter(repository__in=Repository.lookup_by_user(request.user))
 
     form.fields['series'].queryset = sqs
 
