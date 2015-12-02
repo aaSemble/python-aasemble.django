@@ -1076,7 +1076,8 @@
     "fields": {
         "timestamp": "2015-11-13T11:53:07.104Z",
         "mirrorset": 1,
-        "uuid": "470688a8-7294-4c17-b020-1d67aebaf972"
+        "uuid": "470688a8-7294-4c17-b020-1d67aebaf972",
+        "visible_to_v1_api": true
     },
     "model": "mirrorsvc.snapshot",
     "pk": 1
@@ -1085,7 +1086,8 @@
     "fields": {
         "timestamp": "2015-11-13T11:53:07.251Z",
         "mirrorset": 2,
-        "uuid": "550b80c8-0632-4f1e-b3d2-63392d82eeea"
+        "uuid": "550b80c8-0632-4f1e-b3d2-63392d82eeea",
+        "visible_to_v1_api": true
     },
     "model": "mirrorsvc.snapshot",
     "pk": 2
