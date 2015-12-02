@@ -964,6 +964,10 @@ class APIv1Tests(APITestCase):
     def test_delete_snapshot_deactivated_other_user(self):
         self.test_delete_snapshot_deactivated_super_user(user='frank')
 
+    def test_snapshot_create_sets_visible_flag_properly(self):
+        snapshot = self.test_create_snapshot()
+        self.assertEqual(snapshot['visible_to_v1_api'], True)
+
     ##############
     # Auth tests #
     ##############
@@ -1015,6 +1019,7 @@ class APIv2Tests(APIv1Tests):
         self.assertEquals(response.status_code, 201)
         data['self'] = response.data['self']
         data['timestamp'] = response.data['timestamp']
+        data['visible_to_v1_api'] = response.data['visible_to_v1_api']
         self.assertEquals(data, response.data)
         return response.data
 
@@ -1026,6 +1031,7 @@ class APIv2Tests(APIv1Tests):
         data['self'] = response.data['self']
         data['timestamp'] = response.data['timestamp']
         data['mirrorset'] = response.data['mirrorset']
+        data['visible_to_v1_api'] = response.data['visible_to_v1_api']
         self.assertEquals(data, response.data)
         return response.data
 
@@ -1051,6 +1057,10 @@ class APIv2Tests(APIv1Tests):
         response2 = self.client.get(self.base_url + 'snapshots/?tag=fourthtag')
         self.assertEquals(response1.data, response2.data["results"][0])
         return response2.data
+
+    def test_snapshot_create_sets_visible_flag_properly(self):
+        snapshot = self.test_create_snapshot()
+        self.assertEqual(snapshot['visible_to_v1_api'], False)
 
 
 class APIv3Tests(APIv2Tests):
