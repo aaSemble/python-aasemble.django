@@ -77,7 +77,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def test_overview_button(self):
         '''This test performs the test for overview button
         1. Create a session cookie for given user. We are using a existing
-               user 'Dennis' which is already added as fixture.
+               user 'brandon' which is already added as fixture.
         2. Press 'Overview' button.
         3. Verify whether 'Dashboard' came.'''
         session_cookie = create_session_for_given_user(username='brandon')
