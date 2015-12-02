@@ -108,15 +108,11 @@ class aaSembleAPIv1Serializers(object):
             def create(self, validated_data):
                 if 'tags' in validated_data:
                     tags_data = validated_data.pop('tags')
-                    snapshot = mirrorsvc_models.Snapshot.objects.create(**validated_data)
-                    snapshot.visible_to_v1_api = True
-                    snapshot.save()
+                    snapshot = mirrorsvc_models.Snapshot.objects.create(visible_to_v1_api=(selff.view_prefix == 'v1'), **validated_data)
                     for tag_data in tags_data:
                         mirrorsvc_models.Tags.objects.create(snapshot=snapshot, **tag_data)
                 else:
-                    snapshot = mirrorsvc_models.Snapshot.objects.create(**validated_data)
-                    snapshot.visible_to_v1_api = True
-                    snapshot.save()
+                    snapshot = mirrorsvc_models.Snapshot.objects.create(visible_to_v1_api=(selff.view_prefix == 'v1'), **validated_data)
                 return snapshot
 
             def update(self, instance, validated_data):
