@@ -872,13 +872,43 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['Invalid hyperlink - No URL match.']})
 
-    def test_patch_snapshot_not_allowed(self):
+    def test_patch_snapshot_not_allowed(self, user='eric'):
         snapshot = self.test_create_snapshot()
         # no new mirror set is created because test case intend is different
+        authenticate(self.client, user)
         data = {'mirrorset': snapshot['mirrorset']}
         response = self.client.patch(snapshot['self'], data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
+
+    def test_patch_snapshot_super_user_not_allowed(self):
+        self.test_patch_snapshot_not_allowed(user='george')
+
+    def test_patch_snapshot_other_user(self):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, 'aaron')
+        data = {'mirrorset': snapshot['mirrorset']}
+        response = self.client.patch(snapshot['self'], data, format='json')
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
+
+    def test_patch_snapshot_same_group_other_user(self):
+        snapshot = self.test_create_snapshot(user='brandon')
+        authenticate(self.client, 'charles')
+        data = {'mirrorset': snapshot['mirrorset']}
+        response = self.client.patch(snapshot['self'], data, format='json')
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
+
+    def test_patch_snapshot_deactive_user(self, user='frank'):
+        snapshot = self.test_create_snapshot()
+        authenticate(self.client, user)
+        data={}
+        response = self.client.patch(snapshot['self'], data, format='json')
+        self.assertEquals(response.status_code, 401)
+
+    def test_patch_snapshot_deactive_super_user(self):
+        self.test_patch_snapshot_deactive_user(user='harold')
 
     def test_delete_snapshot_no_auth(self):
         snapshot = self.test_create_snapshot()
