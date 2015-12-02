@@ -903,7 +903,7 @@ class APIv1Tests(APITestCase):
     def test_patch_snapshot_deactive_user(self, user='frank'):
         snapshot = self.test_create_snapshot()
         authenticate(self.client, user)
-        data={}
+        data = {}
         response = self.client.patch(snapshot['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
 
