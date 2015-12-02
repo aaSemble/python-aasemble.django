@@ -826,7 +826,7 @@
         "uuid": "1dcc86aa-c925-49b0-9f1e-ffe6839150b7",
         "source": 1,
         "build_started": "2015-11-20T11:37:41.147Z",
-        "build_finished": "2015-11-20T11:39:02.234Z",
+        "build_finished": "2015-11-20T11:39:02.147Z",
         "sha": "dec1a2a489504c299e3338f3259d519a",
         "version": "1.1+0",
         "build_counter": 0
@@ -838,7 +838,7 @@
     "fields": {
         "uuid": "f5575921-c9a1-4cc8-a235-5b1756ca59ef",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.194Z",
+        "build_started": "2015-11-20T11:37:42.194Z",
         "build_finished": null,
         "sha": "5e1fafbd71e94e58a7280c92550a0be2",
         "version": "1.1+1",
@@ -851,7 +851,7 @@
     "fields": {
         "uuid": "f331c241-7fd6-45ce-8ffb-fcee2b9bbbfc",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.214Z",
+        "build_started": "2015-11-20T11:37:43.214Z",
         "build_finished": null,
         "sha": "168d229d8b614bae879d19bf324ac623",
         "version": "1.1+2",
@@ -864,7 +864,7 @@
     "fields": {
         "uuid": "86123cf7-5a7c-48a0-8b9c-4f50d32e805a",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.248Z",
+        "build_started": "2015-11-20T11:37:45.248Z",
         "build_finished": null,
         "sha": "b37613664d694bed9084a1b123fa635f",
         "version": "1.1+4",
@@ -877,7 +877,7 @@
     "fields": {
         "uuid": "e9ee57e0-b026-4295-9b90-d900dc50339a",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.266Z",
+        "build_started": "2015-11-20T11:37:44.266Z",
         "build_finished": null,
         "sha": "addde2123ea64506b7d3574b86650d75",
         "version": "1.1+5",
@@ -890,7 +890,7 @@
     "fields": {
         "uuid": "dba68fc9-8859-4aca-9f2c-ce1b4797bc9c",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.231Z",
+        "build_started": "2015-11-20T11:37:46.231Z",
         "build_finished": null,
         "sha": "b332fbd65cca4fb6afe270ca722bdbfe",
         "version": "1.1+3",
@@ -903,7 +903,7 @@
     "fields": {
         "uuid": "bbb2187c-e16d-415c-bc25-501d5e7d1968",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.283Z",
+        "build_started": "2015-11-20T11:37:47.283Z",
         "build_finished": null,
         "sha": "2098819261514f05be229dd678d94f8c",
         "version": "1.1+6",
@@ -916,7 +916,7 @@
     "fields": {
         "uuid": "35adbf62-0745-416c-aa9d-cc40afc89a31",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.303Z",
+        "build_started": "2015-11-20T11:37:49.303Z",
         "build_finished": null,
         "sha": "e1c5d32e5fe343369ab781e7ce3273cb",
         "version": "1.1+7",
@@ -929,7 +929,7 @@
     "fields": {
         "uuid": "c76333e1-ca3d-454c-8983-9211d7a50fdf",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.328Z",
+        "build_started": "2015-11-20T11:37:50.328Z",
         "build_finished": null,
         "sha": "d24d0388536343bf8a6ef0ee2a1b3ed5",
         "version": "1.1+8",
@@ -942,7 +942,7 @@
     "fields": {
         "uuid": "43bd38c5-5cf5-4784-9374-3e97a0c237fa",
         "source": 1,
-        "build_started": "2015-11-20T11:37:41.343Z",
+        "build_started": "2015-11-20T11:37:52.343Z",
         "build_finished": null,
         "sha": "25fe6c52ca9046a79bae9d6f11308e05",
         "version": "1.1+9",
