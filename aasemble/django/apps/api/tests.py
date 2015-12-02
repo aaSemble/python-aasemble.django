@@ -968,6 +968,23 @@ class APIv1Tests(APITestCase):
         snapshot = self.test_create_snapshot()
         self.assertEqual(snapshot['visible_to_v1_api'], True)
 
+    def test_only_visible_snapshots_are_returned(self):
+        authenticate(self.client, 'eric')
+        base_api_url = 'http://testserver' + self.base_url
+        data = {
+            'count': 2,
+            'next': None,
+            'previous': None,
+            'results': [
+                {'self': base_api_url + 'snapshots/1/', 'timestamp': '2015-11-13T11:53:07.104000Z',
+                 'mirrorset': base_api_url + 'mirror_sets/1/', 'visible_to_v1_api': True},
+                {'self': base_api_url + 'snapshots/2/', 'timestamp': '2015-11-13T11:53:07.251000Z',
+                 'mirrorset': base_api_url + 'mirror_sets/2/', 'visible_to_v1_api': True}
+            ]
+        }
+        response = self.client.get(self.snapshot_list_url, format='json')
+        self.assertEqual(data, response.data)
+
     ##############
     # Auth tests #
     ##############
@@ -1061,6 +1078,16 @@ class APIv2Tests(APIv1Tests):
     def test_snapshot_create_sets_visible_flag_properly(self):
         snapshot = self.test_create_snapshot()
         self.assertEqual(snapshot['visible_to_v1_api'], False)
+
+    def test_only_visible_snapshots_are_returned(self):
+        authenticate(self.client, 'eric')
+        # base_api_url = 'http://testserver' + self.base_url
+        data = {
+            'count': 50,
+        }
+        response = self.client.get(self.snapshot_list_url, format='json')
+        self.assertEqual(data['count'], response.data['count'])
+        # TODO: Think of a way to match snapshot details, too many to hardcode right now
 
 
 class APIv3Tests(APIv2Tests):
