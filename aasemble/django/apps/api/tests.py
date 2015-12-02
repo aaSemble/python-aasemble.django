@@ -932,7 +932,7 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 401)
 
     def test_delete_snapshot_deactivated_other_user(self):
-        self.test_delete_snapshot_deactivated_super_user('frank')
+        self.test_delete_snapshot_deactivated_super_user(user='frank')
 
     ##############
     # Auth tests #
