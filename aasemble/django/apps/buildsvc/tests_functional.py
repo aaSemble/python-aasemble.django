@@ -75,7 +75,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
 
     def test_profile_button(self):
-        '''This test perform a logout from given seesion
+        '''This test verifies the "Profile" button.
         1. Create a session cookie for given user. We are using a existing
                user 'brandon' which is already added as fixture.
         2. Press 'Profile' button.
