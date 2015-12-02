@@ -125,7 +125,7 @@ class aaSembleAPIv1Serializers(object):
 
             class Meta:
                 model = mirrorsvc_models.Snapshot
-                fields = ('self', 'timestamp', 'mirrorset')
+                fields = ('self', 'timestamp', 'mirrorset', 'visible_to_v1_api')
                 if selff.snapshots_have_tags:
                     fields += ('tags',)
 

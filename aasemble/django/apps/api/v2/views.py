@@ -6,11 +6,8 @@ from django.conf import settings
 from rest_auth.registration.views import SocialLoginView
 
 from rest_framework import filters
-from rest_framework import viewsets
-from rest_framework.exceptions import ValidationError
 
 from aasemble.django.apps.api.v1.views import aaSembleV1Views
-from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 
 from . import serializers as serializers_
 
