@@ -29,12 +29,20 @@ class GithubLogin(SocialLoginView):
     client_class = OAuth2Client
 
 
-class aaSembleV1ViewSet(LoggingMixin, viewsets.ModelViewSet):
-    pass
+class aaSembleV1ViewSet(viewsets.ModelViewSet):
+    def __new__(cls, *args, **kwargs):
+        bases = (cls,) + cls.__bases__
+        if 'rest_framework_tracking' in settings.INSTALLED_APPS:
+            bases = (LoggingMixin,) + bases
+        return viewsets.ModelViewSet.__new__(type('aaSembleV1ViewSet', bases, dict(cls.__dict__)))
 
 
-class aaSembleV1ReadOnlyViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
-    pass
+class aaSembleV1ReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+    def __new__(cls, *args, **kwargs):
+        bases = (cls,) + cls.__bases__
+        if 'rest_framework_tracking' in settings.INSTALLED_APPS:
+            bases = (LoggingMixin,) + bases
+        return viewsets.ReadOnlyModelViewSet.__new__(type('aaSembleV1ReadOnlyViewSet', bases, dict(cls.__dict__)))
 
 
 class aaSembleV1Views(object):

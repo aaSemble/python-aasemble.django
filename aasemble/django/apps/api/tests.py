@@ -2,6 +2,9 @@ import os.path
 
 from collections import OrderedDict
 
+from django.conf import settings
+from django.test import override_settings
+
 import mock
 
 from rest_framework.authtoken.models import Token
@@ -239,12 +242,19 @@ class APIv1Tests(APITestCase):
 
     def test_fetch_builds(self):
         authenticate(self.client, 'eric')
-        # 6 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
-        # rollback transaction
-        with self.assertNumQueries(6):
+        # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
+        # rollback transaction, log response
+        with self.assertNumQueries(7):
             response = self.client.get(self.build_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 10)
+
+    @override_settings(INSTALLED_APPS=filter(lambda s:s != 'rest_framework_tracking', settings.INSTALLED_APPS))
+    def test_fetch_builds_without_logging(self):
+        authenticate(self.client, 'eric')
+        # 3 queries: Authenticate, count results, fetch results
+        with self.assertNumQueries(3):
+            response = self.client.get(self.build_list_url)
 
     def test_source_is_linked_or_nested(self):
         authenticate(self.client, 'eric')
@@ -266,9 +276,9 @@ class APIv1Tests(APITestCase):
 
     def test_fetch_sources(self):
         authenticate(self.client, 'eric')
-        # 6 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
-        # rollback transaction
-        with self.assertNumQueries(6):
+        # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
+        # rollback transaction, log response
+        with self.assertNumQueries(7):
             response = self.client.get(self.source_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 12)
@@ -278,9 +288,9 @@ class APIv1Tests(APITestCase):
         response = self.client.get(self.repository_list_url)
         for res in response.data['results']:
             if res['name'] == 'eric2':
-                # 6 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
-                # rollback transaction
-                with self.assertNumQueries(6):
+                # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
+                # rollback transaction, log response
+                with self.assertNumQueries(7):
                     response = self.client.get(res['sources'])
                 self.assertEquals(response.status_code, 200)
                 self.assertEquals(response.data['count'], 2)
