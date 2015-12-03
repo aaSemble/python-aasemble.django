@@ -872,6 +872,16 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrorset': ['Invalid hyperlink - No URL match.']})
 
+    def test_create_snapshot_deactivated_user(self, user='frank'):
+        data = {}
+        authenticate(self.client, user)
+        response = self.client.post(self.snapshot_list_url, data, format='json')
+        self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
+
+    def test_create_snapshot_deactivated_super_user(self):
+        self.test_create_snapshot_deactivated_user(user='harold')
+
     def test_patch_snapshot_not_allowed(self, user='eric'):
         snapshot = self.test_create_snapshot()
         # no new mirror set is created because test case intend is different
@@ -917,8 +927,9 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Invalid token header. No credentials provided.'})
 
-    def test_delete_snapshot(self):
+    def test_delete_snapshot(self, user='eric'):
         snapshot = self.test_create_snapshot()
+        authenticate(self.client, user)
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 204)
 
@@ -936,10 +947,7 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 404)
 
     def test_delete_snapshot_super_user(self):
-        snapshot = self.test_create_snapshot()
-        authenticate(self.client, 'george')
-        response = self.client.delete(snapshot['self'])
-        self.assertEquals(response.status_code, 204)
+        self.test_delete_snapshot(user='george')
 
     def test_delete_snapshot_other_user_same_group(self):
         snapshot = self.test_create_snapshot(user='brandon')
@@ -947,17 +955,14 @@ class APIv1Tests(APITestCase):
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 404)
 
-    def test_delete_snapshot_deactivated_super_user(self):
+    def test_delete_snapshot_deactivated_super_user(self, user='harold'):
         snapshot = self.test_create_snapshot()
-        authenticate(self.client, 'harold')
+        authenticate(self.client, user)
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 401)
 
     def test_delete_snapshot_deactivated_other_user(self):
-        snapshot = self.test_create_snapshot()
-        authenticate(self.client, 'frank')
-        response = self.client.delete(snapshot['self'])
-        self.assertEquals(response.status_code, 401)
+        self.test_delete_snapshot_deactivated_super_user(user='frank')
 
     ##############
     # Auth tests #
