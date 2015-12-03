@@ -65,7 +65,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
            3. Verify if the package has been created.
            4. Try to delete the package
            5. Verify if the package has been deleted'''
-        self.create_login_session(self, username='brandon')
+        self.create_login_session('brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -82,12 +82,12 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
                user 'brandon' which is already added as fixture.
         2. Press 'Profile' button.
         3. Verify page by username'''
-        self.create_login_session(self, username='brandon')
+        self.create_login_session('brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
         self.profile_button.click()
-        self.assertEqual(self.verify_profile_page(username='brandon'), True, "Profile Name not verified")
+        self.assertEqual(self.verify_profile_page('brandon'), True, "Profile Name not verified")
 
     def test_new_mirrors(self):
         ''' This tests validates if non public mirror is created'''
@@ -140,7 +140,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         2. Try to create a package.
         3. Poll the task for package creation. Polling should start the build
         4. Verify that Building started and it is visible via GUI'''
-        self.create_login_session(self, username='brandon')
+        self.create_login_session('brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -168,7 +168,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
                user 'brandon' which is already added as fixture.
         2. Press 'Overview' button.
         3. Verify whether 'Dashboard' came.'''
-        self.create_login_session(self, username='brandon')
+        self.create_login_session('brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -191,7 +191,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
                user 'brandon' which is already added as fixture.
         2. Press logout.
         3. Verify that we came to login page.'''
-        self.create_login_session(self, username='brandon')
+        self.create_login_session('brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -210,7 +210,6 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
             return False
         else:
             return True
-
 
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create
