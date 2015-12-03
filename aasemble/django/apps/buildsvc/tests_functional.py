@@ -4,6 +4,8 @@ import re
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test.utils import skipIf
 
+import selenium.common.exceptions as Exceptions
+
 from selenium.webdriver.common import by
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
@@ -88,6 +90,34 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.set_window_size(1024, 768)
         self.profile_button.click()
         self.assertEqual(self.verify_profile_page(username='brandon'), True, "Profile Name not verified")
+        
+    def test_new_mirrors(self):
+        ''' This tests validates if non public mirror is created'''
+        new_mirror_button = (by.By.LINK_TEXT, 'New')
+        self.create_login_session('brandon')
+        self.selenium.get('%s%s' % (self.live_server_url, '/mirrorsvc/mirrors/'))
+        self.selenium.set_window_size(1024, 768)
+        self.assertTrue(self._is_element_visible(new_mirror_button), "Mirror New Button is not Visible")
+        self.selenium.find_element(*new_mirror_button).click()
+        self.selenium.find_element(by.By.ID, 'id_url').send_keys('%s%s' % (self.live_server_url, '/apt/brandon/brandon'))
+        self.selenium.find_element(by.By.ID, 'id_series').send_keys('brandon/aasemble')
+        self.selenium.find_element(by.By.ID, 'id_components').send_keys('aasemble')
+        self.selenium.find_element(by.By.XPATH, './/button[@type="submit" and contains(.,"Submit")]').click()
+        self.assertTrue(self._is_element_visible((by.By.LINK_TEXT, '%s%s' % (self.live_server_url, '/apt/brandon/brandon'))))
+        # Test if public flag is false
+        self.assertTrue(self._is_element_visible((by.By.XPATH, ".//table/tbody/tr[1]/td[5][contains(text(), False)]")))
+
+    def _is_element_visible(self, locator):
+        try:
+            return self.selenium.find_element(*locator).is_displayed()
+        except (Exceptions.NoSuchElementException,
+                Exceptions.ElementNotVisibleException):
+            return False
+
+    def create_login_session(self, username):
+        session_cookie = create_session_for_given_user(username)
+        self.selenium.get(self.live_server_url)
+        self.selenium.add_cookie(session_cookie)
 
     def verify_profile_page(self, username):
         try:
