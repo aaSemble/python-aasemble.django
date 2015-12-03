@@ -14,6 +14,8 @@ from rest_framework.response import Response
 
 from rest_framework_nested import routers
 
+from rest_framework_tracking.mixins import LoggingMixin
+
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.exceptions import DuplicateResourceException
@@ -25,6 +27,14 @@ class GithubLogin(SocialLoginView):
     callback_url = settings.GITHUB_AUTH_CALLBACK
     adapter_class = GitHubOAuth2Adapter
     client_class = OAuth2Client
+
+
+class aaSembleV1ViewSet(LoggingMixin, viewsets.ModelViewSet):
+    pass
+
+
+class aaSembleV1ReadOnlyViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
+    pass
 
 
 class aaSembleV1Views(object):
@@ -45,7 +55,7 @@ class aaSembleV1Views(object):
         self.urls = self.build_urls()
 
     def MirrorViewSetFactory(selff):
-        class MirrorViewSet(viewsets.ModelViewSet):
+        class MirrorViewSet(aaSembleV1ViewSet):
             """
             API endpoint that allows mirrors to be viewed or edited.
             """
@@ -75,7 +85,7 @@ class aaSembleV1Views(object):
         return MirrorViewSet
 
     def MirrorSetViewSetFactory(selff):
-        class MirrorSetViewSet(viewsets.ModelViewSet):
+        class MirrorSetViewSet(aaSembleV1ViewSet):
             """
             API endpoint that allows mirrors to be viewed or edited.
             """
@@ -95,7 +105,7 @@ class aaSembleV1Views(object):
         return MirrorSetViewSet
 
     def SnapshotViewSetFactory(selff):
-        class SnapshotViewSet(viewsets.ModelViewSet):
+        class SnapshotViewSet(aaSembleV1ViewSet):
             lookup_field = selff.default_lookup_field
             lookup_value_regex = selff.default_lookup_value_regex
             """
@@ -124,7 +134,7 @@ class aaSembleV1Views(object):
         return SnapshotViewSet
 
     def RepositoryViewSetFactory(selff):
-        class RepositoryViewSet(viewsets.ModelViewSet):
+        class RepositoryViewSet(aaSembleV1ViewSet):
             """
             API endpoint that allows repositories to be viewed or edited.
             """
@@ -145,7 +155,7 @@ class aaSembleV1Views(object):
         return RepositoryViewSet
 
     def SeriesViewSetFactory(selff):
-        class SeriesViewSet(viewsets.ModelViewSet):
+        class SeriesViewSet(aaSembleV1ViewSet):
             """
             API endpoint that allows series to be viewed or edited.
             """
@@ -165,7 +175,7 @@ class aaSembleV1Views(object):
         return {key: kwargs[value]}
 
     def PackageSourceViewSetFactory(selff):
-        class PackageSourceViewSet(viewsets.ModelViewSet):
+        class PackageSourceViewSet(aaSembleV1ViewSet):
             """
             API endpoint that allows series to be viewed or edited.
             """
@@ -184,7 +194,7 @@ class aaSembleV1Views(object):
         return PackageSourceViewSet
 
     def ExternalDependencyViewSetFactory(selff):
-        class ExternalDependencyViewSet(viewsets.ModelViewSet):
+        class ExternalDependencyViewSet(aaSembleV1ViewSet):
             """
             API endpoint that allows external dependencies to be viewed or edited.
             """
@@ -204,7 +214,7 @@ class aaSembleV1Views(object):
         return ExternalDependencyViewSet
 
     def BuildViewSetFactory(selff):
-        class BuildViewSet(viewsets.ReadOnlyModelViewSet):
+        class BuildViewSet(aaSembleV1ReadOnlyViewSet):
             """
             API endpoint that allows builds viewed
             """
