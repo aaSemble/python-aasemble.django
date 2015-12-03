@@ -1,5 +1,7 @@
 import os.path
 
+from collections import OrderedDict
+
 import mock
 
 from rest_framework.authtoken.models import Token
@@ -966,35 +968,26 @@ class APIv1Tests(APITestCase):
     def test_delete_snapshot_deactivated_other_user(self):
         self.test_delete_snapshot_deactivated_super_user(user='frank')
 
-    def test_snapshot_create_sets_visible_flag_properly(self):
-        snapshot = self.test_create_snapshot()
-        self.assertEqual(snapshot['visible_to_v1_api'], True)
-
     def test_only_visible_snapshots_are_returned(self):
         authenticate(self.client, 'eric')
         base_api_url = 'http://testserver' + self.base_url
-        # Below lines are commented out as datetime formats are different between what's here and Travis CI
-        # snapshot1 = OrderedDict()
-        # snapshot1['self'] = base_api_url + 'snapshots/1/'
-        # snapshot1['timestamp'] = '2015-11-13T11:53:07.104Z'
-        # snapshot1['mirrorset'] = base_api_url + 'mirror_sets/1/'
-        # snapshot1['visible_to_v1_api'] = True
-        # snapshot2 = OrderedDict()
-        # snapshot2['self'] = base_api_url + 'snapshots/2/'
-        # snapshot2['timestamp'] = '2015-11-13T11:53:07.251Z'
-        # snapshot2['mirrorset'] = base_api_url + 'mirror_sets/2/'
-        # snapshot2['visible_to_v1_api'] = True
-        # snapshots_list = [snapshot1, snapshot2]
-        # data = OrderedDict()
-        # data['count'] = 2
-        # data['next'] = None
-        # data['previous'] = None
-        # data['results'] = snapshots_list
+        snapshot1 = OrderedDict()
+        snapshot1['self'] = base_api_url + 'snapshots/1/'
+        snapshot1['timestamp'] = '2015-11-13T11:53:07Z'
+        snapshot1['mirrorset'] = base_api_url + 'mirror_sets/1/'
+        snapshot2 = OrderedDict()
+        snapshot2['self'] = base_api_url + 'snapshots/2/'
+        snapshot2['timestamp'] = '2015-11-13T11:53:08Z'
+        snapshot2['mirrorset'] = base_api_url + 'mirror_sets/2/'
+        snapshot3 = self.test_create_snapshot()
+        snapshots_list = [snapshot1, snapshot2, snapshot3]
+        data = OrderedDict()
+        data['count'] = 3
+        data['next'] = None
+        data['previous'] = None
+        data['results'] = snapshots_list
         response = self.client.get(self.snapshot_list_url, format='json')
-        self.assertEqual(response.data['count'], 2)
-        self.assertEqual(response.data['results'][0]['self'], base_api_url + 'snapshots/1/')
-        self.assertEqual(response.data['results'][1]['self'], base_api_url + 'snapshots/2/')
-        # TODO: Figure out how to match snapshot timestamps in response
+        self.assertEqual(data, response.data)
 
     ##############
     # Auth tests #
@@ -1045,7 +1038,6 @@ class APIv2Tests(APIv1Tests):
         self.assertEquals(response.status_code, 201)
         data['self'] = response.data['self']
         data['timestamp'] = response.data['timestamp']
-        data['visible_to_v1_api'] = response.data['visible_to_v1_api']
         self.assertEquals(data, response.data)
         return response.data
 
@@ -1057,7 +1049,6 @@ class APIv2Tests(APIv1Tests):
         data['self'] = response.data['self']
         data['timestamp'] = response.data['timestamp']
         data['mirrorset'] = response.data['mirrorset']
-        data['visible_to_v1_api'] = response.data['visible_to_v1_api']
         self.assertEquals(data, response.data)
         return response.data
 
@@ -1084,15 +1075,11 @@ class APIv2Tests(APIv1Tests):
         self.assertEquals(response1.data, response2.data["results"][0])
         return response2.data
 
-    def test_snapshot_create_sets_visible_flag_properly(self):
-        snapshot = self.test_create_snapshot()
-        self.assertEqual(snapshot['visible_to_v1_api'], False)
-
     def test_only_visible_snapshots_are_returned(self):
         authenticate(self.client, 'eric')
-        # base_api_url = 'http://testserver' + self.base_url
+        self.test_create_snapshot()
         data = {
-            'count': 50,
+            'count': 51,
         }
         response = self.client.get(self.snapshot_list_url, format='json')
         self.assertEqual(data['count'], response.data['count'])
