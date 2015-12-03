@@ -74,6 +74,34 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.delete_package_source()
         self.assertEqual(self.verify_package_source(git_url=git_url), False, 'Package not deleted')
 
+    def test_profile_button(self):
+        '''This test verifies the "Profile" button.
+        1. Create a session cookie for given user. We are using a existing
+               user 'brandon' which is already added as fixture.
+        2. Press 'Profile' button.
+        3. Verify page by username'''
+        session_cookie = create_session_for_given_user(username='brandon')
+        self.selenium.get(self.live_server_url)
+        self.selenium.add_cookie(session_cookie)
+        # test whether sources page opens after user logs in
+        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.set_window_size(1024, 768)
+        self.profile_button.click()
+        self.assertEqual(self.verify_profile_page(username='brandon'), True, "Profile Name not verified")
+
+    def verify_profile_page(self, username):
+        try:
+            self.selenium.find_element(by.By.XPATH, "//dl[@class='dl-horizontal']/dd[contains(text(), %s)]" % username)
+        except:
+            return False
+        else:
+            return True
+
+    @property
+    def profile_button(self):
+        '''Finds package profile button'''
+        return self.selenium.find_element(by.By.LINK_TEXT, 'Profile')
+
     def test_overview_button(self):
         '''This test performs the test for overview button
         1. Create a session cookie for given user. We are using a existing
