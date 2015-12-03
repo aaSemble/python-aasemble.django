@@ -115,7 +115,6 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.find_element(by.By.ID, 'id_name').send_keys('mySet')
         # Selecting all options
         options = self.selenium.find_element(by.By.ID, 'id_mirrors')
-        print self.selenium.page_source
         for option in options.find_elements(by.By.TAG_NAME, 'option'):
             option.click()
         self.new_submit_button.click()
