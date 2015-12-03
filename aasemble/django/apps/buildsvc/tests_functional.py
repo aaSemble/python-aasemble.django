@@ -103,6 +103,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.find_element(by.By.ID, 'id_series').send_keys('brandon/aasemble')
         self.selenium.find_element(by.By.ID, 'id_components').send_keys('aasemble')
         self.selenium.find_element(by.By.XPATH, './/button[@type="submit" and contains(.,"Submit")]').click()
+        # Mirror URL should be displayed after clicking Submit button 
         self.assertTrue(self._is_element_visible((by.By.LINK_TEXT, '%s%s' % (self.live_server_url, '/apt/brandon/brandon'))))
         # Test if public flag is false
         self.assertTrue(self._is_element_visible((by.By.XPATH, ".//table/tbody/tr[1]/td[5][contains(text(), False)]")))
