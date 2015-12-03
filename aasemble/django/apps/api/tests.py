@@ -2,6 +2,8 @@ import os.path
 
 from collections import OrderedDict
 
+from aasemble.django.apps.mirrorsvc.models import Snapshot
+
 import mock
 
 from rest_framework.authtoken.models import Token
@@ -968,6 +970,12 @@ class APIv1Tests(APITestCase):
     def test_delete_snapshot_deactivated_other_user(self):
         self.test_delete_snapshot_deactivated_super_user(user='frank')
 
+    def test_snapshot_create_sets_visible_flag_properly(self):
+        snapshot = self.test_create_snapshot()
+        snapshot_pk = int(snapshot['self'][-2:-1])
+        snapshot_object = Snapshot.objects.get(pk=snapshot_pk)
+        self.assertEqual(snapshot_object.visible_to_v1_api, True)
+
     def test_only_visible_snapshots_are_returned(self):
         authenticate(self.client, 'eric')
         base_api_url = 'http://testserver' + self.base_url
@@ -979,14 +987,9 @@ class APIv1Tests(APITestCase):
         snapshot2['self'] = base_api_url + 'snapshots/2/'
         snapshot2['timestamp'] = '2015-11-13T11:53:08Z'
         snapshot2['mirrorset'] = base_api_url + 'mirror_sets/2/'
-        snapshot_temp = self.test_create_snapshot()
-        snapshot3 = OrderedDict()
-        snapshot3['self'] = snapshot_temp['self']
-        snapshot3['timestamp'] = snapshot_temp['timestamp']
-        snapshot3['mirrorset'] = snapshot_temp['mirrorset']
-        snapshots_list = [snapshot1, snapshot2, snapshot3]
+        snapshots_list = [snapshot1, snapshot2]
         data = OrderedDict()
-        data['count'] = 3
+        data['count'] = 2
         data['next'] = None
         data['previous'] = None
         data['results'] = snapshots_list
@@ -1079,11 +1082,16 @@ class APIv2Tests(APIv1Tests):
         self.assertEquals(response1.data, response2.data["results"][0])
         return response2.data
 
+    def test_snapshot_create_sets_visible_flag_properly(self):
+        snapshot = self.test_create_snapshot()
+        snapshot_uuid = snapshot['self'][-37:-1]
+        snapshot_object = Snapshot.objects.get(uuid=snapshot_uuid)
+        self.assertEqual(snapshot_object.visible_to_v1_api, False)
+
     def test_only_visible_snapshots_are_returned(self):
         authenticate(self.client, 'eric')
-        self.test_create_snapshot()
         data = {
-            'count': 51,
+            'count': 50,
         }
         response = self.client.get(self.snapshot_list_url, format='json')
         self.assertEqual(data['count'], response.data['count'])
