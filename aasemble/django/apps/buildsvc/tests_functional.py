@@ -65,9 +65,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
            3. Verify if the package has been created.
            4. Try to delete the package
            5. Verify if the package has been deleted'''
-        session_cookie = create_session_for_given_user(username='brandon')
-        self.selenium.get(self.live_server_url)
-        self.selenium.add_cookie(session_cookie)
+        self.create_login_session(self, username='brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -84,9 +82,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
                user 'brandon' which is already added as fixture.
         2. Press 'Profile' button.
         3. Verify page by username'''
-        session_cookie = create_session_for_given_user(username='brandon')
-        self.selenium.get(self.live_server_url)
-        self.selenium.add_cookie(session_cookie)
+        self.create_login_session(self, username='brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -144,9 +140,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         2. Try to create a package.
         3. Poll the task for package creation. Polling should start the build
         4. Verify that Building started and it is visible via GUI'''
-        session_cookie = create_session_for_given_user(username='brandon')
-        self.selenium.get(self.live_server_url)
-        self.selenium.add_cookie(session_cookie)
+        self.create_login_session(self, username='brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -174,9 +168,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
                user 'brandon' which is already added as fixture.
         2. Press 'Overview' button.
         3. Verify whether 'Dashboard' came.'''
-        session_cookie = create_session_for_given_user(username='brandon')
-        self.selenium.get(self.live_server_url)
-        self.selenium.add_cookie(session_cookie)
+        self.create_login_session(self, username='brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
@@ -192,6 +184,33 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def overview_button(self):
         '''Finds overview button'''
         return self.selenium.find_element(by.By.XPATH, "//a[@href='/' and contains(text(), 'Overview')]")
+
+    def test_logout_button(self):
+        '''This test perform a logout from given seesion
+        1. Create a session cookie for given user. We are using a existing
+               user 'brandon' which is already added as fixture.
+        2. Press logout.
+        3. Verify that we came to login page.'''
+        self.create_login_session(self, username='brandon')
+        # test whether sources page opens after user logs in
+        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.set_window_size(1024, 768)
+        self.logout_button.click()
+        self.assertEqual(self.verify_login_page(), True, "Logout didn't work")
+
+    @property
+    def logout_button(self):
+        '''Finds package source button'''
+        return self.selenium.find_element(by.By.LINK_TEXT, 'Log out')
+
+    def verify_login_page(self):
+        try:
+            self.selenium.find_element(by.By.XPATH, "//*[@id='login_button']")
+        except:
+            return False
+        else:
+            return True
+
 
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create
