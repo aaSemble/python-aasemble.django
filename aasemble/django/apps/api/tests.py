@@ -56,7 +56,6 @@ class APIv1Tests(APITestCase):
     def test_create_repository_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
-
         response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'name': ['This field is required.']})
@@ -70,17 +69,14 @@ class APIv1Tests(APITestCase):
     def test_create_repository_incorrect_auth_fails_401(self):
         data = {}
         authenticate(self.client, token='invalidtoken')
-
         response = self.client.post(self.repository_list_url, data, format='json')
-
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_create_repository(self, user='eric'):
         data = {'name': 'testrepo'}
         authenticate(self.client, user)
-
         response = self.client.post(self.repository_list_url, data, format='json')
-
         self.assertEquals(response.status_code, 201)
         self.assertTrue(response.data['self'].startswith('http://testserver' + self.repository_list_url), response.data['self'])
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
@@ -91,7 +87,6 @@ class APIv1Tests(APITestCase):
                            'sources': response.data['self'] + 'sources/',
                            'user': user,
                            'key_id': u''}
-
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result)
@@ -116,32 +111,29 @@ class APIv1Tests(APITestCase):
         self.test_create_repository()
         response = self.client.post(self.repository_list_url, data, format='json')
         self.assertEquals(response.status_code, 409)
+        self.assertEquals(response.data, {'detail': 'Duplicate resource'})
 
     def test_delete_repository(self):
         repo = self.test_create_repository()
-
         response = self.client.delete(repo['self'])
-
         self.assertEquals(response.status_code, 204)
-
         response = self.client.get(repo['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_repository_same_group_different_member(self):
         repo = self.test_create_repository(user='brandon')
         authenticate(self.client, 'charles')
         response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_patch_repository(self):
         repo = self.test_create_repository()
         data = {'name': 'testrepo2'}
-
         response = self.client.patch(repo['self'], data, format='json')
-
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['self'], repo['self'], '"self" attribute changed')
-
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo2',
                            'binary_source_list': 'deb http://127.0.0.1:8000/apt/eric/testrepo2 aasemble main',
@@ -150,41 +142,37 @@ class APIv1Tests(APITestCase):
                            'sources': response.data['self'] + 'sources/',
                            'user': 'eric',
                            'key_id': u''}
-
         self.assertEquals(response.data, expected_result)
-
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result, 'Changes were not persisted')
 
     def test_patch_repository_read_only_field(self):
         repo = self.test_create_repository()
         data = {'user': 'testuser2'}
-
         response = self.client.patch(repo['self'], data, format='json')
         self.assertNotEquals(response.data['user'], 'testuser2', '"user" read-only field changed')
 
     def test_delete_deleted_repository(self):
         repo = self.test_create_repository()
-
         response = self.client.delete(repo['self'])
-
         self.assertEquals(response.status_code, 204)
-
         response = self.client.delete(repo['self'])
-
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_repository_invalid_token(self):
         repo = self.test_create_repository()
         authenticate(self.client, token='invalidtoken')
         response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_delete_repository_other_user(self):
         repo = self.test_create_repository()
         authenticate(self.client, 'aaron')
         response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_repository_super_user(self):
         repo = self.test_create_repository()
@@ -198,6 +186,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'aaron')
         response = self.client.patch(repo['self'], data, format='json')
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_patch_repository_super_user(self):
         repo = self.test_create_repository()
@@ -227,12 +216,14 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'harold')
         response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_delete_repository_deactivated_other_user(self):
         repo = self.test_create_repository()
         authenticate(self.client, 'frank')
         response = self.client.delete(repo['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_create_same_name_repository_different_user(self):
         self.test_create_repository(user='eric')
@@ -247,7 +238,6 @@ class APIv1Tests(APITestCase):
         # 3 queries: Authenticate, count results, fetch results
         with self.assertNumQueries(3):
             response = self.client.get(self.build_list_url)
-
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 10)
 
@@ -274,7 +264,6 @@ class APIv1Tests(APITestCase):
         # 3 queries: Authenticate, count results, fetch results
         with self.assertNumQueries(3):
             response = self.client.get(self.source_list_url)
-
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 12)
 
@@ -285,7 +274,6 @@ class APIv1Tests(APITestCase):
             if res['name'] == 'eric2':
                 with self.assertNumQueries(3):
                     response = self.client.get(res['sources'])
-
                 self.assertEquals(response.status_code, 200)
                 self.assertEquals(response.data['count'], 2)
                 return
@@ -294,7 +282,6 @@ class APIv1Tests(APITestCase):
     def test_create_source_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
-
         response = self.client.post(self.source_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'git_repository': ['This field is required.'],
@@ -304,7 +291,6 @@ class APIv1Tests(APITestCase):
     def test_create_invalied_url_fails_400(self):
         data = {'git_repository': 'not a valid url'}
         authenticate(self.client, 'eric')
-
         response = self.client.post(self.source_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'git_repository': ['Enter a valid URL.'],
@@ -320,27 +306,22 @@ class APIv1Tests(APITestCase):
     def test_create_source_incorrect_auth_fails_401(self):
         data = {}
         authenticate(self.client, token='invalidtoken')
-
         response = self.client.post(self.source_list_url, data, format='json')
-
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_create_source(self, user='eric'):
         authenticate(self.client, user)
         response = self.client.get(self.repository_list_url)
-
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
                 'git_branch': 'master',
                 'repository': response.data['results'][0]['self']}
-
         response = self.client.post(self.source_list_url, data, format='json')
-
         self.assertEquals(response.status_code, 201)
         self.assertTrue(response.data['self'].startswith('http://testserver' + self.source_list_url), response.data['self'])
         data['self'] = response.data['self']
         data['builds'] = data['self'] + 'builds/'
         self.assertEquals(response.data, data)
-
         response = self.client.get(data['self'])
         self.assertEquals(response.data, data)
         return response.data
@@ -439,25 +420,25 @@ class APIv1Tests(APITestCase):
 
     def test_delete_source(self):
         source = self.test_create_source()
-
         response = self.client.delete(source['self'])
-
         self.assertEquals(response.status_code, 204)
-
         response = self.client.get(source['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_source_other_member_same_group(self):
         source = self.test_create_source(user='brandon')
         authenticate(self.client, 'charles')
         response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_source_other_user(self):
         source = self.test_create_source()
         authenticate(self.client, 'aaron')
         response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_source_super_user(self):
         source = self.test_create_source()
@@ -470,18 +451,21 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, token='invalidtoken')
         response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_delete_source_deactivated_super_user(self):
         source = self.test_create_source()
         authenticate(self.client, 'harold')
         response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_delete_source_deactivated_other_user(self):
         source = self.test_create_source()
         authenticate(self.client, 'frank')
         response = self.client.delete(source['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     ################
     # Mirror tests #
@@ -490,7 +474,6 @@ class APIv1Tests(APITestCase):
     def test_create_mirror_empty_fails_400(self):
         data = {}
         authenticate(self.client, 'eric')
-
         response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'url': ['This field is required.'],
@@ -508,13 +491,13 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, token='invalidtoken')
         response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_create_mirror_invalid_url_fails(self):
         data = {'url': 'not-a-url',
                 'series': ['trusty'],
                 'components': ['main']}
         authenticate(self.client, 'eric')
-
         response = self.client.post(self.mirror_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'url': ['Enter a valid URL.']})
@@ -553,6 +536,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, token='invalidtoken')
         response = self.client.patch(mirror['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_patch_mirror_other_user(self):
         mirror = self.test_create_mirror()
@@ -616,12 +600,14 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 204)
         response = self.client.get(mirror['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_public_mirror_other_user(self):
         mirror = self.test_patch_mirror()
         authenticate(self.client, 'aaron')
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 403)
+        self.assertEquals(response.data, {'detail': 'You do not have permission to perform this action.'})
 
     def test_delete_public_mirror_same_group_other_user(self):
         mirror = self.test_patch_mirror(user='brandon')
@@ -635,6 +621,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'aaron')
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_mirror_super_user(self):
         mirror = self.test_create_mirror()
@@ -647,18 +634,21 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'charles')
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_mirror_invalid_token(self):
         mirror = self.test_create_mirror()
         authenticate(self.client, token='invalidtoken')
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_delete_mirror_deactivated_other_user(self, user='frank'):
         mirror = self.test_create_mirror()
         authenticate(self.client, user)
         response = self.client.delete(mirror['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_delete_mirror_deactivated_super_user(self):
         self.test_create_mirror()
@@ -672,7 +662,6 @@ class APIv1Tests(APITestCase):
 
     def test_get_correct_mirror_for_user(self):
         self.test_create_mirror()
-
         data = {'url': 'http://example2.com/',
                 'series': ['trusty'],
                 'components': ['main']}
@@ -700,7 +689,6 @@ class APIv1Tests(APITestCase):
         # This is a known issue: https://github.com/tomchristie/django-rest-framework/issues/3647
         data = {}
         authenticate(self.client, 'eric')
-
         response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {'mirrors': ['This field is required.']})
@@ -716,6 +704,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, token='invalidtoken')
         response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_create_mirrorset_invalid_mirrors(self):
         authenticate(self.client, 'eric')
@@ -757,6 +746,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, token='invalidtoken')
         response = self.client.patch(mirrorset['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_patch_mirrorset_other_user(self):
         mirrorset = self.test_create_mirrorset()
@@ -764,6 +754,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'aaron')
         response = self.client.patch(mirrorset['self'], data, format='json')
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_patch_mirrorset_other_user_same_group(self):
         mirrorset = self.test_create_mirrorset(user='brandon')
@@ -771,6 +762,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'charles')
         response = self.client.patch(mirrorset['self'], data, format='json')
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_patch_mirrorset_no_data(self):
         mirrorset = self.test_create_mirrorset()
@@ -803,6 +795,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, token='invalidtoken')
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_delete_mirrorset_super_user(self):
         mirrorset = self.test_create_mirrorset()
@@ -815,24 +808,28 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'aaron')
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_mirrorset_other_user_same_group(self):
         mirrorset = self.test_create_mirrorset(user='brandon')
         authenticate(self.client, 'charles')
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_mirrorset_deactivated_super_user(self):
         mirrorset = self.test_create_mirrorset()
         authenticate(self.client, 'harold')
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_delete_mirrorset_deactivated_other_user(self):
         mirrorset = self.test_create_mirrorset()
         authenticate(self.client, 'frank')
         response = self.client.delete(mirrorset['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     ##################
     # Snapshot tests #
@@ -857,6 +854,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, token='invalidtoken')
         response = self.client.post(self.snapshot_list_url, data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
     def test_create_snapshot(self, user='eric'):
         response = self.test_create_mirrorset()
@@ -916,6 +914,7 @@ class APIv1Tests(APITestCase):
         data = {}
         response = self.client.patch(snapshot['self'], data, format='json')
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_patch_snapshot_deactive_super_user(self):
         self.test_patch_snapshot_deactive_user(user='harold')
@@ -945,6 +944,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'aaron')
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_snapshot_super_user(self):
         self.test_delete_snapshot(user='george')
@@ -954,12 +954,14 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'charles')
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data, {'detail': 'Not found.'})
 
     def test_delete_snapshot_deactivated_super_user(self, user='harold'):
         snapshot = self.test_create_snapshot()
         authenticate(self.client, user)
         response = self.client.delete(snapshot['self'])
         self.assertEquals(response.status_code, 401)
+        self.assertEquals(response.data, {'detail': 'User inactive or deleted.'})
 
     def test_delete_snapshot_deactivated_other_user(self):
         self.test_delete_snapshot_deactivated_super_user(user='frank')
@@ -988,7 +990,6 @@ class APIv2Tests(APIv1Tests):
     def test_builds_default_order(self):
         authenticate(self.client, 'eric')
         response = self.client.get(self.build_list_url)
-
         prev_build = None
         for build in response.data['results']:
             if prev_build:
@@ -999,7 +1000,6 @@ class APIv2Tests(APIv1Tests):
     def test_builds_specific_order(self):
         authenticate(self.client, 'eric')
         response = self.client.get(self.build_list_url + '?ordering=-build_started')
-
         prev_build = None
         for build in response.data['results']:
             if prev_build:
@@ -1030,18 +1030,18 @@ class APIv2Tests(APIv1Tests):
         return response.data
 
     def test_update_snapshot_mirrorset_400(self):
-        data = {'mirrorset': 'http://testserver/api/v2/mirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/'}
+        data = {'mirrorset': 'http://testserver%smirror_sets/60d0ba66-d343-404b-a6e6-5c141db11a54/' % (self.base_url,)}
         authenticate(self.client, 'eric')
         response = self.client.patch(self.snapshot_list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
         self.assertEquals(response.status_code, 400)
-        return response.data
+        self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
 
-    def test_update_snapshot_timestamp_403(self):
+    def test_update_snapshot_timestamp_400(self):
         data = {'timestamp': '2015-11-13T11:53:09.496Z'}
         authenticate(self.client, 'eric')
         response = self.client.patch(self.snapshot_list_url + '470688a8-7294-4c17-b020-1d67aebaf972/', data, format='json')
         self.assertEquals(response.status_code, 400)
-        return response.data
+        self.assertEquals(response.data, {'detail': 'Method "PATCH" not allowed.'})
 
     def test_filter_snapshot_tag(self):
         data = {'tags': ['fourthtag', 'fifthtag']}
