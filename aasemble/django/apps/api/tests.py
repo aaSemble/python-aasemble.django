@@ -2,14 +2,14 @@ import os.path
 
 from collections import OrderedDict
 
-from aasemble.django.apps.mirrorsvc.models import Snapshot
-
 import mock
 
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
 from six.moves.urllib.parse import urlparse
+
+from aasemble.django.apps.mirrorsvc.models import Snapshot
 
 
 def authenticate(client, username=None, token=None):
@@ -972,7 +972,7 @@ class APIv1Tests(APITestCase):
 
     def test_snapshot_create_sets_visible_flag_properly(self):
         snapshot = self.test_create_snapshot()
-        snapshot_pk = int(snapshot['self'][-2:-1])
+        snapshot_pk = int(snapshot['self'].split('/')[-2])
         snapshot_object = Snapshot.objects.get(pk=snapshot_pk)
         self.assertEqual(snapshot_object.visible_to_v1_api, True)
 
@@ -1084,7 +1084,7 @@ class APIv2Tests(APIv1Tests):
 
     def test_snapshot_create_sets_visible_flag_properly(self):
         snapshot = self.test_create_snapshot()
-        snapshot_uuid = snapshot['self'][-37:-1]
+        snapshot_uuid = snapshot['self'].split('/')[-2]
         snapshot_object = Snapshot.objects.get(uuid=snapshot_uuid)
         self.assertEqual(snapshot_object.visible_to_v1_api, False)
 
