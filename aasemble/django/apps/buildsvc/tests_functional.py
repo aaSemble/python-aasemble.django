@@ -90,7 +90,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         self.selenium.set_window_size(1024, 768)
         self.profile_button.click()
         self.assertEqual(self.verify_profile_page(username='brandon'), True, "Profile Name not verified")
- 
+
     def test_new_mirrors(self):
         ''' This tests validates if non public mirror is created'''
         new_mirror_button = (by.By.LINK_TEXT, 'New')
