@@ -2,11 +2,13 @@ import os
 import re
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test.utils import skipIf
+from django.test.utils import override_settings, skipIf
 
 from selenium.webdriver.common import by
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.ui import Select
+
+from aasemble.django.apps.buildsvc.tasks import poll_one
 
 from aasemble.django.tests import create_session_cookie, create_session_for_given_user
 
@@ -101,6 +103,40 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def profile_button(self):
         '''Finds package profile button'''
         return self.selenium.find_element(by.By.LINK_TEXT, 'Profile')
+
+    @override_settings(CELERY_ALWAYS_EAGER=True)
+    # This tests needs celery so overriding the settings
+    def test_build_packages(self):
+        '''This test perform a package addtion and check whether a build
+        started for the same.
+        1. Create a session cookie for given user. We are using a existing
+               user 'brandon' which is already added as fixture.
+        2. Try to create a package.
+        3. Poll the task for package creation. Polling should start the build
+        4. Verify that Building started and it is visible via GUI'''
+        session_cookie = create_session_for_given_user(username='brandon')
+        self.selenium.get(self.live_server_url)
+        self.selenium.add_cookie(session_cookie)
+        # test whether sources page opens after user logs in
+        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.set_window_size(1024, 768)
+        self.sources_button.click()
+        git_url = "https://github.com/aaSemble/python-aasemble.django.git"
+        self.create_new_package_source(git_url=git_url, branch='master', series='brandon/aasemble')
+        from .models import PackageSource
+        # Only one package is added with this url
+        P = PackageSource.objects.filter(git_url=git_url)[0]
+        try:
+            poll_one(P.id)
+        except:
+            # Marking Pass even if we got some exception during package build.
+            # Our verification is limited to UI inteface. Form UI, It should
+            # be visible (even if it has just started)
+            pass
+        finally:
+            self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+            self.build_button.click()
+            self.assertEqual(self.verify_build_displayed(packageName='python-aasemble.django.git'), True, 'Build not started')
 
     def test_overview_button(self):
         '''This test performs the test for overview button
@@ -202,3 +238,17 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def sources_button(self):
         '''Finds package source button'''
         return self.selenium.find_element(by.By.LINK_TEXT, 'Sources')
+
+    @property
+    def build_button(self):
+        '''Finds package source button'''
+        return self.selenium.find_element(by.By.LINK_TEXT, 'Builds')
+
+    def verify_build_displayed(self, packageName):
+        '''Verify whether the Build has started by package name'''
+        try:
+            self.selenium.find_element(by.By.CSS_SELECTOR, "a[href*='%s']" % packageName)
+        except:
+            return False
+        else:
+            return True
