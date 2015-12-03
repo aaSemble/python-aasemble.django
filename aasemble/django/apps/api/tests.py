@@ -979,7 +979,11 @@ class APIv1Tests(APITestCase):
         snapshot2['self'] = base_api_url + 'snapshots/2/'
         snapshot2['timestamp'] = '2015-11-13T11:53:08Z'
         snapshot2['mirrorset'] = base_api_url + 'mirror_sets/2/'
-        snapshot3 = self.test_create_snapshot()
+        snapshot_temp = self.test_create_snapshot()
+        snapshot3 = OrderedDict()
+        snapshot3['self'] = snapshot_temp['self']
+        snapshot3['timestamp'] = snapshot_temp['timestamp']
+        snapshot3['mirrorset'] = snapshot_temp['mirrorset']
         snapshots_list = [snapshot1, snapshot2, snapshot3]
         data = OrderedDict()
         data['count'] = 3
