@@ -213,9 +213,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
 
     def test_mirror_set(self):
         '''This test verifies the working of mirror set'''
-        session_cookie = create_session_for_given_user(username='brandon')
-        self.selenium.get(self.live_server_url)
-        self.selenium.add_cookie(session_cookie)
+        self.create_login_session('brandon')
         # test whether sources page opens after user logs in
         self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
         self.selenium.set_window_size(1024, 768)
