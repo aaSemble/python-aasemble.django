@@ -12,6 +12,8 @@
           <th>Source</th>
           <th>Version</th>
           <th>Build started</th>
+          <th>Build finished</th>
+          <th>Build status</th>
           <th>Build log</th>
         </tr>
       </thead>
@@ -22,6 +24,14 @@
           <td><a href="#">{{ build.source.name }}</a></td>
           <td><a href="#">{{ build.version }}</a></td>
           <td><a href="#">{{ build.build_started|naturaltime }}</a></td>
+          <td><a href="#">{{ build.build_finished|naturaltime }}</a></td>
+          <td><a href="#">
+              {% if build.build_finished %}
+                  Finished
+              {% else %}
+                  Running
+              {% endif %}
+          </a></td>
           <td><a href="{{ build.buildlog_url }}">Build log</a></td>
         </tr>
         {% endfor %}
