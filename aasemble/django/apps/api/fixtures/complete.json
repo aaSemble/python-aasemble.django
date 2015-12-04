@@ -1074,25 +1074,27 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.104Z",
+        "timestamp": "2015-11-13T11:53:07Z",
         "mirrorset": 1,
-        "uuid": "470688a8-7294-4c17-b020-1d67aebaf972"
+        "uuid": "470688a8-7294-4c17-b020-1d67aebaf972",
+        "visible_to_v1_api": true
     },
     "model": "mirrorsvc.snapshot",
     "pk": 1
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.251Z",
+        "timestamp": "2015-11-13T11:53:08Z",
         "mirrorset": 2,
-        "uuid": "550b80c8-0632-4f1e-b3d2-63392d82eeea"
+        "uuid": "550b80c8-0632-4f1e-b3d2-63392d82eeea",
+        "visible_to_v1_api": true
     },
     "model": "mirrorsvc.snapshot",
     "pk": 2
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.295Z",
+        "timestamp": "2015-11-13T11:53:09.000Z",
         "mirrorset": 3,
         "uuid": "f8e81e20-b6c3-4c92-b95a-8b8e9845aadd"
     },
@@ -1101,7 +1103,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.361Z",
+        "timestamp": "2015-11-13T11:53:10.000Z",
         "mirrorset": 1,
         "uuid": "c0412976-b9bd-4085-9c10-400a2261dbd1"
     },
@@ -1110,7 +1112,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.400Z",
+        "timestamp": "2015-11-13T11:53:11.000Z",
         "mirrorset": 2,
         "uuid": "c97fe86d-916e-4f6b-a102-68f8f37d74fc"
     },
@@ -1119,7 +1121,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.444Z",
+        "timestamp": "2015-11-13T11:53:12.000Z",
         "mirrorset": 3,
         "uuid": "af126da8-3573-4a14-b716-feb7649c0a5c"
     },
@@ -1128,7 +1130,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.498Z",
+        "timestamp": "2015-11-13T11:53:13.000Z",
         "mirrorset": 1,
         "uuid": "32d15c0d-53c3-4aba-bfdd-4f08be1d90bc"
     },
@@ -1137,7 +1139,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.551Z",
+        "timestamp": "2015-11-13T11:53:14.000Z",
         "mirrorset": 2,
         "uuid": "e22d5fed-fff6-490d-ba34-5825eb7cd196"
     },
@@ -1146,7 +1148,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.593Z",
+        "timestamp": "2015-11-13T11:53:15.000Z",
         "mirrorset": 3,
         "uuid": "4fa83ae6-f3c8-4732-8bca-f0517b8cf50c"
     },
@@ -1155,7 +1157,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.640Z",
+        "timestamp": "2015-11-13T11:53:16.000Z",
         "mirrorset": 1,
         "uuid": "eadaa794-77c6-4797-8be8-c06e2bfa0021"
     },
@@ -1164,7 +1166,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.689Z",
+        "timestamp": "2015-11-13T11:53:17.000Z",
         "mirrorset": 2,
         "uuid": "01563925-ba3f-476d-b496-2d9da8956268"
     },
@@ -1173,7 +1175,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.733Z",
+        "timestamp": "2015-11-13T11:53:18.000Z",
         "mirrorset": 3,
         "uuid": "a6ba9c12-af59-45b8-9fb5-2d3587942097"
     },
@@ -1182,7 +1184,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.774Z",
+        "timestamp": "2015-11-13T11:53:19.000Z",
         "mirrorset": 1,
         "uuid": "696c3384-b77b-4eac-b72b-ca840737b18a"
     },
@@ -1191,7 +1193,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.820Z",
+        "timestamp": "2015-11-13T11:53:20.000Z",
         "mirrorset": 2,
         "uuid": "35bfb3d1-c50f-440a-a92c-f749c80b9f89"
     },
@@ -1200,7 +1202,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.863Z",
+        "timestamp": "2015-11-13T11:53:21.000Z",
         "mirrorset": 3,
         "uuid": "00473394-9dc2-426b-8e7b-fdcd23b951eb"
     },
@@ -1209,7 +1211,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.913Z",
+        "timestamp": "2015-11-13T11:53:22.000Z",
         "mirrorset": 1,
         "uuid": "a04d3ea6-4690-4272-aa68-7e7a8868589c"
     },
@@ -1218,7 +1220,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:07.956Z",
+        "timestamp": "2015-11-13T11:53:23.000Z",
         "mirrorset": 2,
         "uuid": "43565902-ba72-4de8-a0f6-ce5292ea3e0f"
     },
@@ -1227,7 +1229,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.020Z",
+        "timestamp": "2015-11-13T11:53:24.000Z",
         "mirrorset": 3,
         "uuid": "3355b284-dbf6-4700-ad15-206e1e89baf0"
     },
@@ -1236,7 +1238,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.062Z",
+        "timestamp": "2015-11-13T11:53:25.000Z",
         "mirrorset": 1,
         "uuid": "d6ba9bc0-c454-499f-a4cd-6a8306fab3ee"
     },
@@ -1245,7 +1247,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.102Z",
+        "timestamp": "2015-11-13T11:53:26.000Z",
         "mirrorset": 2,
         "uuid": "fa41ee29-45d5-45b2-88ae-311b20ff6b59"
     },
@@ -1254,7 +1256,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.196Z",
+        "timestamp": "2015-11-13T11:53:27.000Z",
         "mirrorset": 3,
         "uuid": "98e037c2-8541-45c9-a33b-cd2959e6dba6"
     },
@@ -1263,7 +1265,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.238Z",
+        "timestamp": "2015-11-13T11:53:28.000Z",
         "mirrorset": 1,
         "uuid": "b771680d-5654-452f-b679-3adff760154a"
     },
@@ -1272,7 +1274,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.284Z",
+        "timestamp": "2015-11-13T11:53:29.000Z",
         "mirrorset": 2,
         "uuid": "552574dc-7947-4c5e-8246-22572b8e8eaf"
     },
@@ -1281,7 +1283,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.322Z",
+        "timestamp": "2015-11-13T11:53:30.000Z",
         "mirrorset": 3,
         "uuid": "5196ff80-3184-4cec-8522-2d140e6c9793"
     },
@@ -1290,7 +1292,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.368Z",
+        "timestamp": "2015-11-13T11:53:31.000Z",
         "mirrorset": 1,
         "uuid": "4131eedc-8979-4f28-b2a6-1a93bc1d5279"
     },
@@ -1299,7 +1301,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.414Z",
+        "timestamp": "2015-11-13T11:53:32.000Z",
         "mirrorset": 2,
         "uuid": "42f9a1e5-6aa5-4944-8c76-4b7112069cac"
     },
@@ -1308,7 +1310,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.466Z",
+        "timestamp": "2015-11-13T11:53:33.000Z",
         "mirrorset": 3,
         "uuid": "ceca852d-d266-4f80-9cdb-93c7fb8d7c3b"
     },
@@ -1317,7 +1319,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.512Z",
+        "timestamp": "2015-11-13T11:53:34.000Z",
         "mirrorset": 1,
         "uuid": "e7a206d4-e019-4553-9e3c-7e8832b569ff"
     },
@@ -1326,7 +1328,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.555Z",
+        "timestamp": "2015-11-13T11:53:35.000Z",
         "mirrorset": 2,
         "uuid": "afd897ba-6eca-4a13-a200-38cc04eb9a6f"
     },
@@ -1335,7 +1337,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.609Z",
+        "timestamp": "2015-11-13T11:53:36.000Z",
         "mirrorset": 3,
         "uuid": "223c03b8-6f59-46aa-87b8-75bcef6088c6"
     },
@@ -1344,7 +1346,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.649Z",
+        "timestamp": "2015-11-13T11:53:37.000Z",
         "mirrorset": 1,
         "uuid": "644c75d4-c068-430a-b97f-1ef77f5823b5"
     },
@@ -1353,7 +1355,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.747Z",
+        "timestamp": "2015-11-13T11:53:38.000Z",
         "mirrorset": 2,
         "uuid": "a92a9983-5e6d-49d4-9b73-7432d7374268"
     },
@@ -1362,7 +1364,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.799Z",
+        "timestamp": "2015-11-13T11:53:39.000Z",
         "mirrorset": 3,
         "uuid": "eb26b3ed-58db-4c0d-93c9-76a6bc0c675c"
     },
@@ -1371,7 +1373,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.838Z",
+        "timestamp": "2015-11-13T11:53:40.000Z",
         "mirrorset": 1,
         "uuid": "336ba32f-eba7-4f98-a7ce-996b74cf53d9"
     },
@@ -1380,7 +1382,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.879Z",
+        "timestamp": "2015-11-13T11:53:41.000Z",
         "mirrorset": 2,
         "uuid": "a248a5a0-d3e0-456b-9e81-d5a1232f3df5"
     },
@@ -1389,7 +1391,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.941Z",
+        "timestamp": "2015-11-13T11:53:42.000Z",
         "mirrorset": 3,
         "uuid": "0a6adf22-e035-4adc-b53f-ca9c0313b9b2"
     },
@@ -1398,7 +1400,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:08.991Z",
+        "timestamp": "2015-11-13T11:53:43.000Z",
         "mirrorset": 1,
         "uuid": "c28c40a3-ff13-4096-8773-1cadfb94e368"
     },
@@ -1407,7 +1409,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.030Z",
+        "timestamp": "2015-11-13T11:53:44.000Z",
         "mirrorset": 2,
         "uuid": "87fea807-1f18-48d7-9794-574663d1fbb9"
     },
@@ -1416,7 +1418,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.082Z",
+        "timestamp": "2015-11-13T11:53:45.000Z",
         "mirrorset": 3,
         "uuid": "d50a65f0-461c-4727-a797-0589fc002110"
     },
@@ -1425,7 +1427,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.123Z",
+        "timestamp": "2015-11-13T11:53:46.000Z",
         "mirrorset": 1,
         "uuid": "b3480374-7cb3-4748-9e13-6e4a9928af49"
     },
@@ -1434,7 +1436,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.169Z",
+        "timestamp": "2015-11-13T11:53:47.000Z",
         "mirrorset": 2,
         "uuid": "3cbf0018-c836-4fe7-ae06-3a7557d9799a"
     },
@@ -1443,7 +1445,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.225Z",
+        "timestamp": "2015-11-13T11:53:48.000Z",
         "mirrorset": 3,
         "uuid": "b1b5ab77-260e-4c9e-a08f-2f03c507fd77"
     },
@@ -1452,7 +1454,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.269Z",
+        "timestamp": "2015-11-13T11:53:49.000Z",
         "mirrorset": 1,
         "uuid": "5086f147-479b-439b-8c2e-731214f0e83e"
     },
@@ -1461,7 +1463,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.314Z",
+        "timestamp": "2015-11-13T11:53:50.000Z",
         "mirrorset": 2,
         "uuid": "26dc17c1-2c19-405c-8e1a-226f81a2b9b9"
     },
@@ -1470,7 +1472,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.360Z",
+        "timestamp": "2015-11-13T11:53:51.000Z",
         "mirrorset": 3,
         "uuid": "e2c73d86-79f6-4245-9152-89c89e93b54d"
     },
@@ -1479,7 +1481,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.395Z",
+        "timestamp": "2015-11-13T11:53:52.000Z",
         "mirrorset": 1,
         "uuid": "b5a2e1de-8b3b-4490-b2b5-5f3da3dbb318"
     },
@@ -1488,7 +1490,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.447Z",
+        "timestamp": "2015-11-13T11:53:53.000Z",
         "mirrorset": 2,
         "uuid": "75d51698-d66f-4770-a4ca-4bae6043df87"
     },
@@ -1497,7 +1499,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.496Z",
+        "timestamp": "2015-11-13T11:53:54.000Z",
         "mirrorset": 3,
         "uuid": "bbf90018-8368-4a3f-86cd-b4f3b649d180"
     },
@@ -1506,7 +1508,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.537Z",
+        "timestamp": "2015-11-13T11:53:55.000Z",
         "mirrorset": 1,
         "uuid": "8f1a7345-7006-4d60-aa4f-1609855c890d"
     },
@@ -1515,7 +1517,7 @@
 },
 {
     "fields": {
-        "timestamp": "2015-11-13T11:53:09.583Z",
+        "timestamp": "2015-11-13T11:53:56.000Z",
         "mirrorset": 2,
         "uuid": "eda315e6-bb34-4c0c-a957-ee9c675668df"
     },

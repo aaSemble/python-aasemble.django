@@ -128,10 +128,11 @@ class Snapshot(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     mirrorset = models.ForeignKey(MirrorSet)
+    visible_to_v1_api = models.BooleanField(default=False)
 
     @property
     def basepath(self):
-        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'snapshots', str(self.id))
+        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'snapshots', str(self.uuid))
         if not os.path.isdir(d):
             os.makedirs(d)
         return d
