@@ -249,12 +249,12 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 10)
 
-    @override_settings(INSTALLED_APPS=filter(lambda s:s != 'rest_framework_tracking', settings.INSTALLED_APPS))
+    @override_settings(INSTALLED_APPS=filter(lambda s: s != 'rest_framework_tracking', settings.INSTALLED_APPS))
     def test_fetch_builds_without_logging(self):
         authenticate(self.client, 'eric')
         # 3 queries: Authenticate, count results, fetch results
         with self.assertNumQueries(3):
-            response = self.client.get(self.build_list_url)
+            self.client.get(self.build_list_url)
 
     def test_source_is_linked_or_nested(self):
         authenticate(self.client, 'eric')
