@@ -16,4 +16,4 @@ redis
 django-bootstrap3
 github3.py
 docker-py==1.5.0
-git+https://github.com/mayankkapoor/drf-tracking
+git+https://github.com/aaSemble/drf-tracking

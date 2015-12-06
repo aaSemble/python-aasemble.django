@@ -14,8 +14,6 @@ from rest_framework.response import Response
 
 from rest_framework_nested import routers
 
-from rest_framework_tracking.mixins import LoggingMixin
-
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.exceptions import DuplicateResourceException
@@ -29,12 +27,28 @@ class GithubLogin(SocialLoginView):
     client_class = OAuth2Client
 
 
-class aaSembleV1ViewSet(LoggingMixin, viewsets.ModelViewSet):
-    pass
+class aaSembleV1ViewSet(viewsets.ModelViewSet):
+    def __new__(cls, *args, **kwargs):
+        bases = (cls,) + cls.__bases__
+        try:
+            from rest_framework_tracking.mixins import LoggingMixin
+            if 'rest_framework_tracking' in settings.INSTALLED_APPS:
+                bases = (LoggingMixin,) + bases
+        except ImportError:
+            pass
+        return viewsets.ModelViewSet.__new__(type('aaSembleV1ViewSet', bases, dict(cls.__dict__)))
 
 
-class aaSembleV1ReadOnlyViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
-    pass
+class aaSembleV1ReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+    def __new__(cls, *args, **kwargs):
+        bases = (cls,) + cls.__bases__
+        try:
+            from rest_framework_tracking.mixins import LoggingMixin
+            if 'rest_framework_tracking' in settings.INSTALLED_APPS:
+                bases = (LoggingMixin,) + bases
+        except ImportError:
+            pass
+        return viewsets.ReadOnlyModelViewSet.__new__(type('aaSembleV1ReadOnlyViewSet', bases, dict(cls.__dict__)))
 
 
 class aaSembleV1Views(object):
