@@ -269,7 +269,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'eric')
         # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
         # rollback transaction, log response
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             response = self.client.get(self.build_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 10)
@@ -303,7 +303,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'eric')
         # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
         # rollback transaction, log response
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             response = self.client.get(self.source_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 12)
@@ -315,7 +315,7 @@ class APIv1Tests(APITestCase):
             if res['name'] == 'eric2':
                 # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
                 # rollback transaction, log response
-                with self.assertNumQueries(6):
+                with self.assertNumQueries(7):
                     response = self.client.get(res['sources'])
                 self.assertEquals(response.status_code, 200)
                 self.assertEquals(response.data['count'], 2)
