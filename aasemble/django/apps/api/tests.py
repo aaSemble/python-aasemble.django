@@ -410,6 +410,16 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['repository'], repo.data['results'][1]['self'])
 
+    def test_patch_soure_authoritative_group_member(self):
+        authenticate(self.client, 'dennis')
+        source = self.client.get(self.source_list_url)
+        authenticate(self.client, 'brandon')
+        repo = self.client.get(self.repository_list_url)
+        data = {'repository': repo.data['results'][0]['self']}
+        response = self.client.patch(source.data['results'][0]['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['repository'], repo.data['results'][0]['self'])
+
     def test_patch_source_invalid_data(self):
         source = self.test_create_source()
         data = {'repository': 'invalid repo URL'}
@@ -487,6 +497,13 @@ class APIv1Tests(APITestCase):
         source = self.test_create_source()
         authenticate(self.client, 'george')
         response = self.client.delete(source['self'])
+        self.assertEquals(response.status_code, 204)
+
+    def test_delete_source_authoritative_group_member(self):
+        authenticate(self.client, 'dennis')
+        source = self.client.get(self.source_list_url)
+        authenticate(self.client, 'brandon')
+        response = self.client.delete(source.data['results'][0]['self'])
         self.assertEquals(response.status_code, 204)
 
     def test_delete_source_invalid_token(self):
