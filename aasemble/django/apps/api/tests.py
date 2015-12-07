@@ -128,7 +128,7 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 404)
         self.assertEquals(response.data, {'detail': 'Not found.'})
 
-    def test_delete_repository_authorative_group_member(self):
+    def test_delete_repository_authoritative_group_member(self):
         authenticate(self.client, 'dennis')
         response = self.client.get(self.repository_list_url)
         authenticate(self.client, 'brandon')
@@ -160,7 +160,7 @@ class APIv1Tests(APITestCase):
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result, 'Changes were not persisted')
 
-    def test_patch_repository_authorative_group_member(self):
+    def test_patch_repository_authoritative_group_member(self):
         authenticate(self.client, 'dennis')
         response = self.client.get(self.repository_list_url)
         authenticate(self.client, 'brandon')
@@ -175,7 +175,7 @@ class APIv1Tests(APITestCase):
         response = self.client.patch(repo['self'], data, format='json')
         self.assertNotEquals(response.data['user'], 'testuser2', '"user" read-only field changed')
 
-    def test_patch_repository_authorative_group_member_read_only_field(self):
+    def test_patch_repository_authoritative_group_member_read_only_field(self):
         authenticate(self.client, 'dennis')
         response = self.client.get(self.repository_list_url)
         authenticate(self.client, 'brandon')
