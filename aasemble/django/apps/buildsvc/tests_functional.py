@@ -211,6 +211,26 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         else:
             return True
 
+    def test_mirror_set(self):
+        '''This test verifies the working of mirror set'''
+        self.create_login_session('brandon')
+        # test whether sources page opens after user logs in
+        self.selenium.get(self.live_server_url)
+        self.selenium.set_window_size(1024, 768)
+        self.mirror_set_button.click()
+        self.new_submit_button.click()
+        self.selenium.find_element(by.By.ID, 'id_name').send_keys('mySet')
+        # Selecting all options
+        options = self.selenium.find_element(by.By.ID, 'id_mirrors')
+        for option in options.find_elements(by.By.TAG_NAME, 'option'):
+            option.click()
+        self.new_submit_button.click()
+
+    @property
+    def mirror_set_button(self):
+        '''Finds the mirror set button'''
+        return self.selenium.find_element(by.By.LINK_TEXT, 'Mirror-Sets')
+
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create
         a package. This consists of following steps:
