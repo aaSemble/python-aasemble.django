@@ -128,6 +128,13 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 404)
         self.assertEquals(response.data, {'detail': 'Not found.'})
 
+    def test_delete_repository_authoritative_group_member(self):
+        authenticate(self.client, 'dennis')
+        response = self.client.get(self.repository_list_url)
+        authenticate(self.client, 'brandon')
+        response = self.client.delete(response.data['results'][0]['self'])
+        self.assertEquals(response.status_code, 204)
+
     def test_delete_repository_same_group_different_member(self):
         repo = self.test_create_repository(user='brandon')
         authenticate(self.client, 'charles')
@@ -153,10 +160,27 @@ class APIv1Tests(APITestCase):
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result, 'Changes were not persisted')
 
+    def test_patch_repository_authoritative_group_member(self):
+        authenticate(self.client, 'dennis')
+        response = self.client.get(self.repository_list_url)
+        authenticate(self.client, 'brandon')
+        data = {'name': 'testrepo2'}
+        response = self.client.patch(response.data['results'][0]['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['name'], 'testrepo2')
+
     def test_patch_repository_read_only_field(self):
         repo = self.test_create_repository()
         data = {'user': 'testuser2'}
         response = self.client.patch(repo['self'], data, format='json')
+        self.assertNotEquals(response.data['user'], 'testuser2', '"user" read-only field changed')
+
+    def test_patch_repository_authoritative_group_member_read_only_field(self):
+        authenticate(self.client, 'dennis')
+        response = self.client.get(self.repository_list_url)
+        authenticate(self.client, 'brandon')
+        data = {'user': 'testuser2'}
+        response = self.client.patch(response.data['results'][0]['self'], data, format='json')
         self.assertNotEquals(response.data['user'], 'testuser2', '"user" read-only field changed')
 
     def test_delete_deleted_repository(self):
@@ -201,6 +225,7 @@ class APIv1Tests(APITestCase):
         authenticate(self.client, 'george')
         response = self.client.patch(repo['self'], data, format='json')
         self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['name'], 'testrepo2')
 
     def test_patch_repository_deactivated_super_user(self):
         repo = self.test_create_repository()
@@ -385,6 +410,16 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['repository'], repo.data['results'][1]['self'])
 
+    def test_patch_soure_authoritative_group_member(self):
+        authenticate(self.client, 'dennis')
+        source = self.client.get(self.source_list_url)
+        authenticate(self.client, 'brandon')
+        repo = self.client.get(self.repository_list_url)
+        data = {'repository': repo.data['results'][0]['self']}
+        response = self.client.patch(source.data['results'][0]['self'], data, format='json')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['repository'], repo.data['results'][0]['self'])
+
     def test_patch_source_invalid_data(self):
         source = self.test_create_source()
         data = {'repository': 'invalid repo URL'}
@@ -462,6 +497,13 @@ class APIv1Tests(APITestCase):
         source = self.test_create_source()
         authenticate(self.client, 'george')
         response = self.client.delete(source['self'])
+        self.assertEquals(response.status_code, 204)
+
+    def test_delete_source_authoritative_group_member(self):
+        authenticate(self.client, 'dennis')
+        source = self.client.get(self.source_list_url)
+        authenticate(self.client, 'brandon')
+        response = self.client.delete(source.data['results'][0]['self'])
         self.assertEquals(response.status_code, 204)
 
     def test_delete_source_invalid_token(self):
