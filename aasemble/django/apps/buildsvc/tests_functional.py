@@ -25,7 +25,6 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         super(RepositoryFunctionalTests, cls).setUpClass()
         cls.selenium = WebDriver()
         cls.selenium.maximize_window()
-        cls.selenium.set_window_size(1024, 768)
 
     @classmethod
     def tearDownClass(cls):
