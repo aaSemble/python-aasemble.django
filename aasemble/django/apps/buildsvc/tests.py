@@ -74,6 +74,10 @@ class RepositoryTestCase(TestCase):
         brandon = auth_models.User.objects.get(id=2)
         self.assertEquals(set([1, 3]), set([repo.id for repo in Repository.lookup_by_user(brandon)]))
 
+    def test_lookup_by_deactive_user_not_possible(self):
+        frank = auth_models.User.objects.get(id=6)
+        self.assertEquals(set(), set([repo.id for repo in Repository.lookup_by_user(frank)]))
+
     def test_user_can_modify_own_repo(self):
         eric = auth_models.User.objects.get(id=5)
         self.assertTrue(Repository.objects.get(id=4).user_can_modify(eric))
