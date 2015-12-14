@@ -79,6 +79,14 @@ class RepositoryTestCase(TestCase):
         self.assertTrue(Repository.objects.get(id=4).user_can_modify(eric))
         self.assertTrue(Repository.objects.get(id=12).user_can_modify(eric))
 
+    def test_super_user_can_modify_repo(self):
+        george = auth_models.User.objects.get(id=7)
+        self.assertTrue(Repository.objects.get(id=4).user_can_modify(george))
+
+    def test_extra_admin_user_modify_repo(self):
+        brandon = auth_models.User.objects.get(id=2)
+        self.assertTrue(Repository.objects.get(id=3).user_can_modify(brandon))
+
     def test_user_can_modify_other_repo(self):
         charles = auth_models.User.objects.get(id=3)
         self.assertTrue(Repository.objects.get(id=3).user_can_modify(charles))
@@ -86,6 +94,10 @@ class RepositoryTestCase(TestCase):
     def test_user_can_not_modify_other_repo(self):
         brandon = auth_models.User.objects.get(id=2)
         self.assertFalse(Repository.objects.get(id=12).user_can_modify(brandon))
+
+    def test_deactivated_super_user_can_not_modify_own_repo(self):
+        harold = auth_models.User.objects.get(id=8)
+        self.assertFalse(Repository.objects.get(id=8).user_can_modify(harold))
 
     def test_ensure_key_noop_when_key_id_set(self):
         repo = Repository.objects.get(id=1)
