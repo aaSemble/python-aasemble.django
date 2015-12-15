@@ -20,7 +20,6 @@ class aaSembleAPIv1Serializers(object):
         self.BuildRecordSerializer = self.BuildRecordSerializerFactory()
         self.ExternalDependencySerializer = self.ExternalDependencySerializerFactory()
         self.RepositorySerializer = self.RepositorySerializerFactory()
-        self.MirrorSerializer = self.MirrorSerializerFactory()
 
     class SimpleListField(serializers.ListField):
         child = serializers.CharField()
