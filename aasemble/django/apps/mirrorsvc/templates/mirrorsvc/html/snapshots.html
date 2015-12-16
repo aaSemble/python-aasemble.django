@@ -23,7 +23,7 @@
           <td>{{ snapshot.uuid }}</td>
           <td>{{ snapshot.timestamp }}</td>
           <td>
-              {% for tag in snapshot.tags %}
+              {% for tag in snapshot.tags.all %}
                   <a href="{% url "mirrorsvc:snapshot_add_tag" snapshot_uuid=snapshot.uuid tag_id=tag.id %}">{{ tag.tag }} </a>
               {% endfor %}
           </td>

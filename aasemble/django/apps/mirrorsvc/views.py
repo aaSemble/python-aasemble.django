@@ -121,7 +121,7 @@ def snapshot_add_tag(request, snapshot_uuid, tag_id):
         form = get_tag_definition_form(request, instance=tag)
 
     return render(request, 'mirrorsvc/html/tag_definition.html',
-                  {'form': form, 'snapshot_uuid': snapshot.uuid})
+                  {'form': form, 'snapshot_uuid': snapshot.uuid, 'tag_id': tag_id})
 
 
 @login_required
