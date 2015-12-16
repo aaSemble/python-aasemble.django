@@ -65,7 +65,6 @@ def mirrorset_definition(request, uuid):
             new_mirrorset = form.save(commit=False)
             new_mirrorset.owner = request.user
             new_mirrorset.save()
-            print("new_mirrorset saved")
             return HttpResponseRedirect(reverse('mirrorsvc:mirrorsets'))
     else:
         form = get_mirrorset_definition_form(request, instance=mirrorset)
@@ -115,7 +114,6 @@ def snapshot_add_tag(request, snapshot_uuid, tag_id):
             new_tag = form.save(commit=False)
             new_tag.snapshot = snapshot
             new_tag.save()
-            print("new_tag saved")
             return HttpResponseRedirect(reverse('mirrorsvc:snapshots'))
     else:
         form = get_tag_definition_form(request, instance=tag)
