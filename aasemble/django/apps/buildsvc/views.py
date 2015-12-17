@@ -70,7 +70,6 @@ def external_dependency(request, dependency_uuid):
         if ((form.is_valid() and
              form.cleaned_data['own_series'].user_can_modify(request.user))):
             form.save()
-            print("new_dependency saved")
             return HttpResponseRedirect(reverse('buildsvc:external_dependencies'))
     else:
         form = get_external_dependency_form(request, instance=dependency)
