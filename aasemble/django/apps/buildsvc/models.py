@@ -258,7 +258,7 @@ class PackageSource(models.Model):
         try:
             stdout = run_cmd(cmd)
             stdout = stdout.decode()
-        except CommandFailed, e:
+        except CommandFailed as e:
             self.last_failure_time = now()
             self.last_failure = e.stdout
             self.disabled = True
