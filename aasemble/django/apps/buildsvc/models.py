@@ -12,7 +12,6 @@ import deb822
 from django.conf import settings
 from django.contrib.auth import models as auth_models
 from django.db import models
-from django.forms import ModelForm
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.module_loading import import_string
@@ -463,9 +462,3 @@ class GithubRepository(models.Model):
                   repo_name=github_repo['name'])
         obj.save()
         return obj
-
-
-class PackageSourceForm(ModelForm):
-    class Meta:
-        model = PackageSource
-        fields = ['git_url', 'branch', 'series']
