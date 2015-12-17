@@ -735,7 +735,7 @@ class APIv1Tests(APITestCase):
     def test_refresh_mirror_status(self, refresh_mirror):
         mirror_dict = self.test_create_mirror()
         mirror_id = int(mirror_dict['self'].split('/')[-2])
-        refresh_mirror.assert_called_with(mirror_id)
+        refresh_mirror.delay.assert_called_with(mirror_id)
         response = self.client.post(mirror_dict['self'] + 'refresh/')
         self.assertEquals(response.data['status'], 'update already scheduled')
 
@@ -1167,7 +1167,7 @@ class APIv2Tests(APIv1Tests):
         mirror_dict = self.test_create_mirror()
         mirror_uuid = mirror_dict['self'].split('/')[-2]
         mirror = Mirror.objects.get(uuid=mirror_uuid)
-        refresh_mirror.assert_called_with(mirror.id)
+        refresh_mirror.delay.assert_called_with(mirror.id)
         response = self.client.post(mirror_dict['self'] + 'refresh/')
         self.assertEquals(response.data['status'], 'update already scheduled')
 
