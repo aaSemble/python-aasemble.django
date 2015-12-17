@@ -67,7 +67,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
            5. Verify if the package has been deleted'''
         self.create_login_session('brandon')
         # test whether sources page opens after user logs in
-        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.get(self.live_server_url)
         self.selenium.set_window_size(1024, 768)
         self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
@@ -84,7 +84,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         3. Verify page by username'''
         self.create_login_session('brandon')
         # test whether sources page opens after user logs in
-        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.get(self.live_server_url)
         self.selenium.set_window_size(1024, 768)
         self.profile_button.click()
         self.assertEqual(self.verify_profile_page('brandon'), True, "Profile Name not verified")
@@ -143,7 +143,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         4. Verify that Building started and it is visible via GUI'''
         self.create_login_session('brandon')
         # test whether sources page opens after user logs in
-        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.get(self.live_server_url)
         self.selenium.set_window_size(1024, 768)
         self.sources_button.click()
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
@@ -171,7 +171,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         3. Verify whether 'Dashboard' came.'''
         self.create_login_session('brandon')
         # test whether sources page opens after user logs in
-        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.get(self.live_server_url)
         self.selenium.set_window_size(1024, 768)
         self.overview_button.click()
         pageHeader = self.get_page_header_value()
@@ -194,7 +194,7 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
         3. Verify that we came to login page.'''
         self.create_login_session('brandon')
         # test whether sources page opens after user logs in
-        self.selenium.get('%s%s' % (self.live_server_url, '/buildsvc/sources/'))
+        self.selenium.get(self.live_server_url)
         self.selenium.set_window_size(1024, 768)
         self.logout_button.click()
         self.assertEqual(self.verify_login_page(), True, "Logout didn't work")
@@ -231,6 +231,30 @@ class RepositoryFunctionalTests(StaticLiveServerTestCase):
     def mirror_set_button(self):
         '''Finds the mirror set button'''
         return self.selenium.find_element(by.By.LINK_TEXT, 'Mirror-Sets')
+
+    def test_snapshot_operations(self):
+        '''This test verifies the operations snapshot.
+         ' Steps:
+         1. Create new mirror and mirrorset for user 'brandon'.
+         2. "View snapshot" for its first (only in this case) mirrorset.
+         3. Save the number of lines in tables.
+         4. Create a snaphot
+         5. Repeat step 3.
+         6. Difference should be exaclty one.'''
+        self.test_new_mirrors()
+        self.test_mirror_set()
+        self.create_login_session('brandon')
+        self.selenium.set_window_size(1024, 768)
+        self.selenium.get(self.live_server_url)
+        self.mirror_set_button.click()
+        viewButton = self.selenium.find_element(by.By.XPATH, "//a[contains(text(), 'View snapshots')]")
+        viewButton.click()
+        existingSnaps = self.selenium.find_elements(by.By.XPATH, "//table[@class='table table-striped']//tr")
+        noOfExistingSnapsPrevious = len(existingSnaps)
+        self.new_submit_button.click()
+        existingSnaps = self.selenium.find_elements(by.By.XPATH, "//table[@class='table table-striped']//tr")
+        noOfExistingSnapsAfter = len(existingSnaps)
+        self.assertEqual(noOfExistingSnapsAfter - noOfExistingSnapsPrevious, 1, "SnapShot didn't created")
 
     def create_new_package_source(self, git_url, branch, series):
         '''This is the helper method to create
