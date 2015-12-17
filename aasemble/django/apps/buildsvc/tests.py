@@ -12,6 +12,7 @@ import github3
 import mock
 
 from aasemble.django.tests import AasembleTestCase as TestCase
+from aasemble.django.exceptions import CommandFailed
 
 from .models import BuildRecord, NotAValidGithubRepository, PackageSource, Repository, Series
 
@@ -356,3 +357,32 @@ class PackageSourceTestCase(TestCase):
 
         self.assertTrue(ps.register_webhook())
         GitHub.assert_not_called()
+
+    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    def test_poll_no_changes(self, run_cmd):
+        run_cmd.return_value = 'cdf46dc0-a49c-11e5-b00a-c712eaff3d7b	refs/heads/master\n'
+        ps = PackageSource.objects.get(id=1)
+        self.assertFalse(ps.poll())
+        run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
+
+    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    def test_poll_changes(self, run_cmd):
+        run_cmd.return_value = 'cdf46dc0-a49c-11e5-b00a-c712eaff3d7c	refs/heads/master\n'
+        ps = PackageSource.objects.get(id=1)
+        self.assertTrue(ps.poll())
+        run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
+
+    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    def test_poll_fails(self, run_cmd):
+        run_cmd.side_effect = CommandFailed("['git', 'ls-remote', u'https://github.com/eric/project0', u'refs/heads/master'] "
+                                            "returned 128. Output: fatal: could not read Username for 'https://github.com': "
+                                            "No such device or address\n",
+                                            ['git', 'ls-remote', u'https://github.com/eric/project0', u'refs/heads/master'], 128,
+                                            "fatal: could not read Username for 'https://github.com': No such device or address\n",
+                                            None)
+        ps = PackageSource.objects.get(id=1)
+        self.assertFalse(ps.poll())
+        run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
+        self.assertTrue(ps.disabled)
+        self.assertTrue(ps.last_failure_time)
+        self.assertEquals(ps.last_failure, "fatal: could not read Username for 'https://github.com': No such device or address\n")

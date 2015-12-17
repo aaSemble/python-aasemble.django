@@ -16,6 +16,7 @@ from django.forms import ModelForm
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.module_loading import import_string
+from django.utils.timezone import now
 
 import github3
 
@@ -23,6 +24,7 @@ from six.moves.urllib.parse import urlparse
 
 from . import tasks
 from ...utils import recursive_render, run_cmd
+from ...exceptions import CommandFailed
 
 LOG = logging.getLogger(__name__)
 
@@ -243,6 +245,9 @@ class PackageSource(models.Model):
     last_built_name = models.CharField(max_length=64, null=True, blank=True)
     build_counter = models.IntegerField(default=0)
     webhook_registered = models.BooleanField(default=False)
+    last_failure_time = models.DateTimeField(null=True, blank=True)
+    last_failure = models.CharField(max_length=255, null=True, blank=True)
+    disabled = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s/%s' % (self.git_url, self.branch)
@@ -250,10 +255,19 @@ class PackageSource(models.Model):
     def poll(self):
         cmd = ['git', 'ls-remote', self.git_url,
                'refs/heads/%s' % self.branch]
-        stdout = run_cmd(cmd)
-        stdout = stdout.decode()
+        try:
+            stdout = run_cmd(cmd)
+            stdout = stdout.decode()
+        except CommandFailed, e:
+            self.last_failure_time = now()
+            self.last_failure = e.stdout
+            self.disabled = True
+            self.save()
+            return False
+
         sha = stdout.split('\t')[0]
 
+        print sha, self.last_seen_revision, sha == self.last_seen_revision
         if sha == self.last_seen_revision:
             return False
 
