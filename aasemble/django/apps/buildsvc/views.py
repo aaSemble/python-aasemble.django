@@ -101,4 +101,4 @@ def repositories(request):
 @login_required
 def external_dependencies(request):
     dependencies = ExternalDependency.lookup_by_user(request.user)
-    return render(request, 'buildsvc/html/', {'dependencies': dependencies})
+    return render(request, 'buildsvc/html/external_dependencies.html', {'dependencies': dependencies})

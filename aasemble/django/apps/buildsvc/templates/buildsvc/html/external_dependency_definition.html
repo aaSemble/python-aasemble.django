@@ -1,14 +1,14 @@
 {% extends 'aasemble/base.html' %}
 {% load bootstrap3 %}
 {% block title %}
-    {% if dependency_id != 'new' %}
+    {% if dependency_uuid != 'new' %}
         Edit External Dependency
     {% else %}
         Add new External Dependency
     {% endif %}
 {% endblock %}
 {% block aasemble_content %}
-<form action="{% url "buildsvc:dependency_definition" dependency_uuid= %}" method="post">
+<form action="{% url "buildsvc:dependency_definition" dependency_uuid=dependency_uuid %}" method="post">
     {% csrf_token %}
     {% bootstrap_form form layout='inline' %}
     {% buttons %}
