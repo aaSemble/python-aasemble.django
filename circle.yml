@@ -1,6 +1,7 @@
 dependencies:
   override:
-    - rm -rf virtuelenvs
+    - rm -rf $VIRTUAL_ENV
+    - virtualenv $VIRTUAL_ENV
     - pip install -U pip
     - pip install -U "Django<1.9"
     - pip install -r requirements.txt
