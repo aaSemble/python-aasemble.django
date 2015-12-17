@@ -267,7 +267,6 @@ class PackageSource(models.Model):
 
         sha = stdout.split('\t')[0]
 
-        print sha, self.last_seen_revision, sha == self.last_seen_revision
         if sha == self.last_seen_revision:
             return False
 
