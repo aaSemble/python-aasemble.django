@@ -99,6 +99,10 @@ class RepositoryTestCase(TestCase):
         brandon = auth_models.User.objects.get(id=2)
         self.assertFalse(Repository.objects.get(id=12).user_can_modify(brandon))
 
+    def test_user_same_group_can_modify_other_repo(self):
+        brandon = auth_models.User.objects.get(id=2)
+        self.assertFalse(Repository.objects.get(id=2).user_can_modify(brandon))
+
     def test_deactivated_super_user_can_not_modify_own_repo(self):
         harold = auth_models.User.objects.get(id=8)
         self.assertFalse(Repository.objects.get(id=8).user_can_modify(harold))
