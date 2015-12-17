@@ -11,8 +11,8 @@ import github3
 
 import mock
 
-from aasemble.django.tests import AasembleTestCase as TestCase
 from aasemble.django.exceptions import CommandFailed
+from aasemble.django.tests import AasembleTestCase as TestCase
 
 from .models import BuildRecord, NotAValidGithubRepository, PackageSource, Repository, Series
 

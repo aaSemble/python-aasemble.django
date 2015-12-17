@@ -23,8 +23,8 @@ import github3
 from six.moves.urllib.parse import urlparse
 
 from . import tasks
-from ...utils import recursive_render, run_cmd
 from ...exceptions import CommandFailed
+from ...utils import recursive_render, run_cmd
 
 LOG = logging.getLogger(__name__)
 
