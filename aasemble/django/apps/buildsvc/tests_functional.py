@@ -3,10 +3,10 @@ import re
 
 from django.test.utils import override_settings, skipIf
 
-from aasemble.django.apps.buildsvc.test.basewebobject import WebObject
-from aasemble.django.apps.buildsvc.test.aaSemblepage import BuildPage, LogoutPage, MirrorSetPage, MirrorsPage, OverviewPage, ProfilePage, SourcePage
-
 from aasemble.django.apps.buildsvc.tasks import poll_one
+
+from aasemble.django.apps.buildsvc.test.aaSemblepage import BuildPage, LogoutPage, MirrorSetPage, MirrorsPage, OverviewPage, ProfilePage, SourcePage
+from aasemble.django.apps.buildsvc.test.basewebobject import WebObject
 
 from aasemble.django.tests import create_session_cookie
 
