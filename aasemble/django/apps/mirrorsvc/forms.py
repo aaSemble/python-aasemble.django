@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 
-from aasemble.django.apps.mirrorsvc.models import Mirror, MirrorSet
+from aasemble.django.apps.mirrorsvc.models import Mirror, MirrorSet, Tags
 
 
 class MirrorDefinitionForm(ModelForm):
@@ -13,3 +13,9 @@ class MirrorSetDefinitionForm(ModelForm):
     class Meta:
         model = MirrorSet
         fields = ['name', 'mirrors']
+
+
+class TagDefinitionForm(ModelForm):
+    class Meta:
+        model = Tags
+        fields = ['tag']
