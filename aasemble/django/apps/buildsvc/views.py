@@ -4,8 +4,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from .forms import PackageSourceForm
-from .models import BuildRecord, PackageSource, Repository, Series
+from .forms import ExternalDependencyForm, PackageSourceForm
+from .models import BuildRecord, ExternalDependency, PackageSource, Repository, Series
 
 
 def get_package_source_form(request, *args, **kwargs):
@@ -45,6 +45,40 @@ def package_source(request, source_id):
                   {'form': form, 'source_id': source_id})
 
 
+def get_external_dependency_form(request, *args, **kwargs):
+    form = ExternalDependencyForm(*args, **kwargs)
+
+    return form
+
+
+@login_required
+def external_dependency(request, dependency_uuid):
+    if dependency_uuid == 'new':
+        dependency = None
+    else:
+        dependency = ExternalDependency.objects.get(uuid=dependency_uuid)
+        if not dependency.user_can_modify(request.user):
+            dependency, dependency_uuid = None, 'new'
+
+    if request.method == 'POST':
+        form = get_external_dependency_form(request, request.POST, instance=dependency)
+
+        if dependency is not None and request.POST.get('delete', '') == 'delete':
+            dependency.delete()
+            return HttpResponseRedirect(reverse('buildsvc:external_dependencies'))
+
+        if ((form.is_valid() and
+             form.cleaned_data['own_series'].user_can_modify(request.user))):
+            form.save()
+            print("new_dependency saved")
+            return HttpResponseRedirect(reverse('buildsvc:external_dependencies'))
+    else:
+        form = get_external_dependency_form(request, instance=dependency)
+
+    return render(request, 'buildsvc/html/external_dependency_definition.html',
+                  {'form': form, 'dependency_uuid': dependency_uuid})
+
+
 @login_required
 def sources(request):
     sources = PackageSource.objects.filter(series__repository__in=Repository.lookup_by_user(request.user))
@@ -62,3 +96,9 @@ def repositories(request):
     repositories = Repository.lookup_by_user(request.user)
     return render(request, 'buildsvc/html/repositories.html',
                   {'repositories': repositories, 'settings': settings})
+
+
+@login_required
+def external_dependencies(request):
+    dependencies = ExternalDependency.lookup_by_user(request.user)
+    return render(request, 'buildsvc/html/', {'dependencies': dependencies})

@@ -226,6 +226,14 @@ class ExternalDependency(models.Model):
     def user_can_modify(self, user):
         return self.own_series.user_can_modify(user)
 
+    @classmethod
+    def lookup_by_user(cls, user):
+        if not user.is_active:
+            return cls.objects.none()
+        if user.is_superuser:
+            return cls.objects.all()
+        return cls.objects.filter(own_series__repository__user=user) | cls.objects.filter(own_series__repository__extra_admins__in=user.groups.all())
+
 
 class NotAValidGithubRepository(Exception):
     pass
