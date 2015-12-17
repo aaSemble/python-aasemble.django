@@ -641,7 +641,7 @@
 },
 {
     "fields": {
-        "last_seen_revision": null,
+        "last_seen_revision": "cdf46dc0-a49c-11e5-b00a-c712eaff3d7b",
         "last_built_version": null,
         "uuid": "fd0e978c-4b6d-4174-9491-070fe1736110",
         "series": 4,
