@@ -360,14 +360,14 @@ class PackageSourceTestCase(TestCase):
 
     @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
     def test_poll_no_changes(self, run_cmd):
-        run_cmd.return_value = 'cdf46dc0-a49c-11e5-b00a-c712eaff3d7b	refs/heads/master\n'
+        run_cmd.return_value = b'cdf46dc0-a49c-11e5-b00a-c712eaff3d7b	refs/heads/master\n'
         ps = PackageSource.objects.get(id=1)
         self.assertFalse(ps.poll())
         run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
 
     @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
     def test_poll_changes(self, run_cmd):
-        run_cmd.return_value = 'cdf46dc0-a49c-11e5-b00a-c712eaff3d7c	refs/heads/master\n'
+        run_cmd.return_value = b'cdf46dc0-a49c-11e5-b00a-c712eaff3d7c	refs/heads/master\n'
         ps = PackageSource.objects.get(id=1)
         self.assertTrue(ps.poll())
         run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
