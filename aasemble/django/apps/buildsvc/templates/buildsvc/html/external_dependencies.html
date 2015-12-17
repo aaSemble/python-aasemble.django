@@ -1,0 +1,31 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+
+{% block title %}External Dependencies{% endblock %}
+{% block aasemble_content %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th>UUID</th>
+          <th>External APT Repo</th>
+          <th>Dependency for</th>
+          <th>Key</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dependency in dependencies %}
+        <tr>
+          <td><small><a href="{% url "buildsvc:dependency_definition" dependency_uuid=dependency.uuid %}">{% bootstrap_icon "pencil" %}</a></small></td>
+          <td>{{ dependency.uuid }}</td>
+          <td>{{ dependency.deb_line }}</td>
+          <td>{{ dependency.own_series }}</td>
+          <td>{{ dependency.key }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <a class="btn btn-primary" href="{% url "buildsvc:dependency_definition" dependency_uuid='new' %}" role="button">{% bootstrap_icon "plus" %} New</a>
+{% endblock %}
