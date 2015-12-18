@@ -76,6 +76,20 @@ class RepositoryFunctionalTests(WebObject):
         profilePage.profile_button.click()
         self.assertEqual(profilePage.verify_profile_page('brandon'), True, "Profile Name not verified")
 
+    def test_new_mirrors(self):
+        ''' This tests validates if non public mirror is created'''
+        self.create_login_session('brandon')
+        mirrorsPage = MirrorsPage(self.driver)
+        mirrorsPage.driver.get(self.live_server_url)
+        mirrorsPage.mirror_button.click()
+        mirrorsPage.new_mirror_button.click()
+        mirrorsPage.url_field.send_keys('%s%s' % (self.live_server_url, '/apt/brandon/brandon'))
+        mirrorsPage.series_field.send_keys('brandon/aasemble')
+        mirrorsPage.component_field.send_keys('aasemble')
+        mirrorsPage.submit_button.click()
+        self.assertTrue(mirrorsPage.verify_mirror_visible_by_url('%s%s' % (self.live_server_url, '/apt/brandon/brandon')))
+        self.assertTrue(mirrorsPage.verify_mirror_private())
+
     @override_settings(CELERY_ALWAYS_EAGER=True)
     # This tests needs celery so overriding the settings
     def test_build_packages(self):
@@ -136,20 +150,6 @@ class RepositoryFunctionalTests(WebObject):
         logoutPage.driver.get(self.live_server_url)
         logoutPage.logout_button.click()
         self.assertEqual(logoutPage.verify_login_page(), True, "Logout didn't work")
-
-    def test_new_mirrors(self):
-        ''' This tests validates if non public mirror is created'''
-        self.create_login_session('brandon')
-        mirrorsPage = MirrorsPage(self.driver)
-        mirrorsPage.driver.get(self.live_server_url)
-        mirrorsPage.mirror_button.click()
-        mirrorsPage.new_mirror_button.click()
-        mirrorsPage.url_field.send_keys('%s%s' % (self.live_server_url, '/apt/brandon/brandon'))
-        mirrorsPage.series_field.send_keys('brandon/aasemble')
-        mirrorsPage.component_field.send_keys('aasemble')
-        mirrorsPage.submit_button.click()
-        self.assertTrue(mirrorsPage.verify_mirror_visible_by_url('%s%s' % (self.live_server_url, '/apt/brandon/brandon')))
-        self.assertTrue(mirrorsPage.verify_mirror_private())
 
     def test_mirror_set(self):
         '''This test verifies the working of mirror set'''
