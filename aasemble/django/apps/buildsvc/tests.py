@@ -11,6 +11,7 @@ import github3
 
 import mock
 
+from aasemble.django.exceptions import CommandFailed
 from aasemble.django.tests import AasembleTestCase as TestCase
 
 from .models import BuildRecord, NotAValidGithubRepository, PackageSource, Repository, Series
@@ -74,10 +75,22 @@ class RepositoryTestCase(TestCase):
         brandon = auth_models.User.objects.get(id=2)
         self.assertEquals(set([1, 3]), set([repo.id for repo in Repository.lookup_by_user(brandon)]))
 
+    def test_lookup_by_deactive_user_not_possible(self):
+        frank = auth_models.User.objects.get(id=6)
+        self.assertEquals(set(), set([repo.id for repo in Repository.lookup_by_user(frank)]))
+
     def test_user_can_modify_own_repo(self):
         eric = auth_models.User.objects.get(id=5)
         self.assertTrue(Repository.objects.get(id=4).user_can_modify(eric))
         self.assertTrue(Repository.objects.get(id=12).user_can_modify(eric))
+
+    def test_super_user_can_modify_repo(self):
+        george = auth_models.User.objects.get(id=7)
+        self.assertTrue(Repository.objects.get(id=4).user_can_modify(george))
+
+    def test_extra_admin_user_modify_repo(self):
+        brandon = auth_models.User.objects.get(id=2)
+        self.assertTrue(Repository.objects.get(id=3).user_can_modify(brandon))
 
     def test_user_can_modify_other_repo(self):
         charles = auth_models.User.objects.get(id=3)
@@ -86,6 +99,14 @@ class RepositoryTestCase(TestCase):
     def test_user_can_not_modify_other_repo(self):
         brandon = auth_models.User.objects.get(id=2)
         self.assertFalse(Repository.objects.get(id=12).user_can_modify(brandon))
+
+    def test_user_same_group_can_modify_other_repo(self):
+        brandon = auth_models.User.objects.get(id=2)
+        self.assertFalse(Repository.objects.get(id=2).user_can_modify(brandon))
+
+    def test_deactivated_super_user_can_not_modify_own_repo(self):
+        harold = auth_models.User.objects.get(id=8)
+        self.assertFalse(Repository.objects.get(id=8).user_can_modify(harold))
 
     def test_ensure_key_noop_when_key_id_set(self):
         repo = Repository.objects.get(id=1)
@@ -340,3 +361,32 @@ class PackageSourceTestCase(TestCase):
 
         self.assertTrue(ps.register_webhook())
         GitHub.assert_not_called()
+
+    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    def test_poll_no_changes(self, run_cmd):
+        run_cmd.return_value = b'cdf46dc0-a49c-11e5-b00a-c712eaff3d7b	refs/heads/master\n'
+        ps = PackageSource.objects.get(id=1)
+        self.assertFalse(ps.poll())
+        run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
+
+    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    def test_poll_changes(self, run_cmd):
+        run_cmd.return_value = b'cdf46dc0-a49c-11e5-b00a-c712eaff3d7c	refs/heads/master\n'
+        ps = PackageSource.objects.get(id=1)
+        self.assertTrue(ps.poll())
+        run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
+
+    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    def test_poll_fails(self, run_cmd):
+        run_cmd.side_effect = CommandFailed("['git', 'ls-remote', u'https://github.com/eric/project0', u'refs/heads/master'] "
+                                            "returned 128. Output: fatal: could not read Username for 'https://github.com': "
+                                            "No such device or address\n",
+                                            ['git', 'ls-remote', u'https://github.com/eric/project0', u'refs/heads/master'], 128,
+                                            "fatal: could not read Username for 'https://github.com': No such device or address\n",
+                                            None)
+        ps = PackageSource.objects.get(id=1)
+        self.assertFalse(ps.poll())
+        run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
+        self.assertTrue(ps.disabled)
+        self.assertTrue(ps.last_failure_time)
+        self.assertEquals(ps.last_failure, "fatal: could not read Username for 'https://github.com': No such device or address\n")

@@ -7,4 +7,6 @@ urlpatterns = [
     url(r'^sources/', aasemble.django.apps.buildsvc.views.sources, name='sources'),
     url(r'^repositories/', aasemble.django.apps.buildsvc.views.repositories, name='repositories'),
     url(r'^builds/', aasemble.django.apps.buildsvc.views.builds, name='builds'),
+    url(r'^external_dependencies/(?P<dependency_uuid>[^/]+|new)/$', aasemble.django.apps.buildsvc.views.external_dependency, name='dependency_definition'),
+    url(r'^external_dependencies/', aasemble.django.apps.buildsvc.views.external_dependencies, name='external_dependencies'),
 ]

@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
-from .forms import MirrorDefinitionForm, MirrorSetDefinitionForm
-from .models import Mirror, MirrorSet, Snapshot
+from .forms import MirrorDefinitionForm, MirrorSetDefinitionForm, TagDefinitionForm
+from .models import Mirror, MirrorSet, Snapshot, Tags
 
 
 def get_mirror_definition_form(request, *args, **kwargs):
@@ -65,7 +65,6 @@ def mirrorset_definition(request, uuid):
             new_mirrorset = form.save(commit=False)
             new_mirrorset.owner = request.user
             new_mirrorset.save()
-            print("new_mirrorset saved")
             return HttpResponseRedirect(reverse('mirrorsvc:mirrorsets'))
     else:
         form = get_mirrorset_definition_form(request, instance=mirrorset)
@@ -86,6 +85,41 @@ def snapshots(request):
     snapshots = Snapshot.objects.filter(mirrorset__in=MirrorSet.lookup_by_user(request.user)).order_by('timestamp')
     return render(request, 'mirrorsvc/html/snapshots.html',
                   {'snapshots': snapshots})
+
+
+def get_tag_definition_form(request, *args, **kwargs):
+    form = TagDefinitionForm(*args, **kwargs)
+    return form
+
+
+@login_required
+def snapshot_add_tag(request, snapshot_uuid, tag_id):
+    snapshot = Snapshot.objects.get(uuid=snapshot_uuid)
+    if not snapshot.user_can_modify(request.user):
+        return HttpResponse("You don't have access rights to add a tag to this snapshot")
+
+    if tag_id == 'new':
+        tag = None
+    else:
+        tag = Tags.objects.get(pk=tag_id)
+
+    if request.method == 'POST':
+        form = get_tag_definition_form(request, request.POST, instance=tag)
+
+        if tag is not None and request.POST.get('delete', '') == 'delete':
+            tag.delete()
+            return HttpResponseRedirect(reverse('mirrorsvc:snapshots'))
+
+        if form.is_valid():
+            new_tag = form.save(commit=False)
+            new_tag.snapshot = snapshot
+            new_tag.save()
+            return HttpResponseRedirect(reverse('mirrorsvc:snapshots'))
+    else:
+        form = get_tag_definition_form(request, instance=tag)
+
+    return render(request, 'mirrorsvc/html/tag_definition.html',
+                  {'form': form, 'snapshot_uuid': snapshot.uuid, 'tag_id': tag_id})
 
 
 @login_required

@@ -84,7 +84,8 @@ class aaSembleV1Views(object):
                 return self.queryset.filter(owner_id=self.request.user.id) | self.queryset.filter(public=True)
 
             def perform_create(self, serializer):
-                serializer.save(owner=self.request.user)
+                mirror = serializer.save(owner=self.request.user)
+                mirror.schedule_update_mirror()
 
             @detail_route(methods=['post'])
             def refresh(self, request, **kwargs):

@@ -12,16 +12,17 @@ import deb822
 from django.conf import settings
 from django.contrib.auth import models as auth_models
 from django.db import models
-from django.forms import ModelForm
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.module_loading import import_string
+from django.utils.timezone import now
 
 import github3
 
 from six.moves.urllib.parse import urlparse
 
 from . import tasks
+from ...exceptions import CommandFailed
 from ...utils import recursive_render, run_cmd
 
 LOG = logging.getLogger(__name__)
@@ -227,6 +228,14 @@ class ExternalDependency(models.Model):
     def user_can_modify(self, user):
         return self.own_series.user_can_modify(user)
 
+    @classmethod
+    def lookup_by_user(cls, user):
+        if not user.is_active:
+            return cls.objects.none()
+        if user.is_superuser:
+            return cls.objects.all()
+        return cls.objects.filter(own_series__repository__user=user) | cls.objects.filter(own_series__repository__extra_admins__in=user.groups.all())
+
 
 class NotAValidGithubRepository(Exception):
     pass
@@ -243,6 +252,9 @@ class PackageSource(models.Model):
     last_built_name = models.CharField(max_length=64, null=True, blank=True)
     build_counter = models.IntegerField(default=0)
     webhook_registered = models.BooleanField(default=False)
+    last_failure_time = models.DateTimeField(null=True, blank=True)
+    last_failure = models.CharField(max_length=255, null=True, blank=True)
+    disabled = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s/%s' % (self.git_url, self.branch)
@@ -250,8 +262,16 @@ class PackageSource(models.Model):
     def poll(self):
         cmd = ['git', 'ls-remote', self.git_url,
                'refs/heads/%s' % self.branch]
-        stdout = run_cmd(cmd)
-        stdout = stdout.decode()
+        try:
+            stdout = run_cmd(cmd)
+            stdout = stdout.decode()
+        except CommandFailed as e:
+            self.last_failure_time = now()
+            self.last_failure = e.stdout
+            self.disabled = True
+            self.save()
+            return False
+
         sha = stdout.split('\t')[0]
 
         if sha == self.last_seen_revision:
@@ -463,9 +483,3 @@ class GithubRepository(models.Model):
                   repo_name=github_repo['name'])
         obj.save()
         return obj
-
-
-class PackageSourceForm(ModelForm):
-    class Meta:
-        model = PackageSource
-        fields = ['git_url', 'branch', 'series']

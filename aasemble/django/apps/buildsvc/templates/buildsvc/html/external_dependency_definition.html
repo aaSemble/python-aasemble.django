@@ -1,0 +1,25 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+{% block title %}
+    {% if dependency_uuid != 'new' %}
+        Edit External Dependency
+    {% else %}
+        Add new External Dependency
+    {% endif %}
+{% endblock %}
+{% block aasemble_content %}
+<form action="{% url "buildsvc:dependency_definition" dependency_uuid=dependency_uuid %}" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form layout='inline' %}
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">
+            {% bootstrap_icon "star" %} Submit
+        </button>
+        {% if mirror_id != 'new' %}
+            <button type="submit" class="btn btn-danger" name="delete" value="delete">
+                 Delete
+            </button>
+        {% endif %}
+    {% endbuttons %}
+{% endblock %}
+

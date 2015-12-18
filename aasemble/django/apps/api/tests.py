@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 
 from six.moves.urllib.parse import urlparse
 
-from aasemble.django.apps.mirrorsvc.models import Snapshot
+from aasemble.django.apps.mirrorsvc.models import Mirror, Snapshot
 
 
 def authenticate(client, username=None, token=None):
@@ -733,10 +733,19 @@ class APIv1Tests(APITestCase):
 
     @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
     def test_refresh_mirror_status(self, refresh_mirror):
-        mirror = self.test_create_mirror()
-        response = self.client.post(mirror['self'] + 'refresh/')
+        mirror_dict = self.test_create_mirror()
+        mirror_id = int(mirror_dict['self'].split('/')[-2])
+        refresh_mirror.delay.assert_called_with(mirror_id)
+        response = self.client.post(mirror_dict['self'] + 'refresh/')
+        self.assertEquals(response.data['status'], 'update already scheduled')
+
+    @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
+    def test_refresh_mirror_status_for_existing_mirror(self, refresh_mirror):
+        mirror_url = 'http://testserver' + self.mirror_list_url + '1/'  # Existing mirror with pk=1 is used
+        authenticate(self.client, 'eric')
+        response = self.client.post(mirror_url + 'refresh/')
         self.assertEquals(response.data['status'], 'update scheduled')
-        response = self.client.post(mirror['self'] + 'refresh/')
+        response = self.client.post(mirror_url + 'refresh/')
         self.assertEquals(response.data['status'], 'update already scheduled')
 
     ####################
@@ -1152,6 +1161,24 @@ class APIv2Tests(APIv1Tests):
         response = self.client.get(self.snapshot_list_url, format='json')
         self.assertEqual(data['count'], response.data['count'])
         # TODO: Think of a way to match snapshot details, too many to hardcode right now
+
+    @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
+    def test_refresh_mirror_status(self, refresh_mirror):
+        mirror_dict = self.test_create_mirror()
+        mirror_uuid = mirror_dict['self'].split('/')[-2]
+        mirror = Mirror.objects.get(uuid=mirror_uuid)
+        refresh_mirror.delay.assert_called_with(mirror.id)
+        response = self.client.post(mirror_dict['self'] + 'refresh/')
+        self.assertEquals(response.data['status'], 'update already scheduled')
+
+    @mock.patch('aasemble.django.apps.mirrorsvc.tasks.refresh_mirror')
+    def test_refresh_mirror_status_for_existing_mirror(self, refresh_mirror):
+        mirror_url = 'http://testserver' + self.mirror_list_url + 'df5f0463-f8c8-4207-a6d7-5feb4011be2b/'  # Existing mirror used
+        authenticate(self.client, 'eric')
+        response = self.client.post(mirror_url + 'refresh/')
+        self.assertEquals(response.data['status'], 'update scheduled')
+        response = self.client.post(mirror_url + 'refresh/')
+        self.assertEquals(response.data['status'], 'update already scheduled')
 
 
 class APIv3Tests(APIv2Tests):

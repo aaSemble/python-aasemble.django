@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^mirrors/(?P<mirror_uuid>[^/]+)/refresh/', aasemble.django.apps.mirrorsvc.views.refresh_mirror_with_uuid,
         name='mirror_refresh'),  # Added before mirrors/ to override next line
     url(r'^mirrors/', aasemble.django.apps.mirrorsvc.views.mirrors, name='mirrors'),
+    url(r'^snapshots/(?P<snapshot_uuid>[^/]+)/tags/(?P<tag_id>[^/]+|new)', aasemble.django.apps.mirrorsvc.views.snapshot_add_tag, name='snapshot_add_tag'),
     url(r'^snapshots/', aasemble.django.apps.mirrorsvc.views.snapshots, name='snapshots'),
     url(r'^mirrorsets/(?P<uuid>[^/]+|new)/$', aasemble.django.apps.mirrorsvc.views.mirrorset_definition,
         name='mirrorset_definition'),
