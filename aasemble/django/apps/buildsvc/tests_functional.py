@@ -5,7 +5,7 @@ from django.test.utils import override_settings, skipIf
 
 from aasemble.django.apps.buildsvc.tasks import poll_one
 
-from aasemble.django.apps.buildsvc.test.aaSemblepage import BuildPage, LogoutPage, MirrorSetPage, MirrorsPage, OverviewPage, ProfilePage, SourcePage
+from aasemble.django.apps.buildsvc.test.aaSemblepage import BuildPage, LogoutPage, MirrorSetPage, MirrorsPage, OverviewPage, ProfilePage, SnapshotPage, SourcePage
 from aasemble.django.apps.buildsvc.test.basewebobject import WebObject
 
 from aasemble.django.tests import create_session_cookie
@@ -203,4 +203,3 @@ class RepositoryFunctionalTests(WebObject):
         snapshotPage.snapshot_button.click()
         uuids = snapshotPage.snapshotDetailsByMirrorSet('mySet')
         self.assertTrue(uuid in uuids, "Snapshot didn't showed up")
-
