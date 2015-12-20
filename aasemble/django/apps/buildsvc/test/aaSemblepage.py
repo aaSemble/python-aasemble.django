@@ -238,3 +238,18 @@ class MirrorSetPage(BasePage):
         existingSnaps = self.driver.find_elements(by.By.XPATH, "//table[@class='table table-striped']//tr")
         noOfExistingSnaps = len(existingSnaps)
         return noOfExistingSnaps
+
+    def getMirrorSetID_button(self, mirrorSetName):
+        elements = self.driver.find_elements(by.By.XPATH, '//table[@class="table table-striped"]//tr')
+        for ele in elements:
+            if ele.find_element(by.By.XPATH, '//td[2]').text == mirrorSetName:
+                return ele.find_element(by.By.XPATH, '//td[1]')
+
+    def deleteMirrorSet(self, mirrorSetName):
+        '''This method deletes the mirror-set'''
+        mirrorLink = self.getMirrorSetID_button(mirrorSetName)
+        mirrorLink.click()
+        options = self.driver.find_element(by.By.ID, 'id_mirrors')
+        for option in options.find_elements(by.By.TAG_NAME, 'option'):
+            option.click()
+        self.delete_button.click()

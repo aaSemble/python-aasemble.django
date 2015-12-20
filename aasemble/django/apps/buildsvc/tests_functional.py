@@ -181,3 +181,18 @@ class RepositoryFunctionalTests(WebObject):
         mirrorsSet.new_submit_button.click()
         noOfExistingSnapsAfter = mirrorsSet.countSnapshots()
         self.assertEqual(noOfExistingSnapsAfter - noOfExistingSnapsPrevious, 1, "SnapShot didn't created")
+
+    def test_mirror_set_delete(self):
+        ''' This test verifies the mirror-set
+        creation and deletion
+        Steps:
+        1. Create mirror and mirror-set.
+        2. Go to mirror-set page.
+        3. Delete mirror set.'''
+        self.test_new_mirrors()
+        self.test_mirror_set()
+        self.create_login_session('brandon')
+        mirrorsSet = MirrorSetPage(self.driver)
+        mirrorsSet.driver.get(self.live_server_url)
+        mirrorsSet.mirror_set_button.click()
+        mirrorsSet.deleteMirrorSet('mySet')
