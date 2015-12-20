@@ -24,6 +24,11 @@ class BasePage(object):
         and live in diffrent views thus giving us opportunity of code reuse'''
         return self.driver.find_element(by.By.CSS_SELECTOR, '.btn.btn-primary')
 
+    @property
+    def delete_button(self):
+        '''Finds package delete button'''
+        return self.driver.find_element(by.By.CSS_SELECTOR, '.btn.btn-danger')
+
     def _is_element_visible(self, locator):
         try:
             return self.driver.find_element(*locator).is_displayed()
@@ -85,11 +90,6 @@ class SourcePage(BasePage):
         '''Finds package edit button.
         NOTE: Only one package is expected at once'''
         return self.driver.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
-
-    @property
-    def delete_button(self):
-        '''Finds package delete button'''
-        return self.driver.find_element(by.By.CSS_SELECTOR, '.btn.btn-danger')
 
     @property
     def sources_button(self):
