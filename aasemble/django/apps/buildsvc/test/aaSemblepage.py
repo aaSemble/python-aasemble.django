@@ -238,3 +238,29 @@ class MirrorSetPage(BasePage):
         existingSnaps = self.driver.find_elements(by.By.XPATH, "//table[@class='table table-striped']//tr")
         noOfExistingSnaps = len(existingSnaps)
         return noOfExistingSnaps
+
+    def getLastestSnapShot_uuid(self, mirrorSetName):
+        '''Returns the snap in the list for given Mirror-Sets'''
+        viewButton = self.view_snapshot(mirrorSetName)
+        viewButton.click()
+        existingSnaps = self.driver.find_elements(by.By.XPATH, '//tr')
+        lastSnap = existingSnaps[-1]
+        return lastSnap.find_element(by.By.XPATH, '//td[1]')
+
+
+class SnapshotPage(BasePage):
+
+    @property
+    def snapshot_button(self):
+        '''Finds the snapshot button'''
+        return self.driver.find_element(by.By.LINK_TEXT, 'Snapshots')
+
+    def snapshotDetailsByMirrorSet(self, mirrorSetName):
+        '''Gives the snapshot list for given mirror-set'''
+        snapshotList = []
+        elements = self.driver.find_elements(by.By.XPATH, '//table[@class="table table-striped"]//tr')
+        for ele in elements:
+            if ele.find_element(by.By.XPATH, '//td[2]').text == mirrorSetName:
+                uuid = ele.find_element(by.By.XPATH, '//td[3]').text
+                snapshotList.append(uuid)
+        return snapshotList

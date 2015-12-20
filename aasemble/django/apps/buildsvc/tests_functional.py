@@ -162,7 +162,7 @@ class RepositoryFunctionalTests(WebObject):
 
     def test_snapshot_operations(self):
         '''This test verifies the operations snapshot.
-         ' Steps:
+         Steps:
          1. Create new mirror and mirrorset for user 'brandon'.
          2. "View snapshot" for its first (only in this case) mirrorset.
          3. Save the number of lines in tables.
@@ -181,3 +181,26 @@ class RepositoryFunctionalTests(WebObject):
         mirrorsSet.new_submit_button.click()
         noOfExistingSnapsAfter = mirrorsSet.countSnapshots()
         self.assertEqual(noOfExistingSnapsAfter - noOfExistingSnapsPrevious, 1, "SnapShot didn't created")
+
+    def test_snapshot_view(self):
+        '''This test verifies the operations snapshot.
+         ' Steps:
+         1. Create new mirror and mirrorset for user 'brandon'.
+         2. "View snapshot" for its first (only in this case) mirrorset.
+         3. Create a snaphot
+         4. Save the snpashot uuid
+         5. open Snapshot page
+         6. Verify that snapshot is visible with same uuid.'''
+        self.test_snapshot_operations()
+        self.create_login_session('brandon')
+        mirrorsSet = MirrorSetPage(self.driver)
+        mirrorsSet.driver.get(self.live_server_url)
+        mirrorsSet.mirror_set_button.click()
+        uuid = mirrorsSet.getLastestSnapShot_uuid('mySet')
+        uuid = uuid.text
+        snapshotPage = SnapshotPage(self.driver)
+        snapshotPage.driver.get(self.live_server_url)
+        snapshotPage.snapshot_button.click()
+        uuids = snapshotPage.snapshotDetailsByMirrorSet('mySet')
+        self.assertTrue(uuid in uuids, "Snapshot didn't showed up")
+
