@@ -253,4 +253,4 @@ class RepositoryFunctionalTests(WebObject):
         self.assertFalse(snapshot.verify_tag_present(snapshotuuid=uuid, tag='testtagedited'), "Tag not deleted")
         # add one more tag on same snapshot
         snapshot.create_new_snapshot_tag(snapshotuuid=uuid, tag='testsecondtag')
-        self.assertTrue(snapshot.verify_tag_present(snapshotuuid=uuid ,tag='testsecondtag'), "Tag not added")
+        self.assertTrue(snapshot.verify_tag_present(snapshotuuid=uuid, tag='testsecondtag'), "Tag not added")

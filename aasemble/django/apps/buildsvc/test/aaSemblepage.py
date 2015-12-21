@@ -306,8 +306,6 @@ class SnapshotPage(BasePage):
         snaptags = self.getAllTagsBySnapshot(snapshotuuid)
         for snaptag in snaptags:
             if oldtag == snaptag.text:
-                xpath_value = "//a[contains(text(), %s)]" %(oldtag)
-                print xpath_value
                 self.driver.find_element(by.By.LINK_TEXT, oldtag).click()
                 self.driver.find_element(by.By.ID, 'id_tag').clear()
                 self.driver.find_element(by.By.ID, 'id_tag').send_keys(tag)
