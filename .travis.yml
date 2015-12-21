@@ -3,8 +3,10 @@ matrix:
   allow_failures:
    - python: "pypy"
   include: 
-    - script: tox -e py27-flake8
-    - script: tox -e py34-flake8
+    - python: 2.7
+      script: tox -e py27-flake8
+    - python: 3.4
+      script: tox -e py34-flake8
     - python: 2.7
       env: DJANGO_VERSION="18" POSARGS=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
