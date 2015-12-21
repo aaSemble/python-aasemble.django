@@ -30,7 +30,7 @@ script:
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y mysql-server
   - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
-  - tox -e py${TRAVIS_PYTHON_VERSION/./}-django$DJANGO_VERSION-${PKGBUILD:-nopkgbuild}
+  - py=${TR#py};py=${env/./}; tox -e py${py}-django$DJANGO_VERSION-${PKGBUILD:-nopkgbuild}
 deploy:
   provider: script
   script: scripts/deploy.sh
