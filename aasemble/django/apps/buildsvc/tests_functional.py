@@ -220,10 +220,10 @@ class RepositoryFunctionalTests(WebObject):
         mirrorsSet.deleteMirrorSet('mySet')
 
     def test_snapshot_tags(self):
-        '''This tests verifies the tag addtion/deletion and 
+        '''This tests verifies the tag addtion/deletion and
         modification on snapshot.
         Steps:
-         1. Create Mirror, Mirror-set and a snapshot 
+         1. Create Mirror, Mirror-set and a snapshot
          2. Save the snapshot uuid.
          3. Create a new tag on snapshot.
          4. Edit the snapshot tag.

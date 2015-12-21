@@ -280,7 +280,7 @@ class SnapshotPage(BasePage):
                 snapshotList.append(uuid)
         return snapshotList
 
-     def getAllTagsBySnapshot(self, snapshotuuid):
+    def getAllTagsBySnapshot(self, snapshotuuid):
         elements = self.driver.find_elements(by.By.XPATH, '//table[@class="table table-striped"]//tr')
         for ele in elements:
             if ele.find_element(by.By.XPATH, '//td[3]').text == snapshotuuid:
