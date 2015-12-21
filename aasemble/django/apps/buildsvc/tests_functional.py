@@ -91,11 +91,10 @@ class RepositoryFunctionalTests(WebObject):
         self.assertTrue(mirrorsPage.verify_mirror_visible_by_url(url))
         self.assertTrue(mirrorsPage.verify_mirror_private())
         mirrorsPage.click_on_mirror_uuid(url)
-        # Verfies if URL value  is visible after clicking on uuid 
+        # Verfies if URL value  is visible after clicking on uuid
         self.assertTrue(mirrorsPage.verify_mirror_value_visible(url))
         mirrorsPage.delete_button.click()
         self.assertFalse(mirrorsPage.verify_mirror_visible_by_url(url))
-
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
     # This tests needs celery so overriding the settings

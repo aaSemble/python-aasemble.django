@@ -57,6 +57,7 @@ class BasePage(object):
                 if s.text == findtext:
                     return row
 
+
 class SourcePage(BasePage):
     '''This class is to perform all operations on sourcePackage
     view of site'''
@@ -226,16 +227,16 @@ class MirrorsPage(BasePage):
     def verify_mirror_visible_by_url(self, value):
         locator = (by.By.LINK_TEXT, value)
         return self._is_element_visible(locator)
-   
-    def verify_mirror_value_visible(self,value):
-        locator = (by.By.NAME,"url")
-        return self._is_value_displayed(locator,value)
+ 
+    def verify_mirror_value_visible(self, value):
+        locator = (by.By.NAME, "url")
+        return self._is_value_displayed(locator, value)
 
     def verify_mirror_private(self):
         locator = (by.By.XPATH, ".//table/tbody/tr[1]/td[5][contains(text(), False)]")
         return self._is_element_visible(locator)
 
-    def click_on_mirror_uuid(self,url_id):
+    def click_on_mirror_uuid(self, url_id):
         row = self.fetch_table_row_details(url_id, self._table_id_locator)
         columns = row.find_elements(by.By.TAG_NAME, "td")
         # first columns corresponds to uuid
