@@ -31,8 +31,6 @@ script:
   - sudo apt-get install -qq -y mysql-server
   - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
   - tox -e py${TRAVIS_PYTHON_VERSION/./}-django$DJANGO_VERSION-${PKGBUILD:-nopkgbuild}
-after_success:
-  - cd .tox/py${TRAVIS_PYTHON_VERSION/./}-django$DJANGO_VERSION-${PKGBUILD:-nopkgbuild} ; codecov
 deploy:
   provider: script
   script: scripts/deploy.sh
