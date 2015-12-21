@@ -24,6 +24,11 @@ class BasePage(object):
         and live in diffrent views thus giving us opportunity of code reuse'''
         return self.driver.find_element(by.By.CSS_SELECTOR, '.btn.btn-primary')
 
+    @property
+    def delete_button(self):
+        '''Finds package delete button'''
+        return self.driver.find_element(by.By.CSS_SELECTOR, '.btn.btn-danger')
+
     def _is_element_visible(self, locator):
         try:
             return self.driver.find_element(*locator).is_displayed()
@@ -85,11 +90,6 @@ class SourcePage(BasePage):
         '''Finds package edit button.
         NOTE: Only one package is expected at once'''
         return self.driver.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
-
-    @property
-    def delete_button(self):
-        '''Finds package delete button'''
-        return self.driver.find_element(by.By.CSS_SELECTOR, '.btn.btn-danger')
 
     @property
     def sources_button(self):
@@ -238,6 +238,21 @@ class MirrorSetPage(BasePage):
         existingSnaps = self.driver.find_elements(by.By.XPATH, "//table[@class='table table-striped']//tr")
         noOfExistingSnaps = len(existingSnaps)
         return noOfExistingSnaps
+
+    def getMirrorSetID_button(self, mirrorSetName):
+        elements = self.driver.find_elements(by.By.XPATH, '//table[@class="table table-striped"]//tr')
+        for ele in elements:
+            if ele.find_element(by.By.XPATH, '//td[2]').text == mirrorSetName:
+                return ele.find_element(by.By.XPATH, '//td[1]')
+
+    def deleteMirrorSet(self, mirrorSetName):
+        '''This method deletes the mirror-set'''
+        mirrorLink = self.getMirrorSetID_button(mirrorSetName)
+        mirrorLink.click()
+        options = self.driver.find_element(by.By.ID, 'id_mirrors')
+        for option in options.find_elements(by.By.TAG_NAME, 'option'):
+            option.click()
+        self.delete_button.click()
 
     def getLastestSnapShot_uuid(self, mirrorSetName):
         '''Returns the snap in the list for given Mirror-Sets'''
