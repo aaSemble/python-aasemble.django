@@ -279,3 +279,43 @@ class SnapshotPage(BasePage):
                 uuid = ele.find_element(by.By.XPATH, '//td[3]').text
                 snapshotList.append(uuid)
         return snapshotList
+
+     def getAllTagsBySnapshot(self, snapshotuuid):
+        elements = self.driver.find_elements(by.By.XPATH, '//table[@class="table table-striped"]//tr')
+        for ele in elements:
+            if ele.find_element(by.By.XPATH, '//td[3]').text == snapshotuuid:
+                snaps = ele.find_elements(by.By.XPATH, '//td[5]')
+        return snaps
+
+    def create_new_snapshot_tag(self, snapshotuuid, tag):
+        elements = self.driver.find_elements(by.By.XPATH, '//table[@class="table table-striped"]//tr')
+        for ele in elements[1:]:
+            if ele.find_element(by.By.XPATH, '//td[3]').text == snapshotuuid:
+                ele.find_element(by.By.XPATH, '//td[6]').click()
+                self.driver.find_element(by.By.ID, 'id_tag').send_keys(tag)
+                self.new_submit_button.submit()
+
+    def verify_tag_present(self, snapshotuuid, tag):
+        snaptags = self.getAllTagsBySnapshot(snapshotuuid)
+        for snaptag in snaptags:
+            if tag == snaptag.text:
+                return True
+        return False
+
+    def edit_snapshot_tag(self, snapshotuuid, tag, oldtag):
+        snaptags = self.getAllTagsBySnapshot(snapshotuuid)
+        for snaptag in snaptags:
+            if oldtag == snaptag.text:
+                xpath_value = "//a[contains(text(), %s)]" %(oldtag)
+                print xpath_value
+                self.driver.find_element(by.By.LINK_TEXT, oldtag).click()
+                self.driver.find_element(by.By.ID, 'id_tag').clear()
+                self.driver.find_element(by.By.ID, 'id_tag').send_keys(tag)
+                self.new_submit_button.click()
+
+    def deleted_snapshot_tag(self, snapshotuuid, tag):
+        snaptags = self.getAllTagsBySnapshot(snapshotuuid)
+        for snaptag in snaptags:
+            if tag == snaptag.text:
+                self.driver.find_element(by.By.LINK_TEXT, tag).click()
+                self.delete_button.click()

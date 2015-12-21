@@ -218,3 +218,39 @@ class RepositoryFunctionalTests(WebObject):
         mirrorsSet.driver.get(self.live_server_url)
         mirrorsSet.mirror_set_button.click()
         mirrorsSet.deleteMirrorSet('mySet')
+
+    def test_snapshot_tags(self):
+        '''This tests verifies the tag addtion/deletion and 
+        modification on snapshot.
+        Steps:
+         1. Create Mirror, Mirror-set and a snapshot 
+         2. Save the snapshot uuid.
+         3. Create a new tag on snapshot.
+         4. Edit the snapshot tag.
+         5. Delete a snapshot tag.
+         6. Create a new snapshot-tag '''
+        self.test_new_mirrors()
+        self.test_mirror_set()
+        self.create_login_session('brandon')
+        mirrorsSet = MirrorSetPage(self.driver)
+        mirrorsSet.driver.get(self.live_server_url)
+        mirrorsSet.mirror_set_button.click()
+        viewButton = mirrorsSet.view_snapshot('mySet')
+        viewButton.click()
+        mirrorsSet.new_submit_button.click()
+        mirrorsSet.mirror_set_button.click()
+        uuid = mirrorsSet.getLastestSnapShot_uuid("mySet").text
+        snapshot = SnapshotPage(self.driver)
+        snapshot.snapshot_button.click()
+        # create new tag
+        snapshot.create_new_snapshot_tag(snapshotuuid=uuid, tag='testtag')
+        self.assertTrue(snapshot.verify_tag_present(snapshotuuid=uuid, tag='testtag'), "Tag not added")
+        # edit snapshot tag
+        snapshot.edit_snapshot_tag(snapshotuuid=uuid, tag='testtagedited', oldtag='testtag')
+        self.assertTrue(snapshot.verify_tag_present(snapshotuuid=uuid, tag='testtagedited'), "Tag not edited")
+        # deleted snapshot tag
+        snapshot.deleted_snapshot_tag(snapshotuuid=uuid, tag='testtagedited')
+        self.assertFalse(snapshot.verify_tag_present(snapshotuuid=uuid, tag='testtagedited'), "Tag not deleted")
+        # add one more tag on same snapshot
+        snapshot.create_new_snapshot_tag(snapshotuuid=uuid, tag='testsecondtag')
+        self.assertTrue(snapshot.verify_tag_present(snapshotuuid=uuid ,tag='testsecondtag'), "Tag not added")
