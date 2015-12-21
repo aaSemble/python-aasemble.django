@@ -227,7 +227,7 @@ class MirrorsPage(BasePage):
     def verify_mirror_visible_by_url(self, value):
         locator = (by.By.LINK_TEXT, value)
         return self._is_element_visible(locator)
- 
+
     def verify_mirror_value_visible(self, value):
         locator = (by.By.NAME, "url")
         return self._is_value_displayed(locator, value)
