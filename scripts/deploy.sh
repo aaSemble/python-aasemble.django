@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ "$DJANGO_VERSION" != "<1.9" ] || [ "$TRAVIS_PYTHON_VERSION" != "2.7" ]
+if [ "$DJANGO_VERSION" != "18" ] || [ "$TRAVIS_PYTHON_VERSION" != "2.7" ] || [ -n "${PKGBUILD}" ]
 then
     # Don't want to run a deploy for each cell in the test matrix
     exit 0
