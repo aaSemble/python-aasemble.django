@@ -3,6 +3,8 @@ matrix:
   allow_failures:
    - python: "pypy"
   include: 
+    - script: tox -e py27-flake8
+    - script: tox -e py34-flake8
     - python: 2.7
       env: DJANGO_VERSION="18" POSARGS=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
@@ -26,10 +28,11 @@ env:
 install:
   - pip install -U pip tox codecov
   - pip install codecov
-script:
+before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y mysql-server
   - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
+script:
   - py=${TR#py};py=${env/./}; tox -e py${py}-django$DJANGO_VERSION -- ${POSARGS}
 deploy:
   provider: script
