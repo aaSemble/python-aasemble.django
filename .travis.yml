@@ -4,23 +4,19 @@ matrix:
    - python: "pypy"
   include: 
     - python: 2.7
-      env: DJANGO_VERSION="<1.9" TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
-      sudo: required
-      services:
-        - docker
-      before_install:
-        - sudo apt-get update -qq
-        - sudo apt-get install -qq -y mysql-server
-        - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
+      script: tox -e py27-flake8
     - python: 3.4
-      env: DJANGO_VERSION="<1.9" TEST_ARG=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
+      script: tox -e py34-flake8
+    - python: 2.7
+      env: DJANGO_VERSION="18" POSARGS=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
       services:
         - docker
-      before_install:
-        - sudo apt-get update -qq
-        - sudo apt-get install -qq -y mysql-server
-        - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
+    - python: 3.4
+      env: DJANGO_VERSION="18" POSARGS=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
+      sudo: required
+      services:
+        - docker
 language: python
 services:
   - mysql
@@ -29,21 +25,17 @@ python:
   - "3.4"
   - "pypy"
 env:
-  - DJANGO_VERSION="<1.9"
-  - DJANGO_VERSION="<1.10"
+  - DJANGO_VERSION="18"
+  - DJANGO_VERSION="19"
 install:
   - pip install -U pip
-  - pip install -U Django$DJANGO_VERSION
-  - pip install -r requirements.txt
-  - pip install -r test-requirements.txt
-  - pip install codecov
+  - pip install -U tox
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq -y mysql-server
+  - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
 script:
-  - mysql -u root -e'GRANT ALL ON test_aasemble.* TO test@localhost'
-  - xvfb-run python -m coverage run --source=aasemble manage.py test -v3 $TEST_ARG
-  - "flake8 --ignore=E501 --application-import-names=aasemble aasemble"
-  - "python -m coverage report -m"
-after_success:
-  - codecov
+  - py=${TR#py};py=${env/./}; tox -e py${py}-django$DJANGO_VERSION -- ${POSARGS}
 deploy:
   provider: script
   script: scripts/deploy.sh
