@@ -5,7 +5,7 @@ from django.test.utils import override_settings, skipIf
 
 from aasemble.django.apps.buildsvc.tasks import poll_one
 
-from aasemble.django.apps.buildsvc.test.aaSemblepage import BuildPage, LogoutPage, MirrorSetPage, MirrorsPage, OverviewPage, ProfilePage, SnapshotPage, SourcePage
+from aasemble.django.apps.buildsvc.test.aaSemblepage import BuildPage, ExternalDependenciesPage, LogoutPage, MirrorSetPage, MirrorsPage, OverviewPage, ProfilePage, SnapshotPage, SourcePage
 from aasemble.django.apps.buildsvc.test.basewebobject import WebObject
 
 from aasemble.django.tests import create_session_cookie
@@ -254,3 +254,18 @@ class RepositoryFunctionalTests(WebObject):
         # add one more tag on same snapshot
         snapshot.create_new_snapshot_tag(snapshotuuid=uuid, tag='testsecondtag')
         self.assertTrue(snapshot.verify_tag_present(snapshotuuid=uuid, tag='testsecondtag'), "Tag not added")
+
+    def test_external_dependencies(self):
+        self.create_login_session('brandon')
+        externalDependency = ExternalDependenciesPage(self.driver)
+        externalDependency.driver.get(self.live_server_url)
+        externalDependency.externalDependencies_button.click()
+        url = 'https://github.com/aaSemble/python-aasemble.django'
+        series = 'user/aasemble'
+        component = 'main'
+        ownSeries = 'brandon/aasemble'
+        key = 'justForTesting'
+        externalDependency.createExternalDependency(url, series, component, ownSeries, key)
+        self.assertTrue(externalDependency.verify_external_dependencies(url, series, component), 'External Dependency not added')
+        externalDependency.delete_external_dependency()
+        self.assertFalse(externalDependency.verify_external_dependencies(url, series, component), 'External Dependency not deleted')

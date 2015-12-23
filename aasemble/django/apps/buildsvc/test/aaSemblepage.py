@@ -317,3 +317,71 @@ class SnapshotPage(BasePage):
             if tag == snaptag.text:
                 self.driver.find_element(by.By.LINK_TEXT, tag).click()
                 self.delete_button.click()
+
+
+class ExternalDependenciesPage(BasePage):
+
+    @property
+    def externalDependencies_button(self):
+        '''Finds the external dependencies button'''
+        return self.driver.find_element(by.By.LINK_TEXT, 'External Dependencies')
+
+    @property
+    def url_field(self):
+        '''Url button'''
+        return self.driver.find_element(by.By.ID, 'id_url')
+
+    @property
+    def series_field(self):
+        '''Series field button'''
+        return self.driver.find_element(by.By.ID, 'id_series')
+
+    @property
+    def components_field(self):
+        '''Components field button'''
+        return self.driver.find_element(by.By.ID, 'id_components')
+
+    @property
+    def key_field(self):
+        '''Key field'''
+        return self.driver.find_element(by.By.ID, 'id_key')
+
+    @property
+    def externalDependencie_edit_button(self):
+        '''Finds package edit button.
+        NOTE: Only one package is expected at once'''
+        return self.driver.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
+
+    def selectOwnSeries_field_dropdown(self, series):
+        '''Own series field'''
+        mySelect = Select(self.driver.find_element(by.By.ID, 'id_own_series'))
+        mySelect.select_by_visible_text(series)
+
+    def createExternalDependency(self, url, series, component, ownSeries, key):
+        self.new_submit_button.click()
+        self.url_field.send_keys(url)
+        self.series_field.send_keys(series)
+        self.components_field.send_keys(component)
+        self.selectOwnSeries_field_dropdown(ownSeries)
+        self.key_field.send_keys(key)
+        self.new_submit_button.submit()
+
+    def delete_external_dependency(self):
+        self.externalDependencie_edit_button.click()
+        self.delete_button.click()
+
+    def verify_external_dependencies(self, git_url, series, component):
+        '''This is the helper method to verify whether
+        a package exist or not on basis on url.
+        INPUT: git_url, series, component
+        RETURN: TRUE if package found and FALSE on otherwise case'''
+        self.externalDependencies_button.click()
+        vertficationString = "deb %s %s %s" % (git_url, series, component)
+        try:
+            coloum = self.driver.find_element(by.By.XPATH, "//table[@class='table table-striped']/tbody/tr/td[3]").text
+            if coloum == vertficationString:
+                return True
+            else:
+                return False
+        except:
+            return False
