@@ -105,21 +105,17 @@ class aaSembleAPIv1Serializers(object):
                 tags = selff.TagsSerializer(required=False)
 
             def create(self, validated_data):
-                if 'tags' in validated_data:
-                    tags_data = validated_data.pop('tags')
-                    snapshot = mirrorsvc_models.Snapshot.objects.create(visible_to_v1_api=(selff.view_prefix == 'v1'), **validated_data)
-                    for tag_data in tags_data:
-                        mirrorsvc_models.Tags.objects.create(snapshot=snapshot, **tag_data)
-                else:
-                    snapshot = mirrorsvc_models.Snapshot.objects.create(visible_to_v1_api=(selff.view_prefix == 'v1'), **validated_data)
+                tags_data = validated_data.pop('tags', [])
+                snapshot = mirrorsvc_models.Snapshot.objects.create(visible_to_v1_api=(selff.view_prefix == 'v1'), **validated_data)
+                for tag_data in tags_data:
+                    mirrorsvc_models.Tags.objects.create(snapshot=snapshot, **tag_data)
                 return snapshot
 
             def update(self, instance, validated_data):
-                if 'tags' in validated_data:
-                    tags_data = validated_data.pop('tags')
-                    mirrorsvc_models.Tags.objects.filter(snapshot=instance).delete()
-                    for tag_data in tags_data:
-                        mirrorsvc_models.Tags.objects.create(snapshot=instance, **tag_data)
+                tags_data = validated_data.pop('tags', [])
+                mirrorsvc_models.Tags.objects.filter(snapshot=instance).delete()
+                for tag_data in tags_data:
+                    mirrorsvc_models.Tags.objects.create(snapshot=instance, **tag_data)
                 return instance
 
             class Meta:
