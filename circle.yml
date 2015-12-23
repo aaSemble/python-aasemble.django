@@ -5,3 +5,6 @@ dependencies:
     - pip install -U "Django<1.9"
     - pip install -r requirements.txt
     - pip install -r test-requirements.txt
+test:
+  override:
+    - python manage.py test
