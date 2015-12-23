@@ -1,5 +1,7 @@
 import os.path
+import shutil
 import subprocess
+import tempfile
 import time
 
 from django.contrib.auth import models as auth_models
@@ -28,34 +30,39 @@ class PkgBuildTestCase(TestCase):
     def test_build_debian(self):
         from . import pkgbuild
 
-        basedir = os.path.join(os.path.dirname(__file__), 'test_data', 'debian')
-        builddir = os.path.join(basedir, 'build')
+        tmpdir = tempfile.mkdtemp()
+        try:
+            basedir = os.path.join(tmpdir, 'd')
+            shutil.copytree(os.path.join(os.path.dirname(__file__), 'test_data', 'debian'), basedir)
+            builddir = os.path.join(basedir, 'build')
 
-        builder_cls = pkgbuild.choose_builder(builddir)
-        self.assertEquals(builder_cls, pkgbuild.debian.DebianBuilder)
+            builder_cls = pkgbuild.choose_builder(builddir)
+            self.assertEquals(builder_cls, pkgbuild.debian.DebianBuilder)
 
-        start = time.time()
+            start = time.time()
 
-        source = PackageSource.objects.get(id=1)
-        br = BuildRecord(source=source, build_counter=10, sha='e65b55054c5220321c56bb3dfa96fbe5199f329c')
-        br.save()
+            source = PackageSource.objects.get(id=1)
+            br = BuildRecord(source=source, build_counter=10, sha='e65b55054c5220321c56bb3dfa96fbe5199f329c')
+            br.save()
 
-        builder = builder_cls(basedir, source, br)
-        builder.build()
+            builder = builder_cls(basedir, source, br)
+            builder.build()
 
-        finish = time.time()
+            finish = time.time()
 
-        our_timing = finish - start
-        br_timing = (br.build_finished - br.build_started).total_seconds()
+            our_timing = finish - start
+            br_timing = (br.build_finished - br.build_started).total_seconds()
 
-        self.assertGreater(our_timing, br_timing,
-                           'Our timing was smaller than measured in the build record')
+            self.assertGreater(our_timing, br_timing,
+                               'Our timing was smaller than measured in the build record')
 
-        self.assertLess(our_timing - br_timing, 5,
-                        'Our timing differed by more than 5 seconds from that in the build record')
+            self.assertLess(our_timing - br_timing, 5,
+                            'Our timing differed by more than 5 seconds from that in the build record')
 
-        self.assertTrue(os.path.exists(os.path.join(basedir, 'buildsvctest_0.1+10_source.changes')))
-        self.assertTrue(os.path.exists(os.path.join(basedir, 'buildsvctest_0.1+10_amd64.changes')))
+            self.assertTrue(os.path.exists(os.path.join(basedir, 'buildsvctest_0.1+10_source.changes')))
+            self.assertTrue(os.path.exists(os.path.join(basedir, 'buildsvctest_0.1+10_amd64.changes')))
+        finally:
+            shutil.rmtree(tmpdir)
 
 
 class RepositoryTestCase(TestCase):
