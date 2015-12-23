@@ -256,6 +256,11 @@ class RepositoryFunctionalTests(WebObject):
         self.assertTrue(snapshot.verify_tag_present(snapshotuuid=uuid, tag='testsecondtag'), "Tag not added")
 
     def test_external_dependencies(self):
+        '''This test verifies the working of external dependency feature.
+          Steps:
+          1.  Create a login session
+          2. Add a external dependency
+          3. delete a external dependency'''
         self.create_login_session('brandon')
         externalDependency = ExternalDependenciesPage(self.driver)
         externalDependency.driver.get(self.live_server_url)
