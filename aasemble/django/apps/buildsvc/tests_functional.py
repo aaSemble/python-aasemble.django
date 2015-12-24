@@ -76,19 +76,25 @@ class RepositoryFunctionalTests(WebObject):
         profilePage.profile_button.click()
         self.assertEqual(profilePage.verify_profile_page('brandon'), True, "Profile Name not verified")
 
-    def test_new_mirrors(self):
+    def test_create_delete_mirror(self):
         ''' This tests validates if non public mirror is created'''
+        url = self.live_server_url + '/apt/brandon/brandon'
         self.create_login_session('brandon')
         mirrorsPage = MirrorsPage(self.driver)
         mirrorsPage.driver.get(self.live_server_url)
         mirrorsPage.mirror_button.click()
         mirrorsPage.new_mirror_button.click()
-        mirrorsPage.url_field.send_keys('%s%s' % (self.live_server_url, '/apt/brandon/brandon'))
+        mirrorsPage.url_field.send_keys(url)
         mirrorsPage.series_field.send_keys('brandon/aasemble')
         mirrorsPage.component_field.send_keys('aasemble')
         mirrorsPage.submit_button.click()
-        self.assertTrue(mirrorsPage.verify_mirror_visible_by_url('%s%s' % (self.live_server_url, '/apt/brandon/brandon')))
+        self.assertTrue(mirrorsPage.verify_mirror_visible_by_url(url))
         self.assertTrue(mirrorsPage.verify_mirror_private())
+        mirrorsPage.click_on_mirror_uuid(url)
+        # Verfies if URL value  is visible after clicking on uuid
+        self.assertTrue(mirrorsPage.verify_mirror_value_visible(url))
+        mirrorsPage.delete_button.click()
+        self.assertFalse(mirrorsPage.verify_mirror_visible_by_url(url))
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
     # This tests needs celery so overriding the settings
@@ -169,7 +175,6 @@ class RepositoryFunctionalTests(WebObject):
          4. Create a snaphot
          5. Repeat step 3.
          6. Difference should be exaclty one.'''
-        self.test_new_mirrors()
         self.test_mirror_set()
         self.create_login_session('brandon')
         mirrorsSet = MirrorSetPage(self.driver)
@@ -211,7 +216,6 @@ class RepositoryFunctionalTests(WebObject):
         1. Create mirror and mirror-set.
         2. Go to mirror-set page.
         3. Delete mirror set.'''
-        self.test_new_mirrors()
         self.test_mirror_set()
         self.create_login_session('brandon')
         mirrorsSet = MirrorSetPage(self.driver)
@@ -229,7 +233,6 @@ class RepositoryFunctionalTests(WebObject):
          4. Edit the snapshot tag.
          5. Delete a snapshot tag.
          6. Create a new snapshot-tag '''
-        self.test_new_mirrors()
         self.test_mirror_set()
         self.create_login_session('brandon')
         mirrorsSet = MirrorSetPage(self.driver)

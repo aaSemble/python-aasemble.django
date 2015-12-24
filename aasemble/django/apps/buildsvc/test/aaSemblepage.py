@@ -36,6 +36,27 @@ class BasePage(object):
                 Exceptions.ElementNotVisibleException):
             return False
 
+    def _is_value_displayed(self, locator, value):
+        try:
+            webelement = self.driver.find_element(*locator)
+            element_attribute_value = webelement.get_attribute('value')
+            return element_attribute_value == value
+        except Exception:
+            return False
+
+    '''This method extracts web table row based on input text
+       data to compare and verify as per test case'''
+    def fetch_table_row_details(self, findtext, table_locator):
+        # get all of the rows in the table
+        table_webelement = self.driver.find_element(*table_locator)
+        rows = table_webelement.find_elements(by.By.TAG_NAME, "tr")
+        for row in rows:
+            # Get the columns
+            col = row.find_elements(by.By.TAG_NAME, "td")
+            for s in col:
+                if s.text == findtext:
+                    return row
+
 
 class SourcePage(BasePage):
     '''This class is to perform all operations on sourcePackage
@@ -171,6 +192,7 @@ class BuildPage(BasePage):
 
 
 class MirrorsPage(BasePage):
+    _table_id_locator = (by.By.CSS_SELECTOR, '.table.table-striped')
 
     @property
     def mirror_button(self):
@@ -206,9 +228,19 @@ class MirrorsPage(BasePage):
         locator = (by.By.LINK_TEXT, value)
         return self._is_element_visible(locator)
 
+    def verify_mirror_value_visible(self, value):
+        locator = (by.By.NAME, "url")
+        return self._is_value_displayed(locator, value)
+
     def verify_mirror_private(self):
         locator = (by.By.XPATH, ".//table/tbody/tr[1]/td[5][contains(text(), False)]")
         return self._is_element_visible(locator)
+
+    def click_on_mirror_uuid(self, url_id):
+        row = self.fetch_table_row_details(url_id, self._table_id_locator)
+        columns = row.find_elements(by.By.TAG_NAME, "td")
+        # first columns corresponds to uuid
+        (columns[0]).click()
 
 
 class MirrorSetPage(BasePage):
