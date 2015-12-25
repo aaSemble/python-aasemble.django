@@ -359,6 +359,9 @@ class PackageSource(models.Model):
         return (parts[0], parts[1])
 
     def register_webhook(self):
+        if not getattr(settings, 'AASEMBLE_BUILDSVC_USE_WEBHOOKS', True):
+            return True
+
         if self.webhook_registered:
             return True
 

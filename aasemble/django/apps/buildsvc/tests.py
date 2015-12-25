@@ -277,6 +277,18 @@ class PackageSourceTestCase(TestCase):
         self.assertRaises(NotAValidGithubRepository, ps.github_owner_repo)
 
     @mock.patch('github3.GitHub')
+    @override_settings(AASEMBLE_BUILDSVC_USE_WEBHOOKS=False)
+    def test_register_webhook_disabled(self, GitHub):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://github.com/owner/repo',
+                                          branch='master',
+                                          last_built_name='something')
+
+        ps.register_webhook()
+
+        GitHub.assert_not_called()
+
+    @mock.patch('github3.GitHub')
     @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
     def test_register_webhook(self, GitHub):
         ps = PackageSource.objects.create(series_id=1,
