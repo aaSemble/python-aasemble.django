@@ -26,7 +26,10 @@
         <div id="navbar" class="navbar-collapse collapse">
           {% if request.user.is_authenticated %}
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Dashboard</a></li>
+            <li><a href="/">Dashboard</a></li>
+            <li><a href="{% url "buildsvc:repositories" %}">Repositories</a></li>
+            <li><a href="{% url "buildsvc:sources" %}">Sources</a></li>
+            <li><a href="{% url "buildsvc:builds" %}">Builds</a></li>
             <li><a href="#">Settings</a></li>
             <li><a href="{% url "profile" %}">Profile</a></li>
             <li><a href="#">Help</a></li>
