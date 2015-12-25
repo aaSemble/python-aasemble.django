@@ -315,6 +315,9 @@ class PackageSource(models.Model):
         self.build_counter += 1
         self.save()
 
+        # Ensure repository has been exported
+        self.series.repository.export()
+
         br = BuildRecord(source=self, build_counter=self.build_counter)
         br.save()
 
