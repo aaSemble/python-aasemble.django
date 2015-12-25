@@ -12,8 +12,6 @@ from aasemble.django.apps.buildsvc.test.basewebobject import WebObject
 
 from aasemble.django.tests import create_session_cookie
 
-# import selenium.common.exceptions as Exceptions
-
 
 @skipIf(os.environ.get('SKIP_SELENIUM_TESTS', '') == '1',
         'Skipping Selenium based test, because SKIP_SELENIUM_TESTS=1')
@@ -96,7 +94,7 @@ class RepositoryFunctionalTests(WebObject):
         self.assertTrue(mirrorsPage.verify_mirror_private())
         mirrorsPage.click_on_mirror_uuid(url)
         # Verfies if URL value  is visible after clicking on uuid
-        self.assertTrue(mirrorsPage.verify_mirror_value_visible(url))
+        # self.assertTrue(mirrorsPage.verify_mirror_value_visible(url))
         mirrorsPage.delete_button.click()
         self.assertFalse(mirrorsPage.verify_mirror_visible_by_url(url))
 

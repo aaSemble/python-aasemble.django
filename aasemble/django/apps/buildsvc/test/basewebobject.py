@@ -14,6 +14,7 @@ class WebObject(StaticLiveServerTestCase):
         self.driver = WebDriver()
         self.driver.set_window_size(1024, 768)
         self.driver.maximize_window()
+        self.driver.implicitly_wait(15)
 
     @classmethod
     def tearDownClass(self):
