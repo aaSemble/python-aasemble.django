@@ -9,6 +9,13 @@ def reprepro(repository_id, *args):
 
 
 @shared_task(ignore_result=True)
+def export(repository_id):
+    from .models import Repository
+    r = Repository.objects.get(id=repository_id)
+    r.export()
+
+
+@shared_task(ignore_result=True)
 def build(package_source_id):
     from .models import PackageSource
     ps = PackageSource.objects.get(id=package_source_id)

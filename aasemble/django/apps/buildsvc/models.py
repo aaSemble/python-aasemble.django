@@ -159,6 +159,10 @@ class Repository(models.Model):
         self._reprepro('--ignore=wrongdistribution', 'include', series_name, changes_file)
         self.export()
 
+    def save(self, *args, **kwargs):
+        tasks.export.delay(self.id)
+        super(Repository, self).save(*args, **kwargs)
+
     @property
     def base_url(self):
         return '%s/%s/%s' % (settings.BUILDSVC_REPOS_BASE_URL,
@@ -314,9 +318,6 @@ class PackageSource(models.Model):
     def build_real(self):
         self.build_counter += 1
         self.save()
-
-        # Ensure repository has been exported
-        self.series.repository.export()
 
         br = BuildRecord(source=self, build_counter=self.build_counter)
         br.save()
