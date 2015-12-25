@@ -37,12 +37,9 @@ class BasePage(object):
             return False
 
     def _is_value_displayed(self, locator, value):
-        try:
-            webelement = self.driver.find_element(*locator)
-            element_attribute_value = webelement.get_attribute('value')
-            return element_attribute_value == value
-        except Exception:
-            return False
+        webelement = self.driver.find_element(*locator)
+        element_attribute_value = webelement.get_attribute('value')
+        return element_attribute_value == value
 
     '''This method extracts web table row based on input text
        data to compare and verify as per test case'''
