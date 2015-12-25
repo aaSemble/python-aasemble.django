@@ -159,6 +159,10 @@ class Repository(models.Model):
         self._reprepro('--ignore=wrongdistribution', 'include', series_name, changes_file)
         self.export()
 
+    def save(self, *args, **kwargs):
+        tasks.export.delay(self.id)
+        super(Repository, self).save(*args, **kwargs)
+
     @property
     def base_url(self):
         return '%s/%s/%s' % (settings.BUILDSVC_REPOS_BASE_URL,
