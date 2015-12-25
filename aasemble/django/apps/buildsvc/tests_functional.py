@@ -3,6 +3,8 @@ import re
 
 from django.test.utils import override_settings, skipIf
 
+import mock
+
 from aasemble.django.apps.buildsvc.tasks import poll_one
 
 from aasemble.django.apps.buildsvc.test.aaSemblepage import BuildPage, ExternalDependenciesPage, LogoutPage, MirrorSetPage, MirrorsPage, OverviewPage, ProfilePage, SnapshotPage, SourcePage
@@ -43,7 +45,8 @@ class RepositoryFunctionalTests(WebObject):
         text_found = re.search(r'Sources', page_header.text)
         self.assertNotEqual(text_found, None)
 
-    def test_source_package(self):
+    @mock.patch('aasemble.django.apps.buildsvc.models.PackageSource.register_webhook')
+    def test_source_package(self, register_webhook):
         '''This test performs a basic package addition and deletion.
            This test consists of following steps:
            1. Create a session cookie for given user. We are using a existing
@@ -60,6 +63,7 @@ class RepositoryFunctionalTests(WebObject):
         git_url = "https://github.com/aaSemble/python-aasemble.django.git"
         sourcePage.create_new_package_source(git_url=git_url, branch='master', series='brandon/aasemble')
         self.assertEqual(sourcePage.verify_package_source(git_url=git_url), True, 'Package not created')
+        register_webhook.assert_called_with()
         sourcePage.delete_package_source()
         self.assertEqual(sourcePage.verify_package_source(git_url=git_url), False, 'Package not deleted')
 
@@ -98,7 +102,8 @@ class RepositoryFunctionalTests(WebObject):
 
     @override_settings(CELERY_ALWAYS_EAGER=True)
     # This tests needs celery so overriding the settings
-    def test_build_packages(self):
+    @mock.patch('aasemble.django.apps.buildsvc.models.PackageSource.register_webhook')
+    def test_build_packages(self, register_webhook):
         '''This test perform a package addtion and check whether a build
          started for the same.
          1. Create a session cookie for given user. We are using a existing
