@@ -209,6 +209,10 @@ class aaSembleV1Views(object):
 
                 return qs
 
+            def perform_create(self, serializer):
+                source = serializer.save()
+                source.register_webhook()
+
         return PackageSourceViewSet
 
     def ExternalDependencyViewSetFactory(selff):

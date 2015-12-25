@@ -353,7 +353,8 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.status_code, 401)
         self.assertEquals(response.data, {'detail': 'Invalid token.'})
 
-    def test_create_source(self, user='eric'):
+    @mock.patch('aasemble.django.apps.buildsvc.models.PackageSource.register_webhook')
+    def test_create_source(self, register_webhook, user='eric'):
         authenticate(self.client, user)
         response = self.client.get(self.repository_list_url)
         data = {'git_repository': 'https://github.com/sorenh/buildsvctest',
@@ -365,6 +366,7 @@ class APIv1Tests(APITestCase):
         data['self'] = response.data['self']
         data['builds'] = data['self'] + 'builds/'
         self.assertEquals(response.data, data)
+        register_webhook.assert_called_with()
         response = self.client.get(data['self'])
         self.assertEquals(response.data, data)
         return response.data

@@ -36,7 +36,8 @@ def package_source(request, source_id):
 
         if ((form.is_valid() and
              form.cleaned_data['series'].user_can_modify(request.user))):
-            form.save()
+            ps = form.save()
+            ps.register_webhook()
             return HttpResponseRedirect(reverse('buildsvc:sources'))
     else:
         form = get_package_source_form(request, instance=ps)
