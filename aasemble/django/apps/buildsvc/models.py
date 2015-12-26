@@ -58,7 +58,7 @@ class FakeDriver(RepositoryDriver):
         return 'FAKEID'
 
     def key_data(self):
-        return self.repository.key_id*50
+        return self.repository.key_id * 50
 
 
 class RepreproDriver(RepositoryDriver):
