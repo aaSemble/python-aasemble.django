@@ -26,6 +26,7 @@ class APIv1Tests(APITestCase):
     base_url = '/api/v1/'
     source_should_be_embedded_in_build = False
     build_includes_duration = False
+    repository_includes_key_data = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -94,6 +95,10 @@ class APIv1Tests(APITestCase):
                            'sources': response.data['self'] + 'sources/',
                            'user': user,
                            'key_id': u''}
+
+        if self.repository_includes_key_data:
+            expected_result['key'] = None
+
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result)
@@ -156,6 +161,10 @@ class APIv1Tests(APITestCase):
                            'sources': response.data['self'] + 'sources/',
                            'user': 'eric',
                            'key_id': u''}
+
+        if self.repository_includes_key_data:
+            expected_result['key'] = None
+
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result, 'Changes were not persisted')
@@ -1187,6 +1196,7 @@ class APIv3Tests(APIv2Tests):
     base_url = '/api/v3/'
     source_should_be_embedded_in_build = True
     build_includes_duration = True
+    repository_includes_key_data = True
 
     def test_build_duration(self):
         authenticate(self.client, 'eric')

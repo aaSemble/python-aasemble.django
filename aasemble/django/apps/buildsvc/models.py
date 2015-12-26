@@ -57,6 +57,9 @@ class FakeDriver(RepositoryDriver):
     def generate_key(self):
         return 'FAKEID'
 
+    def key_data(self):
+        return self.repository.key_id * 50
+
 
 class RepreproDriver(RepositoryDriver):
     def generate_key(self):
@@ -68,6 +71,10 @@ class RepreproDriver(RepositoryDriver):
         for l in output.split('\n'):
             if l.startswith('gpg: key '):
                 return l.split(' ')[2]
+
+    def key_data(self):
+        if self.repository.key_id:
+            return run_cmd(['gpg', '-a', '--export', self.repository.key_id])
 
 
 def get_repo_driver(repository):
@@ -140,12 +147,14 @@ class Repository(models.Model):
         return run_cmd(['reprepro', '-b', self.basedir] + list(args),
                        override_env=env)
 
+    def key_data(self):
+        return get_repo_driver(self).key_data()
+
     def export_key(self):
         keypath = os.path.join(self.outdir(), 'repo.key')
         if not os.path.exists(keypath):
-            output = run_cmd(['gpg', '-a', '--export', self.key_id])
             with open(keypath, 'w') as fp:
-                fp.write(output)
+                fp.write(self.key_data())
 
     def export(self):
         self.ensure_key()
