@@ -290,6 +290,7 @@ class PackageSourceTestCase(TestCase):
 
     @mock.patch('github3.GitHub')
     @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
+    @override_settings(AASEMBLE_BUILDSVC_USE_WEBHOOKS=True)
     def test_register_webhook(self, GitHub):
         ps = PackageSource.objects.create(series_id=1,
                                           git_url='https://github.com/owner/repo',
@@ -313,6 +314,7 @@ class PackageSourceTestCase(TestCase):
 
     @mock.patch('github3.GitHub')
     @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
+    @override_settings(AASEMBLE_BUILDSVC_USE_WEBHOOKS=True)
     def test_register_webhook_fails_does_not_update_db(self, GitHub):
         ps = PackageSource.objects.create(series_id=1,
                                           git_url='https://github.com/owner/repo',
@@ -337,6 +339,7 @@ class PackageSourceTestCase(TestCase):
 
     @mock.patch('github3.GitHub')
     @override_settings(GITHUB_WEBHOOK_URL='https://example.com/api/github/')
+    @override_settings(AASEMBLE_BUILDSVC_USE_WEBHOOKS=True)
     def test_register_webhook_already_registered_updates_db(self, GitHub):
         ps = PackageSource.objects.create(series_id=1,
                                           git_url='https://github.com/owner/repo',
