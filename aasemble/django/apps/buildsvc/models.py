@@ -169,8 +169,8 @@ class Repository(models.Model):
         self.export()
 
     def save(self, *args, **kwargs):
-        tasks.export.delay(self.id)
         super(Repository, self).save(*args, **kwargs)
+        tasks.export.delay(self.id)
 
     @property
     def base_url(self):
