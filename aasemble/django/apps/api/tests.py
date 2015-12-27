@@ -89,8 +89,8 @@ class APIv1Tests(APITestCase):
         self.assertTrue(response.data['self'].startswith('http://testserver' + self.repository_list_url), response.data['self'])
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo',
-                           'binary_source_list': 'deb %s/%s/testrepo aasemble main' % (settings.BUILDSVC_REPOS_BASE_URL, user,),
-                           'source_source_list': 'deb-src %s/%s/testrepo aasemble main' % (settings.BUILDSVC_REPOS_BASE_URL, user,),
+                           'binary_source_list': 'deb %s/%s/testrepo %s main' % (settings.BUILDSVC_REPOS_BASE_URL, user, settings.BUILDSVC_DEFAULT_SERIES_NAME,),
+                           'source_source_list': 'deb-src %s/%s/testrepo %s main' % (settings.BUILDSVC_REPOS_BASE_URL, user, settings.BUILDSVC_DEFAULT_SERIES_NAME,),
                            'self': response.data['self'],
                            'sources': response.data['self'] + 'sources/',
                            'user': user,
@@ -155,8 +155,8 @@ class APIv1Tests(APITestCase):
         self.assertEquals(response.data['self'], repo['self'], '"self" attribute changed')
         expected_result = {'external_dependencies': response.data['self'] + 'external_dependencies/',
                            'name': 'testrepo2',
-                           'binary_source_list': 'deb %s/eric/testrepo2 aasemble main' % (settings.BUILDSVC_REPOS_BASE_URL,),
-                           'source_source_list': 'deb-src %s/eric/testrepo2 aasemble main' % (settings.BUILDSVC_REPOS_BASE_URL,),
+                           'binary_source_list': 'deb %s/eric/testrepo2 %s main' % (settings.BUILDSVC_REPOS_BASE_URL, settings.BUILDSVC_DEFAULT_SERIES_NAME,),
+                           'source_source_list': 'deb-src %s/eric/testrepo2 %s main' % (settings.BUILDSVC_REPOS_BASE_URL, settings.BUILDSVC_DEFAULT_SERIES_NAME,),
                            'self': response.data['self'],
                            'sources': response.data['self'] + 'sources/',
                            'user': 'eric',
