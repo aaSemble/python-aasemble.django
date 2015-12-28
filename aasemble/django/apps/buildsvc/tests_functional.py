@@ -77,7 +77,7 @@ class RepositoryFunctionalTests(WebObject):
         profilePage.driver.get(self.live_server_url)
         profilePage.profile_button.click()
         self.assertEqual(profilePage.verify_profile_page('brandon'), True, "Profile Name not verified")
-    
+
     @skipIf(True, "Debuging in inprogress")
     def test_create_delete_mirror(self):
         ''' This tests validates if non public mirror is created'''
