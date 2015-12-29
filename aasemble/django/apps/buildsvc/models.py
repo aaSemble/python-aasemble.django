@@ -124,18 +124,20 @@ class Repository(models.Model):
         return ensure_dir(basedir)
 
     def confdir(self):
-        return os.path.join(self.basedir, 'conf')
+        confdir = os.path.join(self.basedir, 'conf')
+        return ensure_dir(confdir)
 
     def outdir(self):
-        return os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
-                            self.user.username, self.name)
+        outdir = os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR, self.user.username, self.name)
+        return ensure_dir(outdir)
 
     @property
     def buildlogdir(self):
         return ensure_dir(os.path.join(self.outdir(), 'buildlogs'))
 
     def gpghome(self):
-        return os.path.join(self.basedir, '.gnupg')
+        gpghome = os.path.join(self.basedir, '.gnupg')
+        return ensure_dir(gpghome)
 
     def ensure_directory_structure(self):
         recursive_render(os.path.join(os.path.dirname(__file__),
