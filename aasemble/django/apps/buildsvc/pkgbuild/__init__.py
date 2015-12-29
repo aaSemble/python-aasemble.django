@@ -11,6 +11,8 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 
+import yaml
+
 from ....utils import recursive_render
 
 
@@ -83,46 +85,51 @@ class PackageBuilder(object):
             try:
                 stdout_orig = sys.stdout
                 sys.stdout = fp
-                if settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY is None:
-                    dbuild.docker_build(build_dir=self.basedir,
-                                        build_type='source',
-                                        source_dir=source_dir,
-                                        build_owner=os.getuid())
-                else:
-                    dbuild.docker_build(build_dir=self.basedir,
-                                        build_type='source',
-                                        source_dir=source_dir,
-                                        build_owner=os.getuid(),
-                                        proxy=settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY)
+                dbuild.docker_build(build_dir=self.basedir,
+                                    build_type='source',
+                                    source_dir=source_dir,
+                                    build_owner=os.getuid(),
+                                    proxy=settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY)
             finally:
                 sys.stdout = stdout_orig
 
     def docker_build_binary_package(self):
         """Build binary packages in docker"""
+        parallel = self.get_build_config().get('parallel',
+                                               getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))
         with open(self.build_record.buildlog(), 'a+') as fp:
             try:
                 stdout_orig = sys.stdout
                 sys.stdout = fp
-                if settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY is None:
-                    dbuild.docker_build(build_dir=self.basedir,
-                                        build_type='binary',
-                                        build_owner=os.getuid())
-                else:
-                    dbuild.docker_build(build_dir=self.basedir,
-                                        build_type='binary',
-                                        build_owner=os.getuid(),
-                                        proxy=settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY)
+                dbuild.docker_build(build_dir=self.basedir,
+                                    build_type='binary',
+                                    build_owner=os.getuid(),
+                                    parallel=parallel,
+                                    proxy=settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY)
             finally:
                 sys.stdout = stdout_orig
+
+    def get_build_config(self):
+        return self.get_aasemble_config().get('build', {})
+
+    def get_aasemble_config(self):
+        aasemble_config = os.path.join(self.builddir, '.aasemble.yml')
+        if os.path.exists(aasemble_config):
+            with open(aasemble_config, 'r') as fp:
+                return yaml.load(fp)
+        return {}
 
     def detect_runtime_dependencies(self):
         return []
 
     def detect_build_dependencies(self):
         reqfile = os.path.join(self.builddir, '.extra_build_packages')
+        build_deps = []
         if os.path.exists(reqfile):
             with open(reqfile, 'r') as fp:
-                return filter(lambda s: s, fp.read().split('\n'))
+                build_deps += filter(lambda s: s, fp.read().split('\n'))
+
+        build_deps += self.get_aasemble_config().get('build', {}).get('dependencies', [])
         return []
 
     def populate_debian_dir(self):

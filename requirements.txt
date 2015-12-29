@@ -1,3 +1,4 @@
+PyYAML
 Django
 celery
 django-celery
