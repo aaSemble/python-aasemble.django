@@ -12,6 +12,7 @@ def reprepro(repository_id, *args):
 def export(repository_id):
     from .models import Repository
     r = Repository.objects.get(id=repository_id)
+    r.first_series()
     r.export()
 
 
