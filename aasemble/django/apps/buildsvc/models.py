@@ -157,6 +157,7 @@ class Repository(models.Model):
                 fp.write(self.key_data())
 
     def export(self):
+        self.first_series()
         self.ensure_key()
         self.ensure_directory_structure()
         self.export_key()
