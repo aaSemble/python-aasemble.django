@@ -136,8 +136,7 @@ class Repository(models.Model):
         return ensure_dir(os.path.join(self.outdir(), 'buildlogs'))
 
     def gpghome(self):
-        gpghome = os.path.join(self.basedir, '.gnupg')
-        return ensure_dir(gpghome)
+        return os.path.join(self.basedir, '.gnupg')
 
     def ensure_directory_structure(self):
         recursive_render(os.path.join(os.path.dirname(__file__),
