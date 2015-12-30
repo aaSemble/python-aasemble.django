@@ -15,7 +15,7 @@ class SnapshotTestCase(TestCase):
         ms.mirrors.add(m)
         s = Snapshot.objects.create(mirrorset=ms)
         Tags.objects.create(snapshot=s, tag='test')
-        perform_snapshot.delay.assert_called_with(s.id)
+        perform_snapshot.apply_async.assert_called_with((s.id,), countdown=5)
 
     @mock.patch('aasemble.django.apps.mirrorsvc.models.Snapshot.sync_dists')
     @mock.patch('aasemble.django.apps.mirrorsvc.models.Snapshot.symlink_pool')
