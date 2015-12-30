@@ -159,7 +159,7 @@ class Snapshot(models.Model):
         super(Snapshot, self).save(*args, **kwargs)
 
         if perform_snapshot:
-            tasks.perform_snapshot.delay(self.id)
+            tasks.perform_snapshot.apply_async((self.id,), countdown=5)
 
     def perform_snapshot(self):
         self.sync_dists()
