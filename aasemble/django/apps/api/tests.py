@@ -3,6 +3,7 @@ import os.path
 from collections import OrderedDict
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.test import override_settings
 
 import mock
@@ -12,6 +13,7 @@ from rest_framework.test import APITestCase
 
 from six.moves.urllib.parse import urlparse
 
+from aasemble.django.apps.buildsvc.models import PackageSource, Repository
 from aasemble.django.apps.mirrorsvc.models import Mirror, Snapshot
 
 
@@ -24,9 +26,12 @@ def authenticate(client, username=None, token=None):
 class APIv1Tests(APITestCase):
     fixtures = ['complete.json']
     base_url = '/api/v1/'
+    view_prefix = 'v1'
+    lookup_type = 'pk'
     source_should_be_embedded_in_build = False
     build_includes_duration = False
     repository_includes_key_data_link = False
+    repository_includes_builds_link = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -99,6 +104,9 @@ class APIv1Tests(APITestCase):
         if self.repository_includes_key_data_link:
             expected_result['key'] = '%s/%s/testrepo/repo.key' % (settings.BUILDSVC_REPOS_BASE_URL, user)
 
+        if self.repository_includes_builds_link:
+            expected_result['builds'] = response.data['self'] + 'builds/'
+
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result)
@@ -164,6 +172,9 @@ class APIv1Tests(APITestCase):
 
         if self.repository_includes_key_data_link:
             expected_result['key'] = '%s/eric/testrepo2/repo.key' % (settings.BUILDSVC_REPOS_BASE_URL,)
+
+        if self.repository_includes_builds_link:
+            expected_result['builds'] = response.data['self'] + 'builds/'
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
@@ -303,6 +314,54 @@ class APIv1Tests(APITestCase):
         response = self.client.get(self.build_list_url)
         self.assertEquals(self.build_includes_duration, 'duration' in response.data['results'][0])
         self.assertEquals(self.build_includes_duration, 'build_finished' in response.data['results'][0])
+
+    def test_fetch_builds_by_source(self):
+        authenticate(self.client, 'eric')
+
+        source = PackageSource.objects.get(id=1)
+        url = reverse('{0}_packagesource-detail'.format(self.view_prefix),
+                      kwargs={self.lookup_type: str(getattr(source, self.lookup_type))})
+
+        with self.assertNumQueries(7):
+            response = self.client.get(url + 'builds/')
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(response.data['count'], 10)
+
+    def test_fetch_builds_by_source_none(self):
+        authenticate(self.client, 'eric')
+
+        source = PackageSource.objects.get(id=2)
+        url = reverse('{0}_packagesource-detail'.format(self.view_prefix),
+                      kwargs={self.lookup_type: str(getattr(source, self.lookup_type))})
+
+        with self.assertNumQueries(6):
+            response = self.client.get(url + 'builds/')
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(response.data['count'], 0)
+
+    def test_fetch_builds_by_repository(self):
+        authenticate(self.client, 'eric')
+
+        source = Repository.objects.get(id=4)
+        url = reverse('{0}_repository-detail'.format(self.view_prefix),
+                      kwargs={self.lookup_type: str(getattr(source, self.lookup_type))})
+
+        with self.assertNumQueries(7):
+            response = self.client.get(url + 'builds/')
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(response.data['count'], 10)
+
+    def test_fetch_builds_by_repository_none(self):
+        authenticate(self.client, 'eric')
+
+        source = Repository.objects.get(id=5)
+        url = reverse('{0}_repository-detail'.format(self.view_prefix),
+                      kwargs={self.lookup_type: str(getattr(source, self.lookup_type))})
+
+        with self.assertNumQueries(6):
+            response = self.client.get(url + 'builds/')
+            self.assertEquals(response.status_code, 200)
+            self.assertEquals(response.data['count'], 0)
 
     ################
     # Source tests #
@@ -1092,6 +1151,8 @@ class APIv1Tests(APITestCase):
 
 class APIv2Tests(APIv1Tests):
     base_url = '/api/v2/'
+    view_prefix = 'v2'
+    lookup_type = 'uuid'
 
     def test_builds_default_order(self):
         authenticate(self.client, 'eric')
@@ -1197,6 +1258,8 @@ class APIv3Tests(APIv2Tests):
     source_should_be_embedded_in_build = True
     build_includes_duration = True
     repository_includes_key_data_link = True
+    repository_includes_builds_link = True
+    view_prefix = 'v3'
 
     def test_build_duration(self):
         authenticate(self.client, 'eric')

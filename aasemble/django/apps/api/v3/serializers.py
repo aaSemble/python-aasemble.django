@@ -6,3 +6,4 @@ class aaSembleAPIv3Serializers(v2_serializers.aaSembleAPIv2Serializers):
     builds_nest_source = True
     include_build_duration = True
     include_key_data_link = True
+    include_builds_link = True
