@@ -27,7 +27,7 @@ class APIv1Tests(APITestCase):
     fixtures = ['complete.json']
     base_url = '/api/v1/'
     view_prefix = 'v1'
-    lookup_type = 'id'
+    lookup_type = 'pk'
     source_should_be_embedded_in_build = False
     build_includes_duration = False
     repository_includes_key_data_link = False
