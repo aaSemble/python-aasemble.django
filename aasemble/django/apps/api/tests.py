@@ -26,7 +26,7 @@ class APIv1Tests(APITestCase):
     base_url = '/api/v1/'
     source_should_be_embedded_in_build = False
     build_includes_duration = False
-    repository_includes_key_data = False
+    repository_includes_key_data_link = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -96,8 +96,8 @@ class APIv1Tests(APITestCase):
                            'user': user,
                            'key_id': u''}
 
-        if self.repository_includes_key_data:
-            expected_result['key'] = None
+        if self.repository_includes_key_data_link:
+            expected_result['key'] = '%s/%s/testrepo/repo.key' % (settings.BUILDSVC_REPOS_BASE_URL, user)
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
@@ -162,8 +162,8 @@ class APIv1Tests(APITestCase):
                            'user': 'eric',
                            'key_id': u''}
 
-        if self.repository_includes_key_data:
-            expected_result['key'] = None
+        if self.repository_includes_key_data_link:
+            expected_result['key'] = '%s/eric/testrepo2/repo.key' % (settings.BUILDSVC_REPOS_BASE_URL,)
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
@@ -1196,7 +1196,7 @@ class APIv3Tests(APIv2Tests):
     base_url = '/api/v3/'
     source_should_be_embedded_in_build = True
     build_includes_duration = True
-    repository_includes_key_data = True
+    repository_includes_key_data_link = True
 
     def test_build_duration(self):
         authenticate(self.client, 'eric')

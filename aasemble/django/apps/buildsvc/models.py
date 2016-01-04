@@ -74,7 +74,8 @@ class RepreproDriver(RepositoryDriver):
 
     def key_data(self):
         if self.repository.key_id:
-            return run_cmd(['gpg', '-a', '--export', self.repository.key_id])
+            env = {'GNUPG_HOME': self.repository.gpghome()}
+            return run_cmd(['gpg', '-a', '--export', self.repository.key_id], override_env=env)
 
 
 def get_repo_driver(repository):
@@ -150,6 +151,9 @@ class Repository(models.Model):
 
     def key_data(self):
         return get_repo_driver(self).key_data()
+
+    def key_url(self):
+        return '%s/repo.key' % (self.base_url,)
 
     def export_key(self):
         keypath = os.path.join(self.outdir(), 'repo.key')
