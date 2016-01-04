@@ -5,4 +5,4 @@ class aaSembleAPIv3Serializers(v2_serializers.aaSembleAPIv2Serializers):
     view_prefix = 'v3'
     builds_nest_source = True
     include_build_duration = True
-    include_key_data = True
+    include_key_data_link = True
