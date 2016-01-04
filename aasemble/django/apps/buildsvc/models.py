@@ -306,6 +306,7 @@ class PackageSource(models.Model):
         try:
             run_cmd(['git',
                      'clone', self.git_url,
+                     '--recursive',
                      '-b', self.branch,
                      'build'],
                     cwd=tmpdir, logger=logger)
