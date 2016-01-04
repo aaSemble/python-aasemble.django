@@ -255,6 +255,13 @@ class PackageSourceTestCase(TestCase):
                                           last_built_name='something')
         self.assertEquals(('owner', 'repo'), ps.github_owner_repo())
 
+    def test_github_owner_repo_strips_dot_git(self):
+        ps = PackageSource.objects.create(series_id=1,
+                                          git_url='https://github.com/owner/repo.git',
+                                          branch='master',
+                                          last_built_name='something')
+        self.assertEquals(('owner', 'repo'), ps.github_owner_repo())
+
     def test_github_owner_repo_not_github(self):
         ps = PackageSource.objects.create(series_id=1,
                                           git_url='https://example.com/git',
