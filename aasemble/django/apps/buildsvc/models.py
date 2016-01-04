@@ -371,6 +371,9 @@ class PackageSource(models.Model):
         if len(parts) != 2:
             raise NotAValidGithubRepository()
 
+        if parts[1].endswith('.git'):
+            parts[1] = parts[1][:-4]
+
         return (parts[0], parts[1])
 
     def register_webhook(self):
