@@ -11,6 +11,7 @@ class aaSembleAPIv1Serializers(object):
     builds_nest_source = False
     include_build_duration = False
     include_key_data_link = False
+    include_builds_link = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()
@@ -207,10 +208,16 @@ class aaSembleAPIv1Serializers(object):
             if selff.include_key_data_link:
                 key = serializers.CharField(read_only=True, source='key_url')
 
+            if selff.include_builds_link:
+                builds = serializers.HyperlinkedIdentityField(view_name='{0}_build-list'.format(selff.view_prefix), lookup_url_kwarg='repository_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
+
             class Meta:
                 model = buildsvc_models.Repository
                 fields = ('self', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list', 'external_dependencies')
                 if selff.include_key_data_link:
                     fields += ('key',)
+
+                if selff.include_builds_link:
+                    fields += ('builds',)
 
         return RepositorySerializer

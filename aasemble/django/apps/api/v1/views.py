@@ -250,6 +250,9 @@ class aaSembleV1Views(object):
                 if 'source_{0}'.format(selff.default_lookup_field) in self.kwargs:
                     qs = qs.filter(**selff.get_qs_filter(self.kwargs, 'source', 'source'))
 
+                if 'repository_{0}'.format(selff.default_lookup_field) in self.kwargs:
+                    qs = qs.filter(**selff.get_qs_filter(self.kwargs, 'source__series__repository', 'repository'))
+
                 return qs
 
         return BuildViewSet
@@ -270,6 +273,7 @@ class aaSembleV1Views(object):
         repository_router = routers.NestedSimpleRouter(router, r'repositories', lookup='repository')
         repository_router.register(r'sources', self.PackageSourceViewSet, base_name='{0}_packagesource'.format(self.view_prefix))
         repository_router.register(r'external_dependencies', self.ExternalDependencyViewSet, base_name='{0}_externaldependency'.format(self.view_prefix))
+        repository_router.register(r'builds', self.BuildViewSet, base_name='{0}_build'.format(self.view_prefix))
 
         urls = [url(r'^', include(router.urls)),
                 url(r'^', include(repository_router.urls)),
