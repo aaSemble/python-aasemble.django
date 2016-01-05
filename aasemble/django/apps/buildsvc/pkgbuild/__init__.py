@@ -16,6 +16,32 @@ import yaml
 from ....utils import recursive_render
 
 
+class BuilderBackend(object):
+    pass
+
+
+class DbuildBuilderBackend(BuilderBackend):
+    def source_build(self, basedir, sourcedir):
+        dbuild.docker_build(build_dir=basedir,
+                            build_type='source',
+                            source_dir=sourcedir,
+                            build_owner=os.getuid(),
+                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'))
+
+    def binary_build(self, basedir, parallel=1):
+        dbuild.docker_build(build_dir=basedir,
+                            build_type='binary',
+                            build_owner=os.getuid(),
+                            parallel=parallel,
+                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'))
+
+
+def get_build_backend(settings=settings):
+    backend_name = getattr(settings, 'AASEMBLE_BUILDSVC_BUILD_BACKEND', 'dbuild')
+    if backend_name == 'dbuild':
+        return DbuildBuilderBackend()
+
+
 class PackageBuilder(object):
     def __init__(self, basedir, package_source, build_record):
         self.basedir = basedir
@@ -85,11 +111,7 @@ class PackageBuilder(object):
             try:
                 stdout_orig = sys.stdout
                 sys.stdout = fp
-                dbuild.docker_build(build_dir=self.basedir,
-                                    build_type='source',
-                                    source_dir=source_dir,
-                                    build_owner=os.getuid(),
-                                    proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
+                get_build_backend().source_build(self.basedir, source_dir)
             finally:
                 sys.stdout = stdout_orig
 
@@ -101,11 +123,7 @@ class PackageBuilder(object):
             try:
                 stdout_orig = sys.stdout
                 sys.stdout = fp
-                dbuild.docker_build(build_dir=self.basedir,
-                                    build_type='binary',
-                                    build_owner=os.getuid(),
-                                    parallel=parallel,
-                                    proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
+                get_build_backend().binary_build(self.basedir, parallel=parallel)
             finally:
                 sys.stdout = stdout_orig
 
