@@ -89,7 +89,7 @@ class PackageBuilder(object):
                                     build_type='source',
                                     source_dir=source_dir,
                                     build_owner=os.getuid(),
-                                    proxy=settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY)
+                                    proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
             finally:
                 sys.stdout = stdout_orig
 
@@ -105,7 +105,7 @@ class PackageBuilder(object):
                                     build_type='binary',
                                     build_owner=os.getuid(),
                                     parallel=parallel,
-                                    proxy=settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY)
+                                    proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
             finally:
                 sys.stdout = stdout_orig
 
