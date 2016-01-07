@@ -26,14 +26,14 @@ class DbuildBuilderBackend(BuilderBackend):
                             build_type='source',
                             source_dir=sourcedir,
                             build_owner=os.getuid(),
-                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'))
+                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
 
     def binary_build(self, basedir, parallel=1):
         dbuild.docker_build(build_dir=basedir,
                             build_type='binary',
                             build_owner=os.getuid(),
                             parallel=parallel,
-                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'))
+                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
 
 
 def get_build_backend(settings=settings):
