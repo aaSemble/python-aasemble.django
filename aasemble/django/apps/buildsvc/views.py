@@ -90,6 +90,12 @@ def builds(request):
     builds = BuildRecord.objects.filter(source__series__repository__in=Repository.lookup_by_user(request.user)).order_by('build_started')
     return render(request, 'buildsvc/html/builds.html', {'builds': builds})
 
+@login_required
+def rebuild(request, source_id):
+    ps = PackageSource.objects.get(pk=source_id)
+    ps.build()
+    builds = BuildRecord.objects.filter(source__series__repository__in=Repository.lookup_by_user(request.user)).order_by('build_started')
+    return render(request, 'buildsvc/html/builds.html', {'builds': builds})
 
 @login_required
 def repositories(request):

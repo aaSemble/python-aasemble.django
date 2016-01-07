@@ -12,6 +12,7 @@
           <th>Branch</th>
           <th>Destination APT repo</th>
           <th>Last built commit</th>
+          <th>Rebuild</th>
         </tr>
       </thead>
       <tbody>
@@ -28,6 +29,7 @@
               <td><a href="{{ last_commit_url }}">{{ source.last_seen_revision }}</a></td>
               {% endwith %}
           {% endif %}
+          <td><small><a href="{% url "buildsvc:rebuild" source_id=source.id %}">{% bootstrap_icon "repeat" %}</a></small></td>
         </tr>
         {% endfor %}
       </tbody>
