@@ -118,7 +118,9 @@ BUILDSVC_REPOS_BASE_URL = 'http://127.0.0.1:8000/apt'
 BUILDSVC_DEFAULT_SERIES_NAME = 'aasemble'
 BUILDSVC_DEBEMAIL = 'pkgbuild@aasemble.com'
 BUILDSVC_DEBFULLNAME = 'aaSemble Package Builder'
+
 MIRRORSVC_BASE_PATH = os.path.join(BASE_DIR, 'mirrors')
+MIRRORSVC_BASE_URL = 'http://127.0.0.1:8000/mirrors'
 
 LOGIN_URL = '/login/github/'
 LOGIN_REDIRECT_URL = '/'
