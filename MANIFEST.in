@@ -1,5 +1,6 @@
 include requirements.txt
 include test_project/*.py
 recursive-include aasemble/django/apps/main/templates *
+recursive-include aasemble/django/apps/main/static *
 recursive-include aasemble/django/apps/buildsvc/templates *
 recursive-include aasemble/django/apps/mirrorsvc/templates *
