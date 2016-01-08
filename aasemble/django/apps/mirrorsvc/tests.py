@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.contrib.auth import models as auth_models
-from django.test import TestCase
+
 
 import mock
+
+from aasemble.django.tests import AasembleTestCase as TestCase
 
 from .models import Mirror, MirrorSet, Snapshot, Tags
 
