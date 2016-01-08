@@ -1,0 +1,10 @@
+{% extends 'aasemble/base.html' %}
+{% load bootstrap3 %}
+{% block title %}
+    {% if source_id != 'exception' %}
+        Error building package {{source.name}}
+    {% else %}
+        Rebuilt Source {{ source.name}}
+    {% endif %}
+{% endblock %}
+{% block aasemble_content %} {% endblock %}
