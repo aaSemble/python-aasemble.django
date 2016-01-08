@@ -35,6 +35,10 @@ class MirrorSet(models.Model):
         str_uuid = str(self.uuid)
         return reverse('mirrorsvc:mirrorset_snapshots', kwargs={'uuid': str_uuid})
 
+    @property
+    def sources_list(self):
+        return '\n'.join([mirror.sources_list for mirror in self.mirrors.all()])
+
     def user_can_modify(self, user):
         return user == self.owner
 
@@ -79,6 +83,16 @@ class Mirror(models.Model):
     def archive_subpath(self):
         parsed_url = urlparse(self.url)
         return os.path.join(parsed_url.netloc, parsed_url.path[1:])
+
+    @property
+    def sources_list(self):
+        rv = ''
+        parsed_url = urlparse(self.url)
+        url = '%s/%s%s' % (settings.MIRRORSVC_BASE_URL, parsed_url.netloc, parsed_url.path)
+        for series in self.series_list():
+            rv += 'deb %s %s %s\n' % (url, series, self.components)
+            rv += 'deb-src %s %s %s\n' % (url, series, self.components)
+        return rv
 
     @property
     def dists(self):

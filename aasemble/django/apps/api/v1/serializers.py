@@ -12,6 +12,8 @@ class aaSembleAPIv1Serializers(object):
     include_build_duration = False
     include_key_data_link = False
     include_builds_link = False
+    include_sources_list_in_mirrorset = False
+    include_sources_list_in_mirrors = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()
@@ -80,10 +82,14 @@ class aaSembleAPIv1Serializers(object):
             components = selff.SimpleListField(required=True)
             public = serializers.BooleanField(default=False)
             refresh_in_progress = serializers.BooleanField(read_only=True)
+            if selff.include_sources_list_in_mirrors:
+                sources_list = serializers.CharField(read_only=True)
 
             class Meta:
                 model = mirrorsvc_models.Mirror
                 fields = ('self', 'url', 'series', 'components', 'public', 'refresh_in_progress')
+                if selff.include_sources_list_in_mirrors:
+                    fields += ('sources_list',)
 
         return MirrorSerializer
 
@@ -91,10 +97,14 @@ class aaSembleAPIv1Serializers(object):
         class MirrorSetSerializer(serializers.HyperlinkedModelSerializer):
             self = serializers.HyperlinkedRelatedField(view_name='{0}_mirrorset-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
             mirrors = selff.MirrorField(many=True, view_name='{0}_mirror-detail'.format(selff.view_prefix), queryset=mirrorsvc_models.Mirror.objects.all(), lookup_field=selff.default_lookup_field)
+            if selff.include_sources_list_in_mirrorset:
+                sources_list = serializers.CharField(read_only=True)
 
             class Meta:
                 model = mirrorsvc_models.MirrorSet
                 fields = ('self', 'mirrors')
+                if selff.include_sources_list_in_mirrorset:
+                    fields += ('sources_list',)
 
         return MirrorSetSerializer
 
