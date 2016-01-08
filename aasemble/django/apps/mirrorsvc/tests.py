@@ -1,9 +1,18 @@
+from django.conf import settings
 from django.contrib.auth import models as auth_models
 from django.test import TestCase
 
 import mock
 
 from .models import Mirror, MirrorSet, Snapshot, Tags
+
+
+class MirrorTestCase(TestCase):
+    def test_sources_list(self):
+        mirror = Mirror.objects.get(id=2)
+        self.assertEquals(mirror.sources_list,
+                          ('deb {0}/2.example.com/ trusty main\n'
+                           'deb-src {0}/2.example.com/ trusty main\n').format(settings.MIRRORSVC_BASE_URL))
 
 
 class SnapshotTestCase(TestCase):

@@ -32,6 +32,8 @@ class APIv1Tests(APITestCase):
     build_includes_duration = False
     repository_includes_key_data_link = False
     repository_includes_builds_link = False
+    mirrorset_includes_sources_list = False
+    mirror_includes_sources_list = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -643,6 +645,9 @@ class APIv1Tests(APITestCase):
         data['self'] = response.data['self']
         data['refresh_in_progress'] = False
         data['public'] = False
+        if self.mirror_includes_sources_list:
+            data['sources_list'] = ('deb http://127.0.0.1:8000/mirrors/example.com/ trusty main\n'
+                                    'deb-src http://127.0.0.1:8000/mirrors/example.com/ trusty main\n')
         self.assertEquals(data, response.data)
         return response.data
 
@@ -854,9 +859,16 @@ class APIv1Tests(APITestCase):
 
     def test_create_mirrorset(self, user='eric'):
         response = self.test_create_mirror(user)
-        data = {'mirrors': [response['self']]}
+        mirror_id = response['self']
+        data = {'mirrors': [mirror_id]}
         response = self.client.post(self.mirrorset_list_url, data, format='json')
         self.assertEquals(response.status_code, 201)
+        expected_result = {'self': response.data['self'],
+                           'mirrors': [mirror_id]}
+        if self.mirrorset_includes_sources_list:
+            expected_result['sources_list'] = ('deb http://127.0.0.1:8000/mirrors/example.com/ trusty main\n'
+                                               'deb-src http://127.0.0.1:8000/mirrors/example.com/ trusty main\n')
+        self.assertEquals(response.data, expected_result)
         return response.data
 
     def test_patch_mirrorset_invalid_mirror(self):
@@ -1260,6 +1272,8 @@ class APIv3Tests(APIv2Tests):
     repository_includes_key_data_link = True
     repository_includes_builds_link = True
     view_prefix = 'v3'
+    mirrorset_includes_sources_list = True
+    mirror_includes_sources_list = True
 
     def test_build_duration(self):
         authenticate(self.client, 'eric')
