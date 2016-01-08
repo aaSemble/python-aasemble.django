@@ -13,6 +13,11 @@ E002 = Error(
     id='aasemble.buildsvc.E002',
 )
 
+E003 = Error(
+    "You do not seem to have reprepro installed",
+    id='aasemble.buildsvc.E003',
+)
+
 W001 = Error(
     "You have not configured allauth to request access to user's e-mails. "
     "Depending on your authentication config, this may be a problem.",
@@ -34,6 +39,14 @@ def private_dir_writable(app_configs, **kwargs):
          os.access(settings.BUILDSVC_REPOS_BASE_DIR, os.X_OK))):
         return []
     return [E002]
+
+
+@register(deploy=True)
+def reprepro_available(app_configs, **kwargs):
+    for d in os.environ['PATH'].split(':'):
+        if os.access(os.path.join(d, 'reprepro'), os.X_OK):
+            return []
+    return [E003]
 
 
 @register(deploy=True)
