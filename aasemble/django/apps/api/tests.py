@@ -646,8 +646,10 @@ class APIv1Tests(APITestCase):
         data['refresh_in_progress'] = False
         data['public'] = False
         if self.mirror_includes_sources_list:
-            data['sources_list'] = ('deb http://127.0.0.1:8000/mirrors/example.com/ trusty main\n'
-                                    'deb-src http://127.0.0.1:8000/mirrors/example.com/ trusty main\n')
+            uuid = data['self'].split('/')[-2]
+            url = 'http://127.0.0.1:8000/mirrors/{0}/example.com/'.format(uuid)
+            data['sources_list'] = ('deb {0} trusty main\n'
+                                    'deb-src {0} trusty main\n').format(url)
         self.assertEquals(data, response.data)
         return response.data
 
@@ -866,8 +868,9 @@ class APIv1Tests(APITestCase):
         expected_result = {'self': response.data['self'],
                            'mirrors': [mirror_id]}
         if self.mirrorset_includes_sources_list:
-            expected_result['sources_list'] = ('deb http://127.0.0.1:8000/mirrors/example.com/ trusty main\n'
-                                               'deb-src http://127.0.0.1:8000/mirrors/example.com/ trusty main\n')
+            url = 'http://127.0.0.1:8000/mirrors/{0}/example.com/'.format(mirror_id.split('/')[-2])
+            expected_result['sources_list'] = ('deb {0} trusty main\n'
+                                               'deb-src {0} trusty main\n').format(url)
         self.assertEquals(response.data, expected_result)
         return response.data
 

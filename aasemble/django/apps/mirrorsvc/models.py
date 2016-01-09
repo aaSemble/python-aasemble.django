@@ -88,7 +88,7 @@ class Mirror(models.Model):
     def sources_list(self):
         rv = ''
         parsed_url = urlparse(self.url)
-        url = '%s/%s%s' % (settings.MIRRORSVC_BASE_URL, parsed_url.netloc, parsed_url.path)
+        url = '%s/%s/%s%s' % (settings.MIRRORSVC_BASE_URL, self.uuid, parsed_url.netloc, parsed_url.path)
         for series in self.series_list():
             rv += 'deb %s %s %s\n' % (url, series, self.components)
             rv += 'deb-src %s %s %s\n' % (url, series, self.components)
