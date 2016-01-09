@@ -12,9 +12,10 @@ from .models import Mirror, MirrorSet, Snapshot, Tags
 class MirrorTestCase(TestCase):
     def test_sources_list(self):
         mirror = Mirror.objects.get(id=2)
+        url = '{0}/{1}/2.example.com/'.format(settings.MIRRORSVC_BASE_URL, "829bd2cd-eaaf-4244-a6a6-569cab027a6c")
         self.assertEquals(mirror.sources_list,
-                          ('deb {0}/2.example.com/ trusty main\n'
-                           'deb-src {0}/2.example.com/ trusty main\n').format(settings.MIRRORSVC_BASE_URL))
+                          ('deb {0} trusty main\n'
+                           'deb-src {0} trusty main\n').format(url))
 
 
 class SnapshotTestCase(TestCase):
