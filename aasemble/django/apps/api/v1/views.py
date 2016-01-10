@@ -81,6 +81,12 @@ class aaSembleV1Views(object):
             def get_queryset(self):
                 if self.request.user.is_superuser:
                     return self.queryset.all()
+
+                qs = self.queryset.all()
+
+                if selff.view_prefix == 'v1':
+                    qs = qs.exclude(visible_to_v1_api=False)
+
                 return self.queryset.filter(owner_id=self.request.user.id) | self.queryset.filter(public=True)
 
             def perform_create(self, serializer):

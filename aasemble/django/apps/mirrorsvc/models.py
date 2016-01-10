@@ -53,6 +53,7 @@ class Mirror(models.Model):
     public = models.BooleanField(default=False)
     refresh_in_progress = models.BooleanField(default=False)
     extra_admins = models.ManyToManyField(auth_models.Group)
+    visible_to_v1_api = models.BooleanField(default=False)
 
     def __str__(self):
         return '<Mirror of %s (owner=%s)>' % (self.url, self.owner)
@@ -70,9 +71,11 @@ class Mirror(models.Model):
 
     @property
     def basepath(self):
-        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors', str(self.id))
+        d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors', str(self.uuid))
         if not os.path.isdir(d):
             os.makedirs(d)
+            if self.visible_to_v1_api:
+                os.symlink(d, os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors', str(self.id)))
         return d
 
     @property
@@ -149,6 +152,8 @@ class Snapshot(models.Model):
         d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'snapshots', str(self.uuid))
         if not os.path.isdir(d):
             os.makedirs(d)
+            if self.visible_to_v1_api:
+                os.symlink(d, os.path.join(settings.MIRRORSVC_BASE_PATH, 'snapshots', str(self.id)))
         return d
 
     def sync_dists(self):

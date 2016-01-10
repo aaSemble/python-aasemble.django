@@ -85,6 +85,10 @@ class aaSembleAPIv1Serializers(object):
             if selff.include_sources_list_in_mirrors:
                 sources_list = serializers.CharField(read_only=True)
 
+            def create(self, validated_data):
+                return mirrorsvc_models.Mirror.objects.create(visible_to_v1_api=(selff.view_prefix == 'v1'),
+                                                              **validated_data)
+
             class Meta:
                 model = mirrorsvc_models.Mirror
                 fields = ('self', 'url', 'series', 'components', 'public', 'refresh_in_progress')
