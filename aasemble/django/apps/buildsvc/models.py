@@ -328,7 +328,6 @@ class PackageSource(models.Model):
     def name(self):
         return self.git_url.split('/')[-1].replace('_', '-')
 
-    @property
     def build(self):
         tasks.build.delay(self.id)
 

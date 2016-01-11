@@ -94,12 +94,14 @@ def builds(request):
 @login_required
 def rebuild(request, source_id):
     ps = PackageSource.objects.get(pk=source_id)
-    try:
-        ps.build()
-    except Exception as e:
-        ps.source_id = 'exception'
-        print(e)
-    return render(request, 'buildsvc/html/rebuild.html', {'source': ps})
+    if ps.series.user_can_modify(request.user):
+        try:
+            ps.build()
+        except Exception as e:
+            pass        #will handle it later
+        return render(request, 'buildsvc/html/rebuild.html', {'source': ps})
+    else:
+        return render(request, 'buildsvc/html/sources.html', {'sources': sources})
 
 
 @login_required
