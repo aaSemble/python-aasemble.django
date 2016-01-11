@@ -97,8 +97,9 @@ def rebuild(request, source_id):
     if ps.series.user_can_modify(request.user):
         try:
             ps.build()
-        except Exception as e:
-            pass        #will handle it later
+        except Exception:
+            # will handle it later
+            pass
         return render(request, 'buildsvc/html/rebuild.html', {'source': ps})
     else:
         return render(request, 'buildsvc/html/sources.html', {'sources': sources})
