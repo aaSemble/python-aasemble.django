@@ -381,6 +381,18 @@
 },
 {
     "fields": {
+        "uuid": "181ed3e1-2534-4a03-97af-ee62a5d9feca",
+        "url": "http://example.com/ubuntu",
+        "series": "trusty trusty-updates",
+        "components": "main universe",
+        "own_series": 1,
+        "key": ""
+    },
+    "model": "buildsvc.externaldependency",
+    "pk": 1
+},
+{
+    "fields": {
         "extra_admins": [],
         "key_id": "CA62552B",
         "uuid": "fcac72dd-f770-4225-b362-758cfbf2c370",

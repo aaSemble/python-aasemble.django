@@ -228,6 +228,14 @@ class Series(models.Model):
     def process_changes(self, changes_file):
         self.repository.process_changes(self.name, changes_file)
 
+    def build_sources_list(self):
+        sources = []
+        for series in ('trusty', 'trusty-updates', 'trusty-security'):
+            sources += ['deb http://archive.ubuntu.com/ubuntu {} main universe restricted multiverse'.format(series)]
+        sources += [self.binary_source_list(force_trusted=True)]
+        sources += sum([extdep.deb_lines for extdep in self.externaldependency_set.all()], [])
+        return '\n'.join(sources)
+
     def export(self):
         self.repository.export()
 
@@ -245,7 +253,11 @@ class ExternalDependency(models.Model):
 
     @property
     def deb_line(self):
-        return 'deb %s %s %s' % (self.url, self.series, self.components)
+        return '\n'.join(self.deb_lines)
+
+    @property
+    def deb_lines(self):
+        return ['deb %s %s %s' % (self.url, series, self.components) for series in self.series.split(' ')]
 
     def user_can_modify(self, user):
         return self.own_series.user_can_modify(user)

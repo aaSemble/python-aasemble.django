@@ -10,3 +10,4 @@ class aaSembleAPIv3Serializers(v2_serializers.aaSembleAPIv2Serializers):
     include_sources_list_in_mirrorset = True
     include_sources_list_in_mirrors = True
     sources_nest_repository = True
+    repo_has_build_sources_list = True

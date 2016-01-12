@@ -70,6 +70,16 @@ class RepositoryTestCase(TestCase):
         repo = Repository.objects.get(id=12)
         self.assertEquals(str(repo), 'eric/eric5')
 
+    def test_build_sources_list(self):
+        repo = Repository.objects.get(id=1)
+        self.assertEquals(repo.first_series().build_sources_list(),
+                          'deb http://archive.ubuntu.com/ubuntu trusty main universe restricted multiverse\n'
+                          'deb http://archive.ubuntu.com/ubuntu trusty-updates main universe restricted multiverse\n'
+                          'deb http://archive.ubuntu.com/ubuntu trusty-security main universe restricted multiverse\n'
+                          'deb [trusted=yes] http://127.0.0.1:8000/apt/brandon/brandon aasemble main\n'
+                          'deb http://example.com/ubuntu trusty main universe\n'
+                          'deb http://example.com/ubuntu trusty-updates main universe')
+
     def test_lookup_by_user_with_extra_admin(self):
         charles = auth_models.User.objects.get(id=3)
         self.assertEquals(set([2, 3]), set([repo.id for repo in Repository.lookup_by_user(charles)]))
