@@ -149,7 +149,7 @@ class Repository(models.Model):
 
     def _reprepro(self, *args):
         env = {'GNUPG_HOME': self.gpghome()}
-        return run_cmd(['reprepro', '-b', self.basedir] + list(args),
+        return run_cmd(['reprepro', '-b', self.basedir, '--waitforlock=10'] + list(args),
                        override_env=env)
 
     def key_data(self):
