@@ -34,6 +34,7 @@ class APIv1Tests(APITestCase):
     repository_includes_builds_link = False
     mirrorset_includes_sources_list = False
     mirror_includes_sources_list = False
+    repository_should_be_embedded_in_source = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -290,8 +291,8 @@ class APIv1Tests(APITestCase):
     def test_fetch_builds(self):
         authenticate(self.client, 'eric')
         # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
-        # rollback transaction, log response
-        with self.assertNumQueries(7):
+        # fetch related results (all in one), rollback transaction, log response
+        with self.assertNumQueries(8):
             response = self.client.get(self.build_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 10)
@@ -300,7 +301,7 @@ class APIv1Tests(APITestCase):
     def test_fetch_builds_without_logging(self):
         authenticate(self.client, 'eric')
         # 3 queries: Authenticate, count results, fetch results
-        with self.assertNumQueries(3):
+        with self.assertNumQueries(4):
             self.client.get(self.build_list_url)
 
     def test_source_is_linked_or_nested(self):
@@ -324,7 +325,7 @@ class APIv1Tests(APITestCase):
         url = reverse('{0}_packagesource-detail'.format(self.view_prefix),
                       kwargs={self.lookup_type: str(getattr(source, self.lookup_type))})
 
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(8):
             response = self.client.get(url + 'builds/')
             self.assertEquals(response.status_code, 200)
             self.assertEquals(response.data['count'], 10)
@@ -348,7 +349,7 @@ class APIv1Tests(APITestCase):
         url = reverse('{0}_repository-detail'.format(self.view_prefix),
                       kwargs={self.lookup_type: str(getattr(source, self.lookup_type))})
 
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(8):
             response = self.client.get(url + 'builds/')
             self.assertEquals(response.status_code, 200)
             self.assertEquals(response.data['count'], 10)
@@ -372,8 +373,8 @@ class APIv1Tests(APITestCase):
     def test_fetch_sources(self):
         authenticate(self.client, 'eric')
         # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
-        # rollback transaction, log response
-        with self.assertNumQueries(7):
+        # fetch related, rollback transaction, log response
+        with self.assertNumQueries(8):
             response = self.client.get(self.source_list_url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['count'], 12)
@@ -384,8 +385,8 @@ class APIv1Tests(APITestCase):
         for res in response.data['results']:
             if res['name'] == 'eric2':
                 # 7 queries: Create transaction, Authenticate, 1 logging entry, count results, fetch results,
-                # rollback transaction, log response
-                with self.assertNumQueries(7):
+                # fetch related, rollback transaction, log response
+                with self.assertNumQueries(8):
                     response = self.client.get(res['sources'])
                 self.assertEquals(response.status_code, 200)
                 self.assertEquals(response.data['count'], 2)
@@ -435,6 +436,10 @@ class APIv1Tests(APITestCase):
         self.assertTrue(response.data['self'].startswith('http://testserver' + self.source_list_url), response.data['self'])
         data['self'] = response.data['self']
         data['builds'] = data['self'] + 'builds/'
+
+        if self.repository_should_be_embedded_in_source:
+            data['repository_info'] = self.client.get(data['repository']).data
+
         self.assertEquals(response.data, data)
         register_webhook.assert_called_with()
         response = self.client.get(data['self'])
@@ -1277,6 +1282,7 @@ class APIv3Tests(APIv2Tests):
     view_prefix = 'v3'
     mirrorset_includes_sources_list = True
     mirror_includes_sources_list = True
+    repository_should_be_embedded_in_source = True
 
     def test_build_duration(self):
         authenticate(self.client, 'eric')
