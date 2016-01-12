@@ -205,7 +205,7 @@ class aaSembleV1Views(object):
             """
             lookup_field = selff.default_lookup_field
             lookup_value_regex = selff.default_lookup_value_regex
-            queryset = buildsvc_models.PackageSource.objects.select_related('series__repository__user')
+            queryset = buildsvc_models.PackageSource.objects.select_related('series__repository__user').prefetch_related('series__repository__series')
             serializer_class = selff.serializers.PackageSourceSerializer
 
             def get_queryset(self):
@@ -248,7 +248,7 @@ class aaSembleV1Views(object):
             """
             lookup_field = selff.default_lookup_field
             lookup_value_regex = selff.default_lookup_value_regex
-            queryset = buildsvc_models.BuildRecord.objects.all().select_related('source__series__repository__user')
+            queryset = buildsvc_models.BuildRecord.objects.all().select_related('source__series__repository__user').prefetch_related('source__series__repository__series')
             serializer_class = selff.serializers.BuildRecordSerializer
 
             def get_queryset(self):

@@ -14,16 +14,17 @@ class aaSembleAPIv1Serializers(object):
     include_builds_link = False
     include_sources_list_in_mirrorset = False
     include_sources_list_in_mirrors = False
+    sources_nest_repository = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()
         self.MirrorSetSerializer = self.MirrorSetSerializerFactory()
         self.SnapshotSerializer = self.SnapshotSerializerFactory()
+        self.RepositorySerializer = self.RepositorySerializerFactory()
         self.PackageSourceSerializer = self.PackageSourceSerializerFactory()
         self.SeriesSerializer = self.SeriesSerializerFactory()
         self.BuildRecordSerializer = self.BuildRecordSerializerFactory()
         self.ExternalDependencySerializer = self.ExternalDependencySerializerFactory()
-        self.RepositorySerializer = self.RepositorySerializerFactory()
 
     class SimpleListField(serializers.ListField):
         child = serializers.CharField()
@@ -150,9 +151,14 @@ class aaSembleAPIv1Serializers(object):
             repository = selff.RepositoryField(view_name='{0}_repository-detail'.format(selff.view_prefix), source='series.repository', queryset=buildsvc_models.Repository.objects.all(), lookup_field=selff.default_lookup_field)
             builds = serializers.HyperlinkedIdentityField(view_name='{0}_build-list'.format(selff.view_prefix), lookup_url_kwarg='source_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
 
+            if selff.sources_nest_repository:
+                repository_info = selff.RepositorySerializer(source='repository', read_only=True)
+
             class Meta:
                 model = buildsvc_models.PackageSource
                 fields = ('self', 'git_repository', 'git_branch', 'repository', 'builds')
+                if selff.sources_nest_repository:
+                    fields += ('repository_info',)
 
             def validate_repository(self, value):
                 return value.first_series()

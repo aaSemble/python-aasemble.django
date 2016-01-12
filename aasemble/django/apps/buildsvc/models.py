@@ -117,7 +117,10 @@ class Repository(models.Model):
             self.save()
 
     def first_series(self):
-        return Series.objects.get_or_create(defaults={'name': settings.BUILDSVC_DEFAULT_SERIES_NAME}, repository=self)[0]
+        try:
+            return self.series.all()[0]
+        except IndexError:
+            return Series.objects.create(name=settings.BUILDSVC_DEFAULT_SERIES_NAME, repository=self)
 
     @property
     def basedir(self):
@@ -277,6 +280,10 @@ class PackageSource(models.Model):
 
     def __str__(self):
         return '%s/%s' % (self.git_url, self.branch)
+
+    @property
+    def repository(self):
+        return self.series.repository
 
     def poll(self):
         cmd = ['git', 'ls-remote', self.git_url,
