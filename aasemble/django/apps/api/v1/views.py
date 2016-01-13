@@ -11,7 +11,9 @@ from rest_auth.registration.views import SocialLoginView
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
 
 from rest_framework_nested import routers
 
@@ -178,9 +180,9 @@ class aaSembleV1Views(object):
                     raise DuplicateResourceException()
 
             if selff.serializers.repo_has_build_sources_list:
-                @detail_route()
+                @detail_route(permission_classes=[AllowAny])
                 def build_sources_list(self, request, **kwargs):
-                    repository = self.get_object()
+                    repository = buildsvc_models.Repository.objects.get(uuid=self.kwargs['uuid'])
                     build_sources_list = repository.first_series().build_sources_list()
 
                     resp = HttpResponse(build_sources_list, 'text/plain')

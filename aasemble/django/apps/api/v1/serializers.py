@@ -232,6 +232,9 @@ class aaSembleAPIv1Serializers(object):
             if selff.include_builds_link:
                 builds = serializers.HyperlinkedIdentityField(view_name='{0}_build-list'.format(selff.view_prefix), lookup_url_kwarg='repository_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
 
+            if selff.repo_has_build_sources_list:
+                build_sources_list = serializers.HyperlinkedIdentityField(view_name='{0}_repository-build-sources-list'.format(selff.view_prefix), lookup_url_kwarg=selff.default_lookup_field, read_only=True, lookup_field=selff.default_lookup_field)
+
             class Meta:
                 model = buildsvc_models.Repository
                 fields = ('self', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list', 'external_dependencies')
@@ -240,5 +243,8 @@ class aaSembleAPIv1Serializers(object):
 
                 if selff.include_builds_link:
                     fields += ('builds',)
+
+                if selff.repo_has_build_sources_list:
+                    fields += ('build_sources_list',)
 
         return RepositorySerializer
