@@ -57,11 +57,13 @@ class APIv1Tests(APITestCase):
 
         for repo in response.data['results']:
             self.client.credentials(HTTP_AUTHORIZATION='')
-            resp = self.client.get(repo['self'] + 'build_sources_list/')
             if self.repository_has_build_sources_list:
+                resp = self.client.get(repo['build_sources_list'])
                 self.assertEquals(resp.status_code, 200)
                 self.assertEquals(resp.get('content-type'), 'text/plain')
             else:
+                self.assertNotIn('build_sources_list', repo)
+                resp = self.client.get(repo['self'] + '/build_sources_list/')
                 self.assertEquals(resp.status_code, 404)
 
     def test_fetch_external_dependencies(self):
@@ -123,6 +125,9 @@ class APIv1Tests(APITestCase):
 
         if self.repository_includes_builds_link:
             expected_result['builds'] = response.data['self'] + 'builds/'
+
+        if self.repository_has_build_sources_list:
+            expected_result['build_sources_list'] = response.data['self'] + 'build_sources_list/'
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
@@ -192,6 +197,9 @@ class APIv1Tests(APITestCase):
 
         if self.repository_includes_builds_link:
             expected_result['builds'] = response.data['self'] + 'builds/'
+
+        if self.repository_has_build_sources_list:
+            expected_result['build_sources_list'] = response.data['self'] + 'build_sources_list/'
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
