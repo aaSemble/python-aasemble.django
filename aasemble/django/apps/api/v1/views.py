@@ -4,6 +4,7 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
 from django.conf.urls import include, url
 import django.db.utils
+from django.http import HttpResponse
 
 from rest_auth.registration.views import SocialLoginView
 
@@ -175,6 +176,17 @@ class aaSembleV1Views(object):
                     serializer.save(user=self.request.user)
                 except django.db.utils.IntegrityError:
                     raise DuplicateResourceException()
+
+            if selff.serializers.repo_has_build_sources_list:
+                @detail_route()
+                def build_sources_list(self, request, **kwargs):
+                    repository = self.get_object()
+                    build_sources_list = repository.first_series().build_sources_list()
+
+                    resp = HttpResponse(build_sources_list, 'text/plain')
+                    resp.rendered_content = build_sources_list
+
+                    return resp
 
         return RepositoryViewSet
 

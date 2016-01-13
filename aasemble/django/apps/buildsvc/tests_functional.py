@@ -280,5 +280,5 @@ class RepositoryFunctionalTests(WebObject):
         key = 'justForTesting'
         externalDependency.createExternalDependency(url, series, component, ownSeries, key)
         self.assertTrue(externalDependency.verify_external_dependencies(url, series, component), 'External Dependency not added')
-        externalDependency.delete_external_dependency()
+        externalDependency.delete_external_dependency(url, series, component)
         self.assertFalse(externalDependency.verify_external_dependencies(url, series, component), 'External Dependency not deleted')

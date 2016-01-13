@@ -15,6 +15,7 @@ class aaSembleAPIv1Serializers(object):
     include_sources_list_in_mirrorset = False
     include_sources_list_in_mirrors = False
     sources_nest_repository = False
+    repo_has_build_sources_list = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()

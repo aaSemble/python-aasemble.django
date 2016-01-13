@@ -35,6 +35,7 @@ class APIv1Tests(APITestCase):
     mirrorset_includes_sources_list = False
     mirror_includes_sources_list = False
     repository_should_be_embedded_in_source = False
+    repository_has_build_sources_list = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -49,6 +50,18 @@ class APIv1Tests(APITestCase):
     ####################
     # Repository tests #
     ####################
+
+    def test_fetch_build_sources_list(self):
+        authenticate(self.client, 'brandon')
+        response = self.client.get(self.repository_list_url)
+
+        for repo in response.data['results']:
+            resp = self.client.get(repo['self'] + 'build_sources_list/')
+            if self.repository_has_build_sources_list:
+                self.assertEquals(resp.status_code, 200)
+                self.assertEquals(resp.get('content-type'), 'text/plain')
+            else:
+                self.assertEquals(resp.status_code, 404)
 
     def test_fetch_external_dependencies(self):
         # Use brandon to make sure it works with users who are members
@@ -1283,6 +1296,7 @@ class APIv3Tests(APIv2Tests):
     mirrorset_includes_sources_list = True
     mirror_includes_sources_list = True
     repository_should_be_embedded_in_source = True
+    repository_has_build_sources_list = True
 
     def test_build_duration(self):
         authenticate(self.client, 'eric')
