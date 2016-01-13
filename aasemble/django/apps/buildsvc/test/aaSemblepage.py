@@ -412,7 +412,6 @@ class ExternalDependenciesPage(BasePage):
         INPUT: git_url, series, component
         RETURN: TRUE if package found and FALSE on otherwise case'''
         self.externalDependencies_button.click()
-        vertficationString = "deb %s %s %s" % (git_url, series, component)
         try:
             if self.find_row(git_url, series, component):
                 return True
