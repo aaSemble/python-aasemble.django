@@ -20,7 +20,8 @@ services:
 python:
   - "2.7"
 env:
-  - TOX_ENVS="py27-django18,py27-django19,py34-django18,py34-django19"
+  - TOX_ENVS="py34-django18,py34-django19"
+  - TOX_ENVS="py27-django18,py27-django19"
   - TOX_ENVS="py27-flake8,py34-flake8"
   - TOX_ENVS="pypy-django18,pypy-django19"
 install:

@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ "$DJANGO_VERSION" != "18" ] || [ "$TRAVIS_PYTHON_VERSION" != "2.7" ] || [ -n "${PKGBUILD}" ]
+if [ "$TOX_ENVS" != "py27-django18,py27-django19" ]
 then
     # Don't want to run a deploy for each cell in the test matrix
     exit 0
