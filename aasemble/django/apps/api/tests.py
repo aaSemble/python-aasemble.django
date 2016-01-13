@@ -56,6 +56,7 @@ class APIv1Tests(APITestCase):
         response = self.client.get(self.repository_list_url)
 
         for repo in response.data['results']:
+            self.client.credentials(HTTP_AUTHORIZATION='')
             resp = self.client.get(repo['self'] + 'build_sources_list/')
             if self.repository_has_build_sources_list:
                 self.assertEquals(resp.status_code, 200)
