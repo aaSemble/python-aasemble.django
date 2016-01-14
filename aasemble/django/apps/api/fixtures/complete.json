@@ -386,7 +386,7 @@
         "series": "trusty trusty-updates",
         "components": "main universe",
         "own_series": 1,
-        "key": ""
+        "key": "FAKE KEY DATA for http://example.com/"
     },
     "model": "buildsvc.externaldependency",
     "pk": 1
@@ -395,6 +395,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "CA62552B",
+        "key_data": "FAKE KEY for CA62552B",
         "uuid": "fcac72dd-f770-4225-b362-758cfbf2c370",
         "name": "brandon",
         "user": 2
@@ -406,6 +407,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "80E6D622",
+        "key_data": "FAKE KEY for 80E6D622",
         "uuid": "8b18e6b3-06ca-4e47-bf25-1d3ab78bfd71",
         "name": "charles",
         "user": 3
@@ -417,6 +419,7 @@
     "fields": {
         "extra_admins": [3],
         "key_id": "6944C86E",
+        "key_data": "FAKE KEY for 6944C86E",
         "uuid": "78e24439-a7f9-4023-8957-c75d97a47bbe",
         "name": "dennis",
         "user": 4
@@ -428,6 +431,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "CB6F0E0E",
+        "key_data": "FAKE KEY for CB6F0E0E",
         "uuid": "1e8f1146-0501-48c3-bba1-c568033f9507",
         "name": "eric",
         "user": 5
@@ -439,6 +443,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "02BA21C3",
+        "key_data": "FAKE KEY for 02BA21C3",
         "uuid": "bed5828b-213f-429e-84e5-e81f2ee40bdf",
         "name": "frank",
         "user": 6
@@ -450,6 +455,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "672A650F",
+        "key_data": "FAKE KEY for 672A650F",
         "uuid": "144aa169-3182-433a-9778-7d9ebf3c9e6f",
         "name": "george",
         "user": 7
@@ -461,6 +467,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "082B4A85",
+        "key_data": "FAKE KEY for 082B4A85",
         "uuid": "07a058da-eedb-46e6-8bee-3e40e9fb135e",
         "name": "harold",
         "user": 8
@@ -472,6 +479,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "74E66264",
+        "key_data": "FAKE KEY for 74E66264",
         "uuid": "a9c5dc55-2775-4011-ae37-510e4785eab1",
         "name": "eric1",
         "user": 5
@@ -483,6 +491,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "A3C4A610",
+        "key_data": "FAKE KEY for A3C4A610",
         "uuid": "9be626dd-6415-47d9-878a-35a26aeba270",
         "name": "eric2",
         "user": 5
@@ -494,6 +503,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "DF334374",
+        "key_data": "FAKE KEY for DF334374",
         "uuid": "b083df20-46b2-4c9d-9b2c-0182690c7599",
         "name": "eric3",
         "user": 5
@@ -505,6 +515,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "3D569F6A",
+        "key_data": "FAKE KEY for 3D569F6A",
         "uuid": "1ca73b01-4822-4e94-8c23-46f5b7e1dc14",
         "name": "eric4",
         "user": 5
@@ -516,6 +527,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "4C709D10",
+        "key_data": "FAKE KEY for 4C709D10",
         "uuid": "f3cc7909-104f-4dee-8fb5-e0ac5a38592f",
         "name": "eric5",
         "user": 5
@@ -527,6 +539,7 @@
     "fields": {
         "extra_admins": [],
         "key_id": "",
+        "key_data": "",
         "uuid": "9a1eb35e-b5a2-4925-b506-48f7fea07dc4",
         "name": "eric6",
         "user": 5

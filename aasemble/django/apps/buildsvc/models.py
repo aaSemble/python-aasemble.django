@@ -90,6 +90,7 @@ class Repository(models.Model):
     user = models.ForeignKey(auth_models.User)
     name = models.CharField(max_length=100)
     key_id = models.CharField(max_length=100)
+    key_data = models.TextField(null=False)
     extra_admins = models.ManyToManyField(auth_models.Group)
 
     class Meta:
@@ -152,7 +153,7 @@ class Repository(models.Model):
         return run_cmd(['reprepro', '-b', self.basedir, '--waitforlock=10'] + list(args),
                        override_env=env)
 
-    def key_data(self):
+    def _key_data(self):
         return get_repo_driver(self).key_data()
 
     def key_url(self):
@@ -162,7 +163,7 @@ class Repository(models.Model):
         keypath = os.path.join(self.outdir(), 'repo.key')
         if not os.path.exists(keypath):
             with open(keypath, 'w') as fp:
-                fp.write(self.key_data())
+                fp.write(self.key_data)
 
     def export(self):
         self.first_series()
@@ -235,6 +236,11 @@ class Series(models.Model):
         sources += [self.binary_source_list(force_trusted=True)]
         sources += sum([extdep.deb_lines for extdep in self.externaldependency_set.all()], [])
         return '\n'.join(sources)
+
+    def build_apt_keys(self):
+        keys = [self.repository.key_data]
+        keys += [extdep.key for extdep in self.externaldependency_set.all()]
+        return '\n'.join(keys)
 
     def export(self):
         self.repository.export()
