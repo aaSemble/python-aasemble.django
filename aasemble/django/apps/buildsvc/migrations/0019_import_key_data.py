@@ -4,10 +4,10 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
+
 def import_key_data(apps, schema_editor):
     Repository = apps.get_model("buildsvc", "Repository")
     for repo in Repository.objects.all():
-        print 'repo', repo
         repo.key_data = repo._key_data()
         repo.save()
 
