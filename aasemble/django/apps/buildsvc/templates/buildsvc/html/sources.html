@@ -29,8 +29,7 @@
               <td><a href="{{ last_commit_url }}">{{ source.last_seen_revision }}</a></td>
               {% endwith %}
           {% endif %}
-          <td><small><a class="btn btn-primary" href="{% url "buildsvc:rebuild" source_id=source.id %} 
-          "role="button">{% bootstrap_icon "repeat" %} Rebuild</a></small></td>
+          <td><small><center><a href="{% url "buildsvc:rebuild" source_id=source.id %}">{% bootstrap_icon "repeat" %}</a></center></small></td>
         </tr>
         {% endfor %}
       </tbody>
