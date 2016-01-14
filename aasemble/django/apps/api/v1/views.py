@@ -4,13 +4,16 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
 from django.conf.urls import include, url
 import django.db.utils
+from django.http import HttpResponse
 
 from rest_auth.registration.views import SocialLoginView
 
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
 
 from rest_framework_nested import routers
 
@@ -176,6 +179,17 @@ class aaSembleV1Views(object):
                 except django.db.utils.IntegrityError:
                     raise DuplicateResourceException()
 
+            if selff.serializers.repo_has_build_sources_list:
+                @detail_route(permission_classes=[AllowAny])
+                def build_sources_list(self, request, **kwargs):
+                    repository = buildsvc_models.Repository.objects.get(uuid=self.kwargs['uuid'])
+                    build_sources_list = repository.first_series().build_sources_list()
+
+                    resp = HttpResponse(build_sources_list, 'text/plain')
+                    resp.rendered_content = build_sources_list
+
+                    return resp
+
         return RepositoryViewSet
 
     def SeriesViewSetFactory(selff):
@@ -205,7 +219,7 @@ class aaSembleV1Views(object):
             """
             lookup_field = selff.default_lookup_field
             lookup_value_regex = selff.default_lookup_value_regex
-            queryset = buildsvc_models.PackageSource.objects.select_related('series__repository__user')
+            queryset = buildsvc_models.PackageSource.objects.select_related('series__repository__user').prefetch_related('series__repository__series')
             serializer_class = selff.serializers.PackageSourceSerializer
 
             def get_queryset(self):
@@ -248,7 +262,7 @@ class aaSembleV1Views(object):
             """
             lookup_field = selff.default_lookup_field
             lookup_value_regex = selff.default_lookup_value_regex
-            queryset = buildsvc_models.BuildRecord.objects.all().select_related('source__series__repository__user')
+            queryset = buildsvc_models.BuildRecord.objects.all().select_related('source__series__repository__user').prefetch_related('source__series__repository__series')
             serializer_class = selff.serializers.BuildRecordSerializer
 
             def get_queryset(self):

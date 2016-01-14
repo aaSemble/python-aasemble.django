@@ -1,25 +1,10 @@
 matrix:
   fast_finish: true
   allow_failures:
-   - python: "pypy"
+   - env: TOX_ENVS="pypy-django18,pypy-django19"
   include: 
     - python: 2.7
-      script: tox -e py27-flake8
-    - python: 3.4
-      script: tox -e py34-flake8
-    - python: 2.7
-      env: DJANGO_VERSION="18" POSARGS=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
-      sudo: required
-      services:
-        - docker
-      before_install:
-        - sudo apt-get update -qq
-        - sudo apt-get install -qq -y mysql-server
-        - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
-        - sudo apt-get install -y haveged
-        - sudo apt-get install -y docker-engine
-    - python: 3.4
-      env: DJANGO_VERSION="18" POSARGS=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
+      env: TOX_ENVS="py27-django18,py27-django19,py34-django18,py34-django19" POSARGS=aasemble.django.apps.buildsvc.tests.PkgBuildTestCase
       sudo: required
       services:
         - docker
@@ -34,11 +19,11 @@ services:
   - mysql
 python:
   - "2.7"
-  - "3.4"
-  - "pypy"
 env:
-  - DJANGO_VERSION="18"
-  - DJANGO_VERSION="19"
+  - TOX_ENVS="py34-django18,py34-django19"
+  - TOX_ENVS="py27-django18,py27-django19"
+  - TOX_ENVS="py27-flake8,py34-flake8"
+  - TOX_ENVS="pypy-django18,pypy-django19"
 install:
   - pip install -U pip
   - pip install -U tox
@@ -48,7 +33,7 @@ before_install:
   - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
   - sudo apt-get install -y haveged
 script:
-  - py=${TR#py};py=${env/./}; xvfb-run tox -e py${py}-django$DJANGO_VERSION -- ${POSARGS}
+  - xvfb-run tox -e $TOX_ENVS -- ${POSARGS}
 deploy:
   provider: script
   script: scripts/deploy.sh

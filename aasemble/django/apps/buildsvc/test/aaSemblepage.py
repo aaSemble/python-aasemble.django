@@ -375,11 +375,11 @@ class ExternalDependenciesPage(BasePage):
         '''Key field'''
         return self.driver.find_element(by.By.ID, 'id_key')
 
-    @property
-    def externalDependencie_edit_button(self):
+    def externalDependencie_edit_button(self, git_url, series, component):
         '''Finds package edit button.
         NOTE: Only one package is expected at once'''
-        return self.driver.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
+        row = self.find_row(git_url, series, component)
+        return row.find_element(by.By.CSS_SELECTOR, '.glyphicon.glyphicon-pencil')
 
     def selectOwnSeries_field_dropdown(self, series):
         '''Own series field'''
@@ -395,9 +395,16 @@ class ExternalDependenciesPage(BasePage):
         self.key_field.send_keys(key)
         self.new_submit_button.submit()
 
-    def delete_external_dependency(self):
-        self.externalDependencie_edit_button.click()
+    def delete_external_dependency(self, git_url, series, component):
+        self.externalDependencie_edit_button(git_url, series, component).click()
         self.delete_button.click()
+
+    def find_row(self, git_url, series, component):
+        vertficationString = "deb %s %s %s" % (git_url, series, component)
+        for row in self.driver.find_elements(by.By.XPATH, "//table[@class='table table-striped']/tbody/tr"):
+            coloum = row.find_element_by_xpath('td[3]').text
+            if coloum == vertficationString:
+                return row
 
     def verify_external_dependencies(self, git_url, series, component):
         '''This is the helper method to verify whether
@@ -405,12 +412,9 @@ class ExternalDependenciesPage(BasePage):
         INPUT: git_url, series, component
         RETURN: TRUE if package found and FALSE on otherwise case'''
         self.externalDependencies_button.click()
-        vertficationString = "deb %s %s %s" % (git_url, series, component)
         try:
-            coloum = self.driver.find_element(by.By.XPATH, "//table[@class='table table-striped']/tbody/tr/td[3]").text
-            if coloum == vertficationString:
+            if self.find_row(git_url, series, component):
                 return True
-            else:
-                return False
+            return False
         except:
             return False
