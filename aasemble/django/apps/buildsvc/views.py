@@ -1,11 +1,16 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from .forms import ExternalDependencyForm, PackageSourceForm
 from .models import BuildRecord, ExternalDependency, PackageSource, Repository, Series
+
+LOG = logging.getLogger(__name__)
 
 
 def get_package_source_form(request, *args, **kwargs):
@@ -77,6 +82,19 @@ def external_dependency(request, dependency_uuid):
 
     return render(request, 'buildsvc/html/external_dependency_definition.html',
                   {'form': form, 'dependency_uuid': dependency_uuid})
+
+
+@login_required
+def enable_source_repo(request, source_id):
+    try:
+        ps = PackageSource.objects.get(id=source_id)
+        if ps.user_can_modify(request.user):
+            ps.disabled = False
+            ps.save()
+    except ObjectDoesNotExist:
+        LOG.debug('Could not find source repo with source_id %s. Repo still disabled.' % source_id)
+
+    return HttpResponseRedirect(reverse('buildsvc:sources'))
 
 
 @login_required
