@@ -1,3 +1,4 @@
+import logging
 import os.path
 import uuid
 
@@ -12,6 +13,8 @@ from six.moves.urllib.parse import urlparse
 
 from . import tasks
 from ...utils import ensure_dir, run_cmd
+
+LOG = logging.getLogger(__name__)
 
 
 class MirrorSet(models.Model):
@@ -124,12 +127,45 @@ class Mirror(models.Model):
     def update_mirror(self):
         self.write_config()
         try:
-            run_cmd(['apt-mirror', 'mirror.conf'], cwd=self.basepath)
+            run_cmd(['apt-mirror', 'mirror.conf'], cwd=self.basepath, logger=self.logger)
         finally:
             Mirror.objects.filter(id=self.id).update(refresh_in_progress=False)
 
     def user_can_modify(self, user):
         return user == self.owner
+
+    @property
+    def logger(self):
+        logpath = self.logpath()
+
+        logger = logging.getLogger('mirrorsvc.update_mirror.%s' % self.uuid)
+        logger.setLevel(logging.DEBUG)
+
+        for handler in logger.handlers:
+            logger.removeHandler(handler)
+
+        formatter = logging.Formatter('%(asctime)s: %(message)s')
+        logfp = logging.FileHandler(logpath)
+        logfp.setLevel(logging.DEBUG)
+        logfp.setFormatter(formatter)
+
+        logger.addHandler(logfp)
+
+        return logger
+
+    def logfilename(self):
+        LOG.debug('Determining config logfile name for mirror %s.' % (self.uuid))
+        path = os.path.join('mirror_%s.log' % (self.uuid))
+
+        return path
+
+    def logpath(self):
+        path = os.path.join(self.basepath, self.logfilename())  # basepath is gauranteed to exist, so no need to check and create
+
+        return path
+
+    def log_url(self):
+        return '%s/%s/%s' % (settings.MIRRORSVC_BASE_URL, self.uuid, self.logpath())
 
 
 @python_2_unicode_compatible
