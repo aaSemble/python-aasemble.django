@@ -234,6 +234,7 @@ class aaSembleAPIv1Serializers(object):
 
             if selff.repo_has_build_sources_list:
                 build_sources_list = serializers.HyperlinkedIdentityField(view_name='{0}_repository-build-sources-list'.format(selff.view_prefix), lookup_url_kwarg=selff.default_lookup_field, read_only=True, lookup_field=selff.default_lookup_field)
+                build_apt_keys = serializers.HyperlinkedIdentityField(view_name='{0}_repository-build-apt-keys'.format(selff.view_prefix), lookup_url_kwarg=selff.default_lookup_field, read_only=True, lookup_field=selff.default_lookup_field)
 
             class Meta:
                 model = buildsvc_models.Repository
@@ -245,6 +246,6 @@ class aaSembleAPIv1Serializers(object):
                     fields += ('builds',)
 
                 if selff.repo_has_build_sources_list:
-                    fields += ('build_sources_list',)
+                    fields += ('build_sources_list', 'build_apt_keys')
 
         return RepositorySerializer

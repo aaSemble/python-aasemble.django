@@ -61,6 +61,9 @@ class APIv1Tests(APITestCase):
                 resp = self.client.get(repo['build_sources_list'])
                 self.assertEquals(resp.status_code, 200)
                 self.assertEquals(resp.get('content-type'), 'text/plain')
+                resp = self.client.get(repo['build_apt_keys'])
+                self.assertEquals(resp.status_code, 200)
+                self.assertEquals(resp.get('content-type'), 'text/plain')
             else:
                 self.assertNotIn('build_sources_list', repo)
                 resp = self.client.get(repo['self'] + '/build_sources_list/')
@@ -128,6 +131,7 @@ class APIv1Tests(APITestCase):
 
         if self.repository_has_build_sources_list:
             expected_result['build_sources_list'] = response.data['self'] + 'build_sources_list/'
+            expected_result['build_apt_keys'] = response.data['self'] + 'build_apt_keys/'
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
@@ -200,6 +204,7 @@ class APIv1Tests(APITestCase):
 
         if self.repository_has_build_sources_list:
             expected_result['build_sources_list'] = response.data['self'] + 'build_sources_list/'
+            expected_result['build_apt_keys'] = response.data['self'] + 'build_apt_keys/'
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])

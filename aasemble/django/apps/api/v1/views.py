@@ -181,6 +181,16 @@ class aaSembleV1Views(object):
 
             if selff.serializers.repo_has_build_sources_list:
                 @detail_route(permission_classes=[AllowAny])
+                def build_apt_keys(self, request, **kwargs):
+                    repository = buildsvc_models.Repository.objects.get(uuid=self.kwargs['uuid'])
+                    build_apt_keys = repository.first_series().build_apt_keys()
+
+                    resp = HttpResponse(build_apt_keys, 'text/plain')
+                    resp.rendered_content = build_apt_keys
+
+                    return resp
+
+                @detail_route(permission_classes=[AllowAny])
                 def build_sources_list(self, request, **kwargs):
                     repository = buildsvc_models.Repository.objects.get(uuid=self.kwargs['uuid'])
                     build_sources_list = repository.first_series().build_sources_list()

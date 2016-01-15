@@ -70,6 +70,11 @@ class RepositoryTestCase(TestCase):
         repo = Repository.objects.get(id=12)
         self.assertEquals(str(repo), 'eric/eric5')
 
+    def test_build_apt_keys(self):
+        repo = Repository.objects.get(id=1)
+        self.assertEquals(repo.first_series().build_apt_keys(),
+                          'FAKE KEY for CA62552B\nFAKE KEY DATA for http://example.com/')
+
     def test_build_sources_list(self):
         repo = Repository.objects.get(id=1)
         self.assertEquals(repo.first_series().build_sources_list(),
