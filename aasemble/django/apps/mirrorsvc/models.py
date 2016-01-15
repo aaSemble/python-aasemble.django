@@ -14,6 +14,12 @@ from . import tasks
 from ...utils import run_cmd
 
 
+def ensure_dir(d):
+    if not os.path.isdir(d):
+        os.makedirs(d)
+    return d
+
+
 class MirrorSet(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
@@ -71,6 +77,7 @@ class Mirror(models.Model):
 
     @property
     def basepath(self):
+        ensure_dir(os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors'))
         d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors', str(self.uuid))
         if not os.path.isdir(d):
             os.makedirs(d)
@@ -80,7 +87,7 @@ class Mirror(models.Model):
 
     @property
     def archive_dir(self):
-        return os.path.join(self.basepath, self.archive_subpath)
+        return ensure_dir(os.path.join(self.basepath, self.archive_subpath))
 
     @property
     def archive_subpath(self):
