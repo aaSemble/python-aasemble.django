@@ -12,7 +12,8 @@
           <th>Branch</th>
           <th>Destination APT repo</th>
           <th>Last built commit</th>
-          <th>Rebuild</th>
+          <th>Status</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +30,18 @@
               <td><a href="{{ last_commit_url }}">{{ source.last_seen_revision }}</a></td>
               {% endwith %}
           {% endif %}
-          <td><small><center><a href="{% url "buildsvc:rebuild" source_id=source.id %}">{% bootstrap_icon "repeat" %}</a></center></small></td>
+          <td>
+              {% if source.disabled %}
+                  Disabled
+              {% else %}
+                  Enabled
+              {% endif %}
+          </td>
+          <td>
+              {% if source.disabled %}
+                  <small><a href="{% url "buildsvc:enable_source_repo" source_id=source.id %}" role="button">{% bootstrap_icon "repeat" %} Enable</a></small>
+              {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
