@@ -27,7 +27,7 @@
                   <a href="{% url "mirrorsvc:snapshot_add_tag" snapshot_uuid=snapshot.uuid tag_id=tag.id %}">{{ tag.tag }} </a>
               {% endfor %}
           </td>
-          <td><a class="btn btn-primary" href="{% url "mirrorsvc:snapshot_add_tag" snapshot_uuid=snapshot.uuid tag_id='new' %}" role="button">{% bootstrap_icon "plus" %} Add tag</a></td>
+          <td><a class="btn btn-default" href="{% url "mirrorsvc:snapshot_add_tag" snapshot_uuid=snapshot.uuid tag_id='new' %}" role="button">{% bootstrap_icon "plus" %} Add tag</a></td>
         </tr>
       {% endfor %}
       </tbody>
