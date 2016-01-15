@@ -77,7 +77,6 @@ class Mirror(models.Model):
 
     @property
     def basepath(self):
-        ensure_dir(os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors'))
         d = os.path.join(settings.MIRRORSVC_BASE_PATH, 'mirrors', str(self.uuid))
         if not os.path.isdir(d):
             os.makedirs(d)
