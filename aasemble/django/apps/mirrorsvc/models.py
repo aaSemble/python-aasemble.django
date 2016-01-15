@@ -155,8 +155,6 @@ class Mirror(models.Model):
 
     def logfilename(self):
         LOG.debug('Determining config logfile name for mirror %s.' % (self.uuid))
-        print('Determining config logfile name for mirror %s.' % (self.uuid))
-
         path = os.path.join('mirror_%s.log' % (self.uuid))
 
         return path
