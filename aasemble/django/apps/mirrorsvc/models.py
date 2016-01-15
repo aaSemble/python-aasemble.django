@@ -14,12 +14,6 @@ from . import tasks
 from ...utils import ensure_dir, run_cmd
 
 
-def ensure_dir(d):
-    if not os.path.isdir(d):
-        os.makedirs(d)
-    return d
-
-
 class MirrorSet(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
