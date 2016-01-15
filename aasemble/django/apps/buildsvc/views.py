@@ -92,6 +92,20 @@ def builds(request):
 
 
 @login_required
+def rebuild(request, source_id):
+    ps = PackageSource.objects.get(pk=source_id)
+    if ps.series.user_can_modify(request.user):
+        try:
+            ps.build()
+        except Exception:
+            # will handle it later
+            pass
+        return render(request, 'buildsvc/html/rebuild.html', {'source': ps})
+    else:
+        return render(request, 'buildsvc/html/sources.html', {'sources': sources})
+
+
+@login_required
 def repositories(request):
     repositories = Repository.lookup_by_user(request.user)
     return render(request, 'buildsvc/html/repositories.html',
