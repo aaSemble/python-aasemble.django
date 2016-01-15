@@ -120,7 +120,7 @@ def rebuild(request, source_id):
             pass
         return render(request, 'buildsvc/html/rebuild.html', {'source': ps})
     else:
-        return render(request, 'buildsvc/html/sources.html', {'sources': sources})
+        return HttpResponseRedirect(reverse('buildsvc:sources'))
 
 
 @login_required
