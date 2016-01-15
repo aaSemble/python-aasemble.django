@@ -25,7 +25,7 @@
           <td>{{ mirror.components }}</td>
           <td>{{ mirror.public }}</td>
           <td>{{ mirror.refresh_in_progress }}</td>
-          <td><a class="btn btn-primary" href="{% url "mirrorsvc:mirror_refresh" mirror_uuid=mirror.uuid %}" role="button">{% bootstrap_icon "refresh" %} Refresh</a></td>
+          <td><a class="btn btn-default" href="{% url "mirrorsvc:mirror_refresh" mirror_uuid=mirror.uuid %}" role="button">{% bootstrap_icon "refresh" %} Refresh</a></td>
         </tr>
       {% endfor %}
       </tbody>
