@@ -12,7 +12,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from six.moves.urllib.parse import urlparse
 
 from . import tasks
-from ...utils import run_cmd
+from ...utils import ensure_dir, run_cmd
 
 LOG = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ class Mirror(models.Model):
 
     @property
     def archive_dir(self):
-        return os.path.join(self.basepath, self.archive_subpath)
+        return ensure_dir(os.path.join(self.basepath, self.archive_subpath))
 
     @property
     def archive_subpath(self):

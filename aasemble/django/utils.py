@@ -64,3 +64,9 @@ def run_cmd(cmd, input=None, cwd=None, override_env=None,
                             cmd, proc.returncode, stdout, stderr)
 
     return stdout
+
+
+def ensure_dir(d):
+    if not os.path.isdir(d):
+        os.makedirs(d)
+    return d
