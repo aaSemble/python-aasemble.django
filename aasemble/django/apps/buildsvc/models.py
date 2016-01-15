@@ -23,15 +23,9 @@ from six.moves.urllib.parse import urlparse
 
 from . import tasks
 from ...exceptions import CommandFailed
-from ...utils import recursive_render, run_cmd
+from ...utils import ensure_dir, recursive_render, run_cmd
 
 LOG = logging.getLogger(__name__)
-
-
-def ensure_dir(d):
-    if not os.path.isdir(d):
-        os.makedirs(d)
-    return d
 
 
 def remove_ddebs_from_changes(changes_file):

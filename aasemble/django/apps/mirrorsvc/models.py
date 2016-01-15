@@ -11,7 +11,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from six.moves.urllib.parse import urlparse
 
 from . import tasks
-from ...utils import run_cmd
+from ...utils import ensure_dir, run_cmd
 
 
 def ensure_dir(d):
