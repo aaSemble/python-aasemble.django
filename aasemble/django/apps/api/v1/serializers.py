@@ -16,6 +16,9 @@ class aaSembleAPIv1Serializers(object):
     include_sources_list_in_mirrors = False
     sources_nest_repository = False
     repo_has_build_sources_list = False
+    repo_has_series_name = False
+    source_includes_last_built_version = False
+    build_includes_counter = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()
@@ -155,11 +158,16 @@ class aaSembleAPIv1Serializers(object):
             if selff.sources_nest_repository:
                 repository_info = selff.RepositorySerializer(source='repository', read_only=True)
 
+            if selff.source_includes_last_built_version:
+                last_built_version = serializers.CharField(read_only=True)
+
             class Meta:
                 model = buildsvc_models.PackageSource
                 fields = ('self', 'git_repository', 'git_branch', 'repository', 'builds')
                 if selff.sources_nest_repository:
                     fields += ('repository_info',)
+                if selff.source_includes_last_built_version:
+                    fields += ('last_built_version',)
 
             def validate_repository(self, value):
                 return value.first_series()
@@ -189,11 +197,16 @@ class aaSembleAPIv1Serializers(object):
             else:
                 source = serializers.HyperlinkedRelatedField(view_name='{0}_packagesource-detail'.format(selff.view_prefix), read_only=True, lookup_field=selff.default_lookup_field)
 
+            if selff.build_includes_counter:
+                build_counter = serializers.IntegerField(read_only=True)
+
             class Meta:
                 model = buildsvc_models.BuildRecord
                 fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
                 if selff.include_build_duration:
                     fields += ('duration', 'build_finished')
+                if selff.build_includes_counter:
+                    fields += ('build_counter',)
 
         return BuildRecordSerializer
 
@@ -236,6 +249,9 @@ class aaSembleAPIv1Serializers(object):
                 build_sources_list = serializers.HyperlinkedIdentityField(view_name='{0}_repository-build-sources-list'.format(selff.view_prefix), lookup_url_kwarg=selff.default_lookup_field, read_only=True, lookup_field=selff.default_lookup_field)
                 build_apt_keys = serializers.HyperlinkedIdentityField(view_name='{0}_repository-build-apt-keys'.format(selff.view_prefix), lookup_url_kwarg=selff.default_lookup_field, read_only=True, lookup_field=selff.default_lookup_field)
 
+            if selff.repo_has_series_name:
+                series_name = serializers.CharField(read_only=True, source='first_series.name')
+
             class Meta:
                 model = buildsvc_models.Repository
                 fields = ('self', 'user', 'name', 'key_id', 'sources', 'binary_source_list', 'source_source_list', 'external_dependencies')
@@ -247,5 +263,8 @@ class aaSembleAPIv1Serializers(object):
 
                 if selff.repo_has_build_sources_list:
                     fields += ('build_sources_list', 'build_apt_keys')
+
+                if selff.repo_has_series_name:
+                    fields += ('series_name',)
 
         return RepositorySerializer

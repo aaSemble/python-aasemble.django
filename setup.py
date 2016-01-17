@@ -34,4 +34,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
+    entry_points = {
+        'console_scripts': ['aasemble-pkgbuild=aasemble.django.apps.buildsvc.pkgbuild:main'],
+    }
 )
