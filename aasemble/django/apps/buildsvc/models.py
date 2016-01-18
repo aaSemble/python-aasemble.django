@@ -365,8 +365,8 @@ class PackageSource(models.Model):
             br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
                                     site.domain, br.get_absolute_url())
 
-            version = run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=self.tmpdir, logger=br.logger)
-            name = run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=self.tmpdir, logger=br.logger)
+            version = run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
+            name = run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
 
             br.version = version
             br.save()
@@ -375,7 +375,7 @@ class PackageSource(models.Model):
             self.last_built_name = name
             self.save()
 
-            run_cmd(['aasemble-pkgbuild', 'build', br_url], cwd=self.tmpdir, logger=br.logger)
+            run_cmd(['aasemble-pkgbuild', 'build', br_url], cwd=tmpdir, logger=br.logger)
             br.build_finished = now()
             br.build_record.save()
 
