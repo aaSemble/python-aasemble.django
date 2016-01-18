@@ -7,7 +7,7 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
-from django.test import TestCase, override_settings
+from django.test import LiveServerTestCase, TestCase, override_settings
 
 from aasemble.django.exceptions import CommandFailed
 from aasemble.django.utils import run_cmd
@@ -21,6 +21,10 @@ echo stderr >&2
 
 @override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.models.FakeDriver')
 class AasembleTestCase(TestCase):
+    fixtures = ['complete.json']
+
+
+class AasembleLiveServerTestCase(LiveServerTestCase):
     fixtures = ['complete.json']
 
 

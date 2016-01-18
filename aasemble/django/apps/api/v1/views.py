@@ -11,7 +11,7 @@ from rest_auth.registration.views import SocialLoginView
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, DjangoObjectPermissions
 from rest_framework.response import Response
 
 
@@ -52,6 +52,10 @@ class aaSembleV1ReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
         except ImportError:
             pass
         return viewsets.ReadOnlyModelViewSet.__new__(type('aaSembleV1ReadOnlyViewSet', bases, dict(cls.__dict__)))
+
+
+class DjangoObjectPermissionsOrAnonReadOnly(DjangoObjectPermissions):
+    authenticated_users_only = False
 
 
 class aaSembleV1Views(object):
@@ -274,8 +278,12 @@ class aaSembleV1Views(object):
             lookup_value_regex = selff.default_lookup_value_regex
             queryset = buildsvc_models.BuildRecord.objects.all().select_related('source__series__repository__user').prefetch_related('source__series__repository__series')
             serializer_class = selff.serializers.BuildRecordSerializer
+            permission_classes = (DjangoObjectPermissionsOrAnonReadOnly,)
 
             def get_queryset(self):
+                if 'uuid' in self.kwargs:
+                    return self.queryset.filter(uuid=self.kwargs['uuid'])
+
                 qs = self.queryset.filter(source__series__repository__in=buildsvc_models.Repository.lookup_by_user(self.request.user))
                 if 'source_{0}'.format(selff.default_lookup_field) in self.kwargs:
                     qs = qs.filter(**selff.get_qs_filter(self.kwargs, 'source', 'source'))
