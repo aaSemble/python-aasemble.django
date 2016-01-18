@@ -1,4 +1,3 @@
-import StringIO
 import os.path
 import shutil
 import subprocess
@@ -13,6 +12,8 @@ from django.test.utils import skipIf
 import github3
 
 import mock
+
+from six import StringIO
 
 from aasemble.django.exceptions import CommandFailed
 from aasemble.django.tests import AasembleLiveServerTestCase as LiveServerTestCase
@@ -42,11 +43,11 @@ class PkgBuildTestCase(LiveServerTestCase):
             shutil.copytree(os.path.join(os.path.dirname(__file__), 'test_data', 'debian'), basedir)
 
             orig_stdout = sys.stdout
-            sys.stdout = StringIO.StringIO()
+            sys.stdout = StringIO()
             try:
                 pkgbuild.main(['--basedir', basedir, 'version', self.live_server_url + br.get_absolute_url()])
                 self.assertEquals(sys.stdout.getvalue(), '0.1+10')
-                sys.stdout = StringIO.StringIO()
+                sys.stdout = StringIO()
 
                 pkgbuild.main(['--basedir', basedir, 'name', self.live_server_url + br.get_absolute_url()])
                 self.assertEquals(sys.stdout.getvalue(), 'buildsvctest')

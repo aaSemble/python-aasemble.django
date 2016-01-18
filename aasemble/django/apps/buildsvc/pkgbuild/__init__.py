@@ -103,12 +103,12 @@ class PackageBuilder(object):
 
     def build_external_dependency_repo_keys(self):
         """create a file which has all external dependency repos keys"""
-        with open(os.path.join(self.basedir, 'keys'), 'w') as fp:
+        with open(os.path.join(self.basedir, 'keys'), 'wb') as fp:
             fp.write(requests.get(self.build_record['source']['repository_info']['build_apt_keys']).content)
 
     def build_external_dependency_repo_sources(self):
         """create a file which has all external dependency repo sources"""
-        with open(os.path.join(self.basedir, 'repos'), 'w') as fp:
+        with open(os.path.join(self.basedir, 'repos'), 'wb') as fp:
             fp.write(requests.get(self.build_record['source']['repository_info']['build_sources_list']).content)
 
     def docker_build_source_package(self):
