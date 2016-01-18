@@ -11,3 +11,6 @@ class aaSembleAPIv3Serializers(v2_serializers.aaSembleAPIv2Serializers):
     include_sources_list_in_mirrors = True
     sources_nest_repository = True
     repo_has_build_sources_list = True
+    repo_has_series_name = True
+    source_includes_last_built_version = True
+    build_includes_counter = True

@@ -1,5 +1,9 @@
 from __future__ import absolute_import
 
+import argparse
+
+import json
+import logging
 import os
 import sys
 
@@ -11,9 +15,11 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 
+import requests
+
 import yaml
 
-from ....utils import recursive_render
+LOG = logging.getLogger(__name__)
 
 
 class BuilderBackend(object):
@@ -42,13 +48,30 @@ def get_build_backend(settings=settings):
         return DbuildBuilderBackend()
 
 
+def fetch_build_http(url):
+    return requests.get(url).json()
+
+
+def fetch_build_file(path):
+    with open(path, 'r') as fp:
+        return json.load(fp)
+
+
+def fetch_build(build_id):
+    if build_id.startswith('http://') or build_id.startswith('https://'):
+        return fetch_build_http(build_id)
+    elif os.path.exists(build_id):
+        return fetch_build_file(build_id)
+    return None
+
+
 class PackageBuilder(object):
-    def __init__(self, basedir, package_source, build_record):
+    def __init__(self, basedir, build_record):
         self.basedir = basedir
         self.build_dependencies = []
         self.runtime_dependencies = []
-        self.package_source = package_source
-        self.build_record = build_record
+        self.build_record = fetch_build(build_record)
+        self.logger = LOG
 
     @property
     def builddir(self):
@@ -56,26 +79,18 @@ class PackageBuilder(object):
 
     def get_version(self):
         """Derive version from code, fallback to build_counter"""
-        return self.build_record.build_counter
+        return self.build_record['build_counter']
 
     def build(self):
-        self.build_record.logger.debug('Using %s to build' % (type(self)))
-        package_version = self.package_version
+        self.logger.debug('Using %s to build' % (type(self)))
 
-        self.build_record.version = package_version
-        self.build_record.save()
-
-        self.package_source.last_built_version = package_version
-        self.package_source.last_built_name = self.sanitized_package_name
-        self.package_source.save()
-
-        self.build_record.logger.debug('Detecting Build dependencies')
+        self.logger.debug('Detecting Build dependencies')
         self.build_dependencies += self.detect_build_dependencies()
-        self.build_record.logger.info('Build dependencies: %s' % (', '.join(self.build_dependencies)))
+        self.logger.info('Build dependencies: %s' % (', '.join(self.build_dependencies)))
 
-        self.build_record.logger.debug('Detecting run-time dependencies')
+        self.logger.debug('Detecting run-time dependencies')
         self.runtime_dependencies += self.detect_runtime_dependencies()
-        self.build_record.logger.info('Runtime dependencies: %s' % (', '.join(self.runtime_dependencies)))
+        self.logger.info('Runtime dependencies: %s' % (', '.join(self.runtime_dependencies)))
 
         self.populate_debian_dir()
 
@@ -85,47 +100,27 @@ class PackageBuilder(object):
         self.build_external_dependency_repo_sources()
         self.docker_build_source_package()
         self.docker_build_binary_package()
-        self.build_record.build_finished = timezone.now()
-        self.build_record.save()
 
     def build_external_dependency_repo_keys(self):
         """create a file which has all external dependency repos keys"""
-        extdeps = self.package_source.series.externaldependency_set.all()
-        if extdeps:
-            with open(os.path.join(self.basedir, 'keys'), 'w') as fp:
-                for extdep in extdeps:
-                    if extdep.key:
-                        fp.write(extdep.key)
+        with open(os.path.join(self.basedir, 'keys'), 'wb') as fp:
+            fp.write(requests.get(self.build_record['source']['repository_info']['build_apt_keys']).content)
 
     def build_external_dependency_repo_sources(self):
         """create a file which has all external dependency repo sources"""
-        lines = [self.package_source.series.binary_source_list(force_trusted=True)]
-        lines += [extdep.deb_line for extdep in self.package_source.series.externaldependency_set.all()]
-        with open(os.path.join(self.basedir, 'repos'), 'w') as fp:
-            fp.write('\n'.join(lines))
+        with open(os.path.join(self.basedir, 'repos'), 'wb') as fp:
+            fp.write(requests.get(self.build_record['source']['repository_info']['build_sources_list']).content)
 
     def docker_build_source_package(self):
         """Build source package in docker"""
         source_dir = os.path.basename(self.builddir)
-        with open(self.build_record.buildlog(), 'a+') as fp:
-            try:
-                stdout_orig = sys.stdout
-                sys.stdout = fp
-                get_build_backend().source_build(self.basedir, source_dir)
-            finally:
-                sys.stdout = stdout_orig
+        get_build_backend().source_build(self.basedir, source_dir)
 
     def docker_build_binary_package(self):
         """Build binary packages in docker"""
         parallel = self.get_build_config().get('parallel',
                                                getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))
-        with open(self.build_record.buildlog(), 'a+') as fp:
-            try:
-                stdout_orig = sys.stdout
-                sys.stdout = fp
-                get_build_backend().binary_build(self.basedir, parallel=parallel)
-            finally:
-                sys.stdout = stdout_orig
+        get_build_backend().binary_build(self.basedir, parallel=parallel)
 
     def get_build_config(self):
         return self.get_aasemble_config().get('build', {})
@@ -151,11 +146,13 @@ class PackageBuilder(object):
         return []
 
     def populate_debian_dir(self):
-        self.build_record.logger.debug('Populating debian dir')
+        from ....utils import recursive_render
+
+        self.logger.debug('Populating debian dir')
         recursive_render(os.path.join(os.path.dirname(__file__), '../templates/buildsvc/debian'),
                          os.path.join(self.builddir, 'debian'),
                          {'pkgname': self.sanitized_package_name,
-                          'builder': self}, logger=self.build_record.logger)
+                          'builder': self}, logger=self.logger)
 
     @property
     def env(self):
@@ -167,12 +164,12 @@ class PackageBuilder(object):
         rendered = render_to_string('buildsvc/changelog.deb',
                                     {'pkgname': self.sanitized_package_name,
                                      'version': self.package_version,
-                                     'distribution': self.package_source.series.name,
+                                     'distribution': self.build_record['source']['repository_info']['series_name'],
                                      'full_name': self.env['DEBFULLNAME'],
                                      'email': self.env['DEBEMAIL'],
                                      'timestamp': timezone.now().strftime(fmt)})
 
-        self.build_record.logger.info('New changelog entry: %s' % (rendered,))
+        self.logger.info('New changelog entry: %s' % (rendered,))
         changelog = os.path.join(self.builddir, 'debian', 'changelog')
 
         if os.path.exists(changelog):
@@ -199,19 +196,19 @@ class PackageBuilder(object):
 
     @property
     def name(self):
-        return self.package_source.name
+        return self.build_record['source']['repository_info']['name']
 
     @property
     def package_version(self):
         native_version = self.native_version
         if native_version:
-            version = '%s+%d' % (native_version, self.build_record.build_counter)
+            version = '%s+%d' % (native_version, self.build_record['build_counter'])
         else:
-            version = '%d' % (self.build_record.build_counter,)
+            version = '%d' % (self.build_record['build_counter'],)
 
         epoch = 0
 
-        last_built_version = self.package_source.last_built_version
+        last_built_version = self.build_record['source']['last_built_version']
         if last_built_version:
             if ':' in last_built_version:
                 epoch, cmp_ver = last_built_version.split(':', 1)
@@ -249,7 +246,33 @@ def choose_builder(path):
         if builder.is_suitable(path):
             return builder
 
-from . import debian  # noqa
-from . import python  # noqa
-from . import golang  # noqa
-from . import generic  # noqa
+
+def main(argv=sys.argv[1:]):
+    if not settings.configured:
+        settings.configure()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--basedir', default=os.getcwd(), help='Base directory [default="."]')
+    parser.add_argument('action', choices=['build', 'name', 'version'])
+    parser.add_argument('build_record', help='build_record ID (URL)')
+
+    options = parser.parse_args(argv)
+
+    from . import debian  # noqa
+    from . import python  # noqa
+    from . import golang  # noqa
+    from . import generic  # noqa
+
+    builder_class = choose_builder(options.basedir + '/build')
+    builder = builder_class(options.basedir, options.build_record)
+    if options.action == 'version':
+        sys.stdout.write(builder.package_version)
+    elif options.action == 'name':
+        sys.stdout.write(builder.sanitized_package_name)
+    elif options.action == 'build':
+        builder.build()
+    else:
+        assert False, 'Invalid action provided'
+
+if __name__ == '__main__':
+    sys.exit(not main(sys.argv[1:]))

@@ -36,6 +36,7 @@ class APIv1Tests(APITestCase):
     mirror_includes_sources_list = False
     repository_should_be_embedded_in_source = False
     repository_has_build_sources_list = False
+    repository_has_series_name = False
 
     def __init__(self, *args, **kwargs):
         super(APIv1Tests, self).__init__(*args, **kwargs)
@@ -133,6 +134,9 @@ class APIv1Tests(APITestCase):
             expected_result['build_sources_list'] = response.data['self'] + 'build_sources_list/'
             expected_result['build_apt_keys'] = response.data['self'] + 'build_apt_keys/'
 
+        if self.repository_has_series_name:
+            expected_result['series_name'] = 'aasemble'
+
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
         self.assertEquals(response.data, expected_result)
@@ -205,6 +209,9 @@ class APIv1Tests(APITestCase):
         if self.repository_has_build_sources_list:
             expected_result['build_sources_list'] = response.data['self'] + 'build_sources_list/'
             expected_result['build_apt_keys'] = response.data['self'] + 'build_apt_keys/'
+
+        if self.repository_has_series_name:
+            expected_result['series_name'] = 'aasemble'
 
         self.assertEquals(response.data, expected_result)
         response = self.client.get(response.data['self'])
@@ -466,6 +473,9 @@ class APIv1Tests(APITestCase):
 
         if self.repository_should_be_embedded_in_source:
             data['repository_info'] = self.client.get(data['repository']).data
+
+        if self.repository_has_series_name:
+            data['last_built_version'] = None
 
         self.assertEquals(response.data, data)
         register_webhook.assert_called_with()
@@ -1311,6 +1321,7 @@ class APIv3Tests(APIv2Tests):
     mirror_includes_sources_list = True
     repository_should_be_embedded_in_source = True
     repository_has_build_sources_list = True
+    repository_has_series_name = True
 
     def test_build_duration(self):
         authenticate(self.client, 'eric')

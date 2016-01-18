@@ -11,6 +11,7 @@ import deb822
 
 from django.conf import settings
 from django.contrib.auth import models as auth_models
+from django.contrib.sites.models import Site
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.encoding import python_2_unicode_compatible
@@ -360,11 +361,23 @@ class PackageSource(models.Model):
         tmpdir, self.builddir, br.sha = self.checkout(logger=br.logger)
         br.save()
         try:
-            from . import pkgbuild
-            builder_cls = pkgbuild.choose_builder(self.builddir)
-            builder = builder_cls(tmpdir, self, br)
+            site = Site.objects.get_current()
+            br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
+                                    site.domain, br.get_absolute_url())
 
-            builder.build()
+            version = run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
+            name = run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
+
+            br.version = version
+            br.save()
+
+            self.last_built_version = version
+            self.last_built_name = name
+            self.save()
+
+            run_cmd(['aasemble-pkgbuild', 'build', br_url], cwd=tmpdir, logger=br.logger)
+            br.build_finished = now()
+            br.build_record.save()
 
             changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
 
@@ -445,6 +458,10 @@ class BuildRecord(models.Model):
         self._logger = None
         self._saved_logpath = None
         return super(BuildRecord, self).__init__(*args, **kwargs)
+
+    def get_absolute_url(self):
+        from django.core.urlresolvers import reverse
+        return reverse('v3_buildrecord-detail', args=[str(self.uuid)])
 
     @property
     def logger(self):

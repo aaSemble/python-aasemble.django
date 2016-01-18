@@ -1,8 +1,8 @@
 import os.path
 import shutil
 import subprocess
+import sys
 import tempfile
-import time
 
 from django.contrib.auth import models as auth_models
 from django.db.utils import IntegrityError
@@ -13,7 +13,10 @@ import github3
 
 import mock
 
+from six import StringIO
+
 from aasemble.django.exceptions import CommandFailed
+from aasemble.django.tests import AasembleLiveServerTestCase as LiveServerTestCase
 from aasemble.django.tests import AasembleTestCase as TestCase
 
 from .models import BuildRecord, NotAValidGithubRepository, PackageSource, Repository, Series
@@ -25,39 +28,33 @@ except:
     docker_available = False
 
 
-class PkgBuildTestCase(TestCase):
+class PkgBuildTestCase(LiveServerTestCase):
     @skipIf(not docker_available, 'Docker unavailable')
     def test_build_debian(self):
         from . import pkgbuild
 
         tmpdir = tempfile.mkdtemp()
         try:
-            basedir = os.path.join(tmpdir, 'd')
-            shutil.copytree(os.path.join(os.path.dirname(__file__), 'test_data', 'debian'), basedir)
-            builddir = os.path.join(basedir, 'build')
-
-            builder_cls = pkgbuild.choose_builder(builddir)
-            self.assertEquals(builder_cls, pkgbuild.debian.DebianBuilder)
-
-            start = time.time()
-
             source = PackageSource.objects.get(id=1)
             br = BuildRecord(source=source, build_counter=10, sha='e65b55054c5220321c56bb3dfa96fbe5199f329c')
             br.save()
 
-            builder = builder_cls(basedir, source, br)
-            builder.build()
+            basedir = os.path.join(tmpdir, 'd')
+            shutil.copytree(os.path.join(os.path.dirname(__file__), 'test_data', 'debian'), basedir)
 
-            finish = time.time()
+            orig_stdout = sys.stdout
+            sys.stdout = StringIO()
+            try:
+                pkgbuild.main(['--basedir', basedir, 'version', self.live_server_url + br.get_absolute_url()])
+                self.assertEquals(sys.stdout.getvalue(), '0.1+10')
+                sys.stdout = StringIO()
 
-            our_timing = finish - start
-            br_timing = (br.build_finished - br.build_started).total_seconds()
+                pkgbuild.main(['--basedir', basedir, 'name', self.live_server_url + br.get_absolute_url()])
+                self.assertEquals(sys.stdout.getvalue(), 'buildsvctest')
 
-            self.assertGreater(our_timing, br_timing,
-                               'Our timing was smaller than measured in the build record')
-
-            self.assertLess(our_timing - br_timing, 5,
-                            'Our timing differed by more than 5 seconds from that in the build record')
+                pkgbuild.main(['--basedir', basedir, 'build', self.live_server_url + br.get_absolute_url()])
+            finally:
+                sys.stdout = orig_stdout
 
             self.assertTrue(os.path.exists(os.path.join(basedir, 'buildsvctest_0.1+10_source.changes')))
             self.assertTrue(os.path.exists(os.path.join(basedir, 'buildsvctest_0.1+10_amd64.changes')))
