@@ -11,6 +11,7 @@ import dbuild
 
 from debian.debian_support import version_compare
 
+import django
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -23,7 +24,9 @@ LOG = logging.getLogger(__name__)
 
 
 class BuilderBackend(object):
-    pass
+    def __init__(self, proxy=None, parallel=1):
+        self.proxy = proxy
+        self.parallel = parallel
 
 
 class DbuildBuilderBackend(BuilderBackend):
@@ -32,20 +35,24 @@ class DbuildBuilderBackend(BuilderBackend):
                             build_type='source',
                             source_dir=sourcedir,
                             build_owner=os.getuid(),
-                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
+                            proxy=self.proxy,
+                            no_default_sources=True)
 
-    def binary_build(self, basedir, parallel=1):
+    def binary_build(self, basedir, parallel=None):
+        if parallel is None:
+            parallel = self.parallel
+
         dbuild.docker_build(build_dir=basedir,
                             build_type='binary',
                             build_owner=os.getuid(),
                             parallel=parallel,
-                            proxy=getattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY', ))
+                            proxy=self.proxy,
+                            no_default_sources=True)
 
 
-def get_build_backend(settings=settings):
-    backend_name = getattr(settings, 'AASEMBLE_BUILDSVC_BUILD_BACKEND', 'dbuild')
+def get_build_backend(backend_name, **kwargs):
     if backend_name == 'dbuild':
-        return DbuildBuilderBackend()
+        return DbuildBuilderBackend(**kwargs)
 
 
 def fetch_build_http(url):
@@ -66,12 +73,16 @@ def fetch_build(build_id):
 
 
 class PackageBuilder(object):
-    def __init__(self, basedir, build_record):
+    def __init__(self, basedir, build_record, backend_name='dbuild',
+                 full_name='Name not specified', email='build@example.com', **kwargs):
         self.basedir = basedir
         self.build_dependencies = []
         self.runtime_dependencies = []
         self.build_record = fetch_build(build_record)
+        self.full_name = full_name
+        self.email = email
         self.logger = LOG
+        self.backend = get_build_backend(backend_name, **kwargs)
 
     @property
     def builddir(self):
@@ -114,13 +125,12 @@ class PackageBuilder(object):
     def docker_build_source_package(self):
         """Build source package in docker"""
         source_dir = os.path.basename(self.builddir)
-        get_build_backend().source_build(self.basedir, source_dir)
+        self.backend.source_build(self.basedir, source_dir)
 
     def docker_build_binary_package(self):
         """Build binary packages in docker"""
-        parallel = self.get_build_config().get('parallel',
-                                               getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))
-        get_build_backend().binary_build(self.basedir, parallel=parallel)
+        parallel = self.get_build_config().get('parallel')
+        self.backend.binary_build(self.basedir, parallel=parallel)
 
     def get_build_config(self):
         return self.get_aasemble_config().get('build', {})
@@ -156,12 +166,12 @@ class PackageBuilder(object):
 
     @property
     def env(self):
-        return {'DEBEMAIL': settings.BUILDSVC_DEBEMAIL,
-                'DEBFULLNAME': settings.BUILDSVC_DEBFULLNAME}
+        return {'DEBEMAIL': self.email,
+                'DEBFULLNAME': self.full_name}
 
     def add_changelog_entry(self):
         fmt = '%a, %d %b %Y %H:%M:%S %z'
-        rendered = render_to_string('buildsvc/changelog.deb',
+        rendered = render_to_string(os.path.join(os.path.dirname(__file__), '../templates/buildsvc/changelog.deb'),
                                     {'pkgname': self.sanitized_package_name,
                                      'version': self.package_version,
                                      'distribution': self.build_record['source']['repository_info']['series_name'],
@@ -249,10 +259,18 @@ def choose_builder(path):
 
 def main(argv=sys.argv[1:]):
     if not settings.configured:
-        settings.configure()
+        settings.configure(TEMPLATES=[{'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                                       'DIRS': [os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))]}],
+                           USE_TZ=True)
+        django.setup()
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--basedir', default=os.getcwd(), help='Base directory [default="."]')
+    parser.add_argument('--proxy', help='proxy to use during build')
+    parser.add_argument('--parallel', default=1, help='parallellization level [default=1]')
+    parser.add_argument('--fullname', default='aaSemble Build Service', help='Full name to use in changelog')
+    parser.add_argument('--email', default='autobuild@aasemble.com', help='E-mail to use in changelog')
+    parser.add_argument('--backend', default='dbuild', help='Builder backend [default=dbuild]')
     parser.add_argument('action', choices=['build', 'name', 'version'])
     parser.add_argument('build_record', help='build_record ID (URL)')
 
@@ -264,7 +282,11 @@ def main(argv=sys.argv[1:]):
     from . import generic  # noqa
 
     builder_class = choose_builder(options.basedir + '/build')
-    builder = builder_class(options.basedir, options.build_record)
+    builder = builder_class(options.basedir, options.build_record,
+                            backend_name=options.backend,
+                            parallel=options.parallel,
+                            proxy=options.proxy)
+
     if options.action == 'version':
         sys.stdout.write(builder.package_version)
     elif options.action == 'name':
