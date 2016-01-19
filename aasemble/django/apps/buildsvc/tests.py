@@ -423,8 +423,7 @@ class PackageSourceTestCase(TestCase):
                                             "returned 128. Output: fatal: could not read Username for 'https://github.com': "
                                             "No such device or address\n",
                                             ['git', 'ls-remote', u'https://github.com/eric/project0', u'refs/heads/master'], 128,
-                                            "fatal: could not read Username for 'https://github.com': No such device or address\n",
-                                            None)
+                                            "fatal: could not read Username for 'https://github.com': No such device or address\n")
         ps = PackageSource.objects.get(id=1)
         self.assertFalse(ps.poll())
         run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
