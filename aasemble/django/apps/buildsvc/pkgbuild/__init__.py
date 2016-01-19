@@ -36,7 +36,8 @@ class DbuildBuilderBackend(BuilderBackend):
                             source_dir=sourcedir,
                             build_owner=os.getuid(),
                             proxy=self.proxy,
-                            no_default_sources=True)
+                            no_default_sources=True,
+                            include_timestamps=False)
 
     def binary_build(self, basedir, parallel=None):
         if parallel is None:
@@ -47,7 +48,8 @@ class DbuildBuilderBackend(BuilderBackend):
                             build_owner=os.getuid(),
                             parallel=parallel,
                             proxy=self.proxy,
-                            no_default_sources=True)
+                            no_default_sources=True,
+                            include_timestamps=False)
 
 
 def get_build_backend(backend_name, **kwargs):
