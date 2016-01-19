@@ -355,16 +355,16 @@ class PackageSource(models.Model):
         self.build_counter += 1
         self.save()
 
-        br = BuildRecord(source=self, build_counter=self.build_counter)
+        br = BuildRecord(source=self, build_counter=self.build_counter, sha=self.last_seen_revision)
         br.save()
 
-        tmpdir, self.builddir, br.sha = self.checkout(logger=br.logger)
-        br.save()
+        tmpdir = tempfile.mkdtemp()
         try:
             site = Site.objects.get_current()
             br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
                                     site.domain, br.get_absolute_url())
 
+            run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
             version = run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
             name = run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
 

@@ -94,6 +94,16 @@ class PackageBuilder(object):
         """Derive version from code, fallback to build_counter"""
         return self.build_record['build_counter']
 
+    def checkout(self):
+        from aasemble.django.utils import run_cmd
+
+        run_cmd(['git',
+                 'clone', self.build_record['source']['git_repository'],
+                 '--recursive',
+                 '-b', self.build_record['source']['git_branch'],
+                 self.builddir], logger=self.logger)
+        run_cmd(['git', 'reset', '--hard', self.build_record['sha']], cwd=self.builddir, logger=self.logger)
+
     def build(self):
         self.logger.debug('Using %s to build' % (type(self)))
 
@@ -273,7 +283,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument('--fullname', default='aaSemble Build Service', help='Full name to use in changelog')
     parser.add_argument('--email', default='autobuild@aasemble.com', help='E-mail to use in changelog')
     parser.add_argument('--backend', default='dbuild', help='Builder backend [default=dbuild]')
-    parser.add_argument('action', choices=['build', 'name', 'version'])
+    parser.add_argument('action', choices=['build', 'name', 'version', 'checkout'])
     parser.add_argument('build_record', help='build_record ID (URL)')
 
     options = parser.parse_args(argv)
@@ -295,6 +305,8 @@ def main(argv=sys.argv[1:]):
         sys.stdout.write(builder.sanitized_package_name)
     elif options.action == 'build':
         builder.build()
+    elif options.action == 'checkout':
+        builder.checkout()
     else:
         assert False, 'Invalid action provided'
 
