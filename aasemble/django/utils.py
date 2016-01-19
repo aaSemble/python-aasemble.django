@@ -1,9 +1,12 @@
 import logging
 import os
 import os.path
+import select
 import subprocess
 
 from django.template.loader import render_to_string
+
+from six import BytesIO
 
 from .exceptions import CommandFailed
 
@@ -34,6 +37,8 @@ def run_cmd(cmd, input=None, cwd=None, override_env=None,
 
     environ = dict(os.environ)
 
+    stdout = stdout or BytesIO()
+
     for k in override_env or []:
         if override_env[k] is None and k in environ:
             del environ[k]
@@ -45,25 +50,70 @@ def run_cmd(cmd, input=None, cwd=None, override_env=None,
     else:
         stderr_arg = subprocess.STDOUT
 
-    if stdout is not None:
-        stdout_arg = stdout
-    else:
-        stdout_arg = subprocess.PIPE
-
-    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=stdout_arg,
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                             stderr=stderr_arg, cwd=cwd, env=environ)
-    stdout, stderr = proc.communicate(input)
+
+    tmpbuf = [b'']
+    input = [input]
+
+    rfds = [proc.stdout]
+
+    if discard_stderr:
+        rfds += [proc.stderr]
+
+    if input[0]:
+        wfds = [proc.stdin]
+    else:
+        wfds = []
+        proc.stdin.close()
+
+    def check_io(forever=False, tmpbuf=tmpbuf, input=input):
+        while rfds or wfds:
+            ready_to_read, ready_to_write, _ = select.select(rfds, wfds, [], 1000)
+
+            for io in ready_to_read:
+                buf = os.read(io.fileno(), 4096)
+
+                if not buf:
+                    rfds.remove(io)
+
+                if io == proc.stderr:
+                    continue
+
+                stdout.write(buf)
+
+                tmpbuf[0] += buf
+
+                while b'\n' in tmpbuf[0]:
+                    line, lf, tmpbuf[0] = tmpbuf[0].partition(b'\n')
+                    logger.log(logging.INFO, line.decode('utf-8', errors='replace'))
+
+                # Make sure we get that last characters, even if there's not linefeed
+                if not buf:
+                    logger.log(logging.INFO, tmpbuf[0].decode('utf-8', errors='replace'))
+
+            for io in ready_to_write:
+                c, input[0] = input[0][0], input[0][1:]
+                io.write(c)
+
+            if not forever:
+                break
+
+    while proc.poll() is None:
+        check_io()
+
+    wfds = []
+
+    check_io(forever=True)
 
     logger.info("%r returned with returncode %d." % (cmd, proc.returncode))
-    logger.info("%r gave stdout: %s." % (cmd, stdout))
-    logger.info("%r gave stderr: %s." % (cmd, stderr))
+
+    final_output = getattr(stdout, 'getvalue', lambda: None)()
 
     if proc.returncode != 0:
-        raise CommandFailed('%r returned %d. Output: %s (stderr: %s)' %
-                            (cmd, proc.returncode, stdout, stderr),
-                            cmd, proc.returncode, stdout, stderr)
+        raise CommandFailed('%r returned %d. stdout=%r', cmd, proc.returncode, stdout)
 
-    return stdout
+    return final_output
 
 
 def ensure_dir(d):

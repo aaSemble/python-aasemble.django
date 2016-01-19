@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
 from django.test import LiveServerTestCase, TestCase, override_settings
 
+import mock
+
 from aasemble.django.exceptions import CommandFailed
 from aasemble.django.utils import run_cmd
 
@@ -74,6 +76,12 @@ class UtilsTestCase(AasembleTestCase):
         stdout = run_cmd(['true'])
         self.assertEquals(stdout, b'')
 
+    def test_run_cmd_no_trailing_linefeed(self):
+        logger = mock.MagicMock()
+        stdout = run_cmd(['bash', '-c', 'echo -n foo'], logger=logger)
+        self.assertEquals(stdout, b'foo')
+        logger.log.assert_called_with(20, 'foo')
+
     def test_run_cmd_fail_raises_exception(self):
         self.assertRaises(CommandFailed, run_cmd, ['false'])
 
@@ -120,13 +128,13 @@ class UtilsTestCase(AasembleTestCase):
     def test_run_cmd_alternate_stdout(self):
         fd, tmpfile = tempfile.mkstemp()
         try:
-            with os.fdopen(fd, 'w') as fp:
+            with os.fdopen(fd, 'wb') as fp:
                 rv = run_cmd(['echo', 'foo'], stdout=fp)
 
             self.assertEquals(rv, None)
 
-            with open(tmpfile, 'r') as fp:
-                self.assertEquals(fp.read(), 'foo\n')
+            with open(tmpfile, 'rb') as fp:
+                self.assertEquals(fp.read(), b'foo\n')
 
         finally:
             os.unlink(tmpfile)
