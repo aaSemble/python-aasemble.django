@@ -22,3 +22,4 @@ mock
 selenium
 coverage
 flake8-import-order
+apache-libcloud

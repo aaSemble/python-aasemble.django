@@ -1,5 +1,6 @@
 include requirements.txt
 include test_project/*.py
+include aasemble/django/apps/buildsvc/startup-script.sh
 recursive-include aasemble/django/apps/main/templates *
 recursive-include aasemble/django/apps/main/static *
 recursive-include aasemble/django/apps/buildsvc/templates *

@@ -192,6 +192,7 @@ class aaSembleAPIv1Serializers(object):
     def BuildRecordSerializerFactory(selff):
         class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
             self = serializers.HyperlinkedRelatedField(view_name='{0}_buildrecord-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
+
             if selff.builds_nest_source:
                 source = selff.PackageSourceSerializer()
             else:
