@@ -1,4 +1,5 @@
 import os
+import shutil
 import tempfile
 
 from django.conf import settings
@@ -12,7 +13,7 @@ from django.test import LiveServerTestCase, TestCase, override_settings
 import mock
 
 from aasemble.django.exceptions import CommandFailed
-from aasemble.django.utils import run_cmd
+from aasemble.django.utils import recursive_render, run_cmd
 
 stdout_stderr_script = '''#!/bin/sh
 
@@ -71,6 +72,24 @@ def create_session_for_given_user(username):
 
 
 class UtilsTestCase(AasembleTestCase):
+    @override_settings(TEMPLATES=[{'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                                   'DIRS': [os.path.dirname(__file__)]}])
+    def test_recursive_render(self):
+        tmpdir = tempfile.mkdtemp()
+        try:
+            recursive_render(os.path.join(os.path.dirname(__file__),
+                                          'test_data', 'recursive_render'),
+                             tmpdir, {'var': 'resolvedvar'})
+            self.assertFalse(os.path.exists(os.path.join(tmpdir, 'foo', 'bar', '.baz.swp')))
+
+            with open(os.path.join(tmpdir, 'foo', 'bar', 'baz'), 'r') as fp:
+                self.assertEquals('resolvedvar\n', fp.read())
+
+            with open(os.path.join(tmpdir, 'wibble'), 'r') as fp:
+                self.assertEquals('wobble\n', fp.read())
+        finally:
+            shutil.rmtree(tmpdir)
+
     def test_run_cmd_dead_simple(self):
         # Should simply return successfully
         stdout = run_cmd(['true'])
