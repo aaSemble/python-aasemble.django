@@ -7,43 +7,42 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>&nbsp;</th>
+          <th>Edit</th>
+          <th>Enabled</th>
+          <th>Rebuild</th>
           <th>Repository</th>
           <th>Branch</th>
           <th>Destination APT repo</th>
           <th>Last built commit</th>
-          <th>Status</th>
-          <th></th>
-          <th>Rebuild</th>
         </tr>
       </thead>
       <tbody>
         {% for source in sources %}
         <tr>
           <td><small><a href="{% url "buildsvc:package_source" source_id=source.id %}">{% bootstrap_icon "pencil" %}</a></small></td>
-          <td><a href="{{ source.git_url }}">{{ source.git_url }}</a></td>
-          <td><a href="{{ source.git_url }}/tree/{{ source.branch }}">{{ source.branch }}</a></td>
-          <td><a href="#">{{ source.series }}</a></td>
-          {% if source.last_seen_revision == None %}
-              <td>None</td>
-          {% else %}
-              {% with source.git_url|add:"/commit/"|add:source.last_seen_revision as last_commit_url %}
-              <td><a href="{{ last_commit_url }}">{{ source.last_seen_revision }}</a></td>
-              {% endwith %}
-          {% endif %}
           <td>
               {% if source.disabled %}
-                  Disabled
+                {% bootstrap_icon "ban-circle" %}
               {% else %}
-                  Enabled
+                {% bootstrap_icon "ok-circle" %}
               {% endif %}
-          </td>
-          <td>
               {% if source.disabled %}
                   <small><a href="{% url "buildsvc:enable_source_repo" source_id=source.id %}" role="button">{% bootstrap_icon "repeat" %} Enable</a></small>
               {% endif %}
           </td>
           <td><small><center><a href="{% url "buildsvc:rebuild" source_id=source.id %}">{% bootstrap_icon "repeat" %}</a></center></small></td>
+          <td><a href="{{ source.git_url }}">{{ source.git_url }}</a></td>
+          <td><a href="{{ source.git_url }}/tree/{{ source.branch }}">{{ source.branch }}</a></td>
+          <td><a href="#">{{ source.series }}</a></td>
+          <td>
+              {% if source.last_seen_revision == None %}
+                  None
+              {% else %}
+                  {% with source.git_url|add:"/commit/"|add:source.last_seen_revision as last_commit_url %}
+                  <a href="{{ last_commit_url }}">{{ source.last_seen_revision }}</a>
+                  {% endwith %}
+              {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
