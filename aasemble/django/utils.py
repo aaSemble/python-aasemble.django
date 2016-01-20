@@ -110,8 +110,12 @@ def run_cmd(cmd, input=None, cwd=None, override_env=None,
                     logger.log(logging.INFO, tmpbuf[0].decode('utf-8', errors='replace'))
 
             for io in ready_to_write:
-                c, input[0] = input[0][0], input[0][1:]
+                c, input[0] = input[0][0:1], input[0][1:]
                 io.write(c)
+
+                if not input[0]:
+                    io.close()
+                    wfds.remove(io)
 
             if not forever:
                 break

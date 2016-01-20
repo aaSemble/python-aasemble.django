@@ -95,6 +95,10 @@ class UtilsTestCase(AasembleTestCase):
         stdout = run_cmd(['true'])
         self.assertEquals(stdout, b'')
 
+    def test_run_cmd_with_input(self):
+        stdout = run_cmd(['cat'], input=b'hello\n')
+        self.assertEquals(stdout, b'hello\n')
+
     def test_run_cmd_no_trailing_linefeed(self):
         logger = mock.MagicMock()
         stdout = run_cmd(['bash', '-c', 'echo -n foo'], logger=logger)
