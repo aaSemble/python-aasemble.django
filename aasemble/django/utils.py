@@ -111,8 +111,8 @@ def run_cmd(cmd, input=None, cwd=None, override_env=None,
     final_output = getattr(stdout, 'getvalue', lambda: None)()
 
     if proc.returncode != 0:
-        raise CommandFailed('%r returned %d. stdout=%r' % (cmd, proc.returncode, stdout),
-                            cmd, proc.returncode, stdout)
+        raise CommandFailed('%r returned %d. stdout=%r' % (cmd, proc.returncode, final_output),
+                            cmd, proc.returncode, final_output)
 
     return final_output
 
