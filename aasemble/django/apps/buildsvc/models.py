@@ -441,7 +441,7 @@ class PackageSource(models.Model):
             node = GCENode('br-%s' % (br.uuid,))
             node.launch()
             run_cmd_real = node.run_cmd
-            run_cmd_real(['timeout', '120', 'bash', '-c', 'while ! which aasemble-pkgbuild; do sleep 5; done'])
+            run_cmd_real(['timeout', '300', 'bash', '-c', 'while ! which aasemble-pkgbuild; do sleep 5; done'])
         else:
             run_cmd_real = run_cmd
             node = None
