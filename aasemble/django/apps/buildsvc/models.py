@@ -20,11 +20,14 @@ from django.utils.timezone import now
 
 import github3
 
+from libcloud.compute.providers import get_driver
+from libcloud.compute.types import Provider
+
 from six.moves.urllib.parse import urlparse
 
 from . import tasks
 from ...exceptions import CommandFailed
-from ...utils import ensure_dir, recursive_render, run_cmd
+from ...utils import ensure_dir, recursive_render, run_cmd, ssh_get, ssh_run_cmd
 
 LOG = logging.getLogger(__name__)
 
@@ -77,6 +80,82 @@ def get_repo_driver(repository):
     driver_name = getattr(settings, 'BUILDSVC_REPODRIVER', 'aasemble.django.apps.buildsvc.models.RepreproDriver')
     driver = import_string(driver_name)
     return driver(repository)
+
+
+class GCENode(object):
+    def __init__(self, name):
+        self.driver = get_driver(Provider.GCE)
+        self.connection = self.driver(settings.AASEMBLE_BUILDSVC_GCE_SERVICE_ACCOUNT,
+                                      settings.AASEMBLE_BUILDSVC_GCE_KEY_FILE,
+                                      project=settings.AASEMBLE_BUILDSVC_GCE_PROJECT)
+        self.name = name
+
+    @property
+    def zone(self, settings=settings):
+        return getattr(settings, 'AASEMBLE_BUILDSVC_GCE_ZONE', 'us-central1-f')
+
+    @property
+    def machine_type_short(self, settings=settings):
+        return getattr(settings, 'AASEMBLE_BUILDSVC_GCE_MACHINE_TYPE', 'n1-standard-4')
+
+    @property
+    def ssh_public_key_file(self, settings=settings):
+        default_ssh_public_key_file = os.path.expanduser('~/.ssh/id_rsa.pub')
+        return getattr(settings, 'AASEMBLE_BUILDSVC_PUBLIC_KEY', default_ssh_public_key_file)
+
+    @property
+    def ssh_public_key_data(self):
+        with open(self.ssh_public_key_file, 'r') as fp:
+            return fp.read()
+
+    @property
+    def source_disk_image(self, settings=settings):
+        return settings.AASEMBLE_BUILDSVC_GCE_IMAGE
+        return self.connection.ex_get_image(settings.AASEMBLE_BUILDSVC_GCE_IMAGE)
+
+    @property
+    def startup_script(self):
+        with open(os.path.join(os.path.dirname(__file__), 'startup-script.sh'), 'r') as fp:
+            return fp.read()
+
+    @property
+    def disk_size(self, settings=settings):
+        return getattr(settings, 'AASEMBLE_BUILDSVC_GCE_DISK_SIZE', 100)
+
+    @property
+    def disks(self):
+        return [{'boot': True,
+                 'autoDelete': True,
+                 'initializeParams': {
+                     'sourceImage': self.source_disk_image,
+                     'diskType': 'zones/%s/diskTypes/pd-ssd' % (self.zone,),
+                     'diskSizeGb': self.disk_size}}]
+
+    @property
+    def metadata(self):
+        return {'startup-script': self.startup_script,
+                'sshKeys': 'ubuntu:' + self.ssh_public_key_data}
+
+    def launch(self):
+        self.node = self.connection.create_node(name=self.name,
+                                                size=self.machine_type_short,
+                                                image=None,
+                                                location=self.zone,
+                                                ex_disks_gce_struct=self.disks,
+                                                ex_metadata=self.metadata)
+
+    @property
+    def ssh_connect_string(self):
+        return 'ubuntu@%s' % (self.node.public_ips[0],)
+
+    def run_cmd(self, *args, **kwargs):
+        return ssh_run_cmd(self.ssh_connect_string, *args, remote_cwd='workspace', **kwargs)
+
+    def get(self, shell_pattern, destdir):
+        ssh_get(self.ssh_connect_string, 'workspace/{}'.format(shell_pattern), destdir)
+
+    def destroy(self):
+        self.node.destroy()
 
 
 @python_2_unicode_compatible
@@ -358,15 +437,24 @@ class PackageSource(models.Model):
         br = BuildRecord(source=self, build_counter=self.build_counter, sha=self.last_seen_revision)
         br.save()
 
+        if getattr(settings, 'AASEMBLE_BUILDSVC_GCE_BUILD_NODES', False):
+            node = GCENode(str(br.uuid))
+            node.launch()
+            run_cmd_real = node.run_cmd
+            run_cmd_real(['timeout', '120', 'bash', '-c', 'while ! which aasemble-pkgbuild; do sleep 5; done'])
+        else:
+            run_cmd_real = run_cmd
+            node = None
+
         tmpdir = tempfile.mkdtemp()
         try:
             site = Site.objects.get_current()
             br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
                                     site.domain, br.get_absolute_url())
 
-            run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
-            version = run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
-            name = run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
+            run_cmd_real(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
+            version = run_cmd_real(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
+            name = run_cmd_real(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
 
             br.version = version
             br.save()
@@ -386,7 +474,11 @@ class PackageSource(models.Model):
             build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
 
             build_cmd += ['build', br_url]
-            run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
+
+            run_cmd_real(build_cmd, cwd=tmpdir, logger=br.logger)
+
+            if node:
+                node.get('*.*', tmpdir)
 
             br.build_finished = now()
             br.save()
@@ -399,6 +491,8 @@ class PackageSource(models.Model):
             self.series.export()
         finally:
             shutil.rmtree(tmpdir)
+            if node:
+                node.destroy()
 
     def delete_on_filesystem(self):
         if self.last_built_name:

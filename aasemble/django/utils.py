@@ -7,6 +7,7 @@ import subprocess
 from django.template.loader import render_to_string
 
 from six import BytesIO
+from six.moves import shlex_quote
 
 from .exceptions import CommandFailed
 
@@ -28,6 +29,22 @@ def recursive_render(src, dst, context, logger=LOG):
         logger.debug('Result: %r' % (s,))
         with open(dst, 'w') as fp_out:
             fp_out.write(s)
+
+
+def escape_cmd_for_ssh(cmd):
+    return ' '.join([shlex_quote(arg) for arg in cmd])
+
+
+def ssh_run_cmd(connect_string, cmd, remote_cwd=None, *args, **kwargs):
+    cmd_real = 'mkdir -p {0} ; cd {0} ; '.format(shlex_quote(remote_cwd))
+    cmd_real += escape_cmd_for_ssh(cmd)
+    ssh_cmd = ['ssh', '-q', '-oStrictHostKeyChecking=no', '-oUserKnownHostsFile=/dev/null', connect_string, cmd_real]
+    return run_cmd(ssh_cmd, *args, **kwargs)
+
+
+def ssh_get(connect_string, remote_pattern, destdir):
+    cmd = ['scp', '-q', '-oStrictHostKeyChecking=no', '-oUserKnownHostsFile=/dev/null', '{0}:{1}'.format(connect_string, remote_pattern), '.']
+    run_cmd(cmd, cwd=destdir)
 
 
 def run_cmd(cmd, input=None, cwd=None, override_env=None,
