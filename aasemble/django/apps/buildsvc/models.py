@@ -438,7 +438,7 @@ class PackageSource(models.Model):
         br.save()
 
         if getattr(settings, 'AASEMBLE_BUILDSVC_GCE_BUILD_NODES', False):
-            node = GCENode(str(br.uuid))
+            node = GCENode('br-%s' % (br.uuid,))
             node.launch()
             run_cmd_real = node.run_cmd
             run_cmd_real(['timeout', '120', 'bash', '-c', 'while ! which aasemble-pkgbuild; do sleep 5; done'])
