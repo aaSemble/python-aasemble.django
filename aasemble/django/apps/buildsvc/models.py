@@ -361,7 +361,7 @@ class PackageSource(models.Model):
         executor_class = executors.get_executor()
 
         with executor_class('br-%s' % (br.uuid,)) as executor:
-            executor.run_cmd(['timeout', '300', 'bash', '-c', 'while aasemble-pkgbuild --help; do sleep 5; done'])
+            executor.run_cmd(['timeout', '300', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 5; done'])
             tmpdir = tempfile.mkdtemp()
             try:
                 site = Site.objects.get_current()
