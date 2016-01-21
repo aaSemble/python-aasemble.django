@@ -18,11 +18,14 @@ from setuptools import setup, find_packages
 
 with open('requirements.txt', 'r') as fp:
     requirements = []
+    dependency_links = []
     for l in fp:
          l = l.strip()
          if '://' in l:
+             dl = l
              l = l.split('/')[-1]
              if '#egg=' in l:
+                 dependency_links.append(dl)
                  l = l.split('#egg=')[-1]
          requirements.append(l)
 
@@ -34,6 +37,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=requirements,
+    dependency_links=dependency_links,
     entry_points = {
         'console_scripts': ['aasemble-pkgbuild=aasemble.django.apps.buildsvc.pkgbuild:main'],
     }
