@@ -358,10 +358,7 @@ class PackageSource(models.Model):
         br = BuildRecord(source=self, build_counter=self.build_counter, sha=self.last_seen_revision)
         br.save()
 
-        if getattr(settings, 'AASEMBLE_BUILDSVC_GCE_BUILD_NODES', False):
-            executor_class = executors.GCENode
-        else:
-            executor_class = executors.Local
+        executor_class = executors.get_executor()
 
         with executor_class('br-%s' % (br.uuid,)) as executor:
             executor.run_cmd(['timeout', '300', 'bash', '-c', 'while aasemble-pkgbuild --help; do sleep 5; done'])
