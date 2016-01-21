@@ -13,7 +13,7 @@ from django.test import LiveServerTestCase, TestCase, override_settings
 import mock
 
 from aasemble.django.exceptions import CommandFailed
-from aasemble.django.utils import recursive_render, run_cmd
+from aasemble.django.utils import ensure_dir, escape_cmd_for_ssh, recursive_render, run_cmd, ssh_get, ssh_run_cmd
 
 stdout_stderr_script = '''#!/bin/sh
 
@@ -87,6 +87,48 @@ class UtilsTestCase(AasembleTestCase):
 
             with open(os.path.join(tmpdir, 'wibble'), 'r') as fp:
                 self.assertEquals('wobble\n', fp.read())
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def test_escape_cmd_for_ssh(self):
+        self.assertEquals(escape_cmd_for_ssh(['echo', """'%\""""]), 'echo \'\'"\'"\'%"\'')
+
+    @mock.patch('aasemble.django.utils.run_cmd')
+    def test_ssh_get(self, run_cmd):
+        ssh_get('user@remote', 'foo/bar*', 'mydestdir')
+        run_cmd.assert_called_with(['scp',
+                                    '-q',
+                                    '-oStrictHostKeyChecking=no',
+                                    '-oUserKnownHostsFile=/dev/null',
+                                    'user@remote:foo/bar*', '.'], cwd='mydestdir')
+
+    @mock.patch('aasemble.django.utils.run_cmd')
+    def test_ssh_run_cmd(self, run_cmd):
+        ssh_run_cmd('user@remote', ['touch', '"#'])
+        run_cmd.assert_called_with(['ssh',
+                                    '-q',
+                                    '-oStrictHostKeyChecking=no',
+                                    '-oUserKnownHostsFile=/dev/null',
+                                    'user@remote',
+                                    'touch \'"#\''])
+
+    @mock.patch('aasemble.django.utils.run_cmd')
+    def test_ssh_run_cmd_with_remote_cwd(self, run_cmd):
+        ssh_run_cmd('user@remote', ['touch', '"#'], remote_cwd='workspace')
+        run_cmd.assert_called_with(['ssh',
+                                    '-q',
+                                    '-oStrictHostKeyChecking=no',
+                                    '-oUserKnownHostsFile=/dev/null',
+                                    'user@remote',
+                                    'mkdir -p workspace ; cd workspace ; touch \'"#\''])
+
+    def test_ensure_dir(self):
+        tmpdir = tempfile.mkdtemp()
+        try:
+            testdir = os.path.join(tmpdir, 'testdir')
+            self.assertEquals(ensure_dir(testdir), testdir)
+            self.assertTrue(os.path.isdir(testdir))
+            self.assertEquals(ensure_dir(testdir), testdir)
         finally:
             shutil.rmtree(tmpdir)
 
