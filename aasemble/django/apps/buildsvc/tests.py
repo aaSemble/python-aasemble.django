@@ -15,6 +15,7 @@ import mock
 
 from six import StringIO
 
+from aasemble.django.apps.buildsvc import executors
 from aasemble.django.exceptions import CommandFailed
 from aasemble.django.tests import AasembleLiveServerTestCase as LiveServerTestCase
 from aasemble.django.tests import AasembleTestCase as TestCase
@@ -430,3 +431,24 @@ class PackageSourceTestCase(TestCase):
         self.assertTrue(ps.disabled)
         self.assertTrue(ps.last_failure_time)
         self.assertEquals(ps.last_failure, "fatal: could not read Username for 'https://github.com': No such device or address\n")
+
+
+class ExecutorTestCase(TestCase):
+    @mock.patch('aasemble.django.apps.buildsvc.executors.GCENode.destroy')
+    @mock.patch('aasemble.django.apps.buildsvc.executors.GCENode.launch')
+    def test_gce_node(self, launch, destroy):
+        with executors.GCENode('node-name'):
+            launch.assert_called_with()
+            destroy.assert_not_called()
+        destroy.assert_called_with()
+
+    def test_get_executor_default(self):
+        self.assertEquals(executors.get_executor(), executors.Local)
+
+    def test_get_executor_specific(self):
+        self.assertEquals(executors.get_executor('GCENode'), executors.GCENode)
+
+    def test_get_executor_override_default(self):
+        class Settings(object):
+            AASEMBLE_BUILDSVC_EXECUTOR = 'GCENode'
+        self.assertEquals(executors.get_executor(settings=Settings()), executors.GCENode)
