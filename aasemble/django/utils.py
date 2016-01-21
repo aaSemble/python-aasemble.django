@@ -36,7 +36,11 @@ def escape_cmd_for_ssh(cmd):
 
 
 def ssh_run_cmd(connect_string, cmd, remote_cwd=None, *args, **kwargs):
-    cmd_real = 'mkdir -p {0} ; cd {0} ; '.format(shlex_quote(remote_cwd))
+    if remote_cwd:
+        cmd_real = 'mkdir -p {0} ; cd {0} ; '.format(shlex_quote(remote_cwd))
+    else:
+        cmd_real = ''
+
     cmd_real += escape_cmd_for_ssh(cmd)
     ssh_cmd = ['ssh', '-q', '-oStrictHostKeyChecking=no', '-oUserKnownHostsFile=/dev/null', connect_string, cmd_real]
     return run_cmd(ssh_cmd, *args, **kwargs)
