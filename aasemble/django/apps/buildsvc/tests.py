@@ -432,6 +432,33 @@ class PackageSourceTestCase(TestCase):
         self.assertTrue(ps.last_failure_time)
         self.assertEquals(ps.last_failure, "fatal: could not read Username for 'https://github.com': No such device or address\n")
 
+    @mock.patch('aasemble.django.apps.buildsvc.tasks.build')
+    def test_build(self, build):
+        ps = PackageSource.objects.get(id=1)
+        ps.build()
+        build.delay.assert_called_with(1)
+
+    @mock.patch('aasemble.django.apps.buildsvc.models.Repository._reprepro')
+    @mock.patch('aasemble.django.apps.buildsvc.executors.run_cmd')
+    def test_build_real(self, run_cmd, _reprepro):
+        def run_cmd_side_effect(cmd, *args, **kwargs):
+            if cmd[0] == 'timeout':
+                return ''
+            if cmd[0] == 'aasemble-pkgbuild':
+                if cmd[1] == 'version':
+                    return '124'
+                if cmd[1] == 'name':
+                    return 'detectedname'
+                if 'build' in cmd[1:]:
+                    return ''
+                if cmd[1] == 'checkout':
+                    return ''
+            raise Exception('Unexpected command')
+
+        run_cmd.side_effect = run_cmd_side_effect
+        ps = PackageSource.objects.get(id=1)
+        ps.build_real()
+
 
 class ExecutorTestCase(TestCase):
     @mock.patch('aasemble.django.apps.buildsvc.executors.GCENode.destroy')
