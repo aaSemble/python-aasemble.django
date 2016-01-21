@@ -122,7 +122,7 @@ BUILDSVC_DEBFULLNAME = 'aaSemble Package Builder'
 MIRRORSVC_BASE_PATH = os.path.join(BASE_DIR, 'mirrors')
 MIRRORSVC_BASE_URL = 'http://127.0.0.1:8000/mirrors'
 
-LOGIN_URL = '/login/github/'
+LOGIN_URL = '/accounts/github/login/'
 LOGIN_REDIRECT_URL = '/'
 
 SITE_ID = 1
