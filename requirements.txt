@@ -17,7 +17,7 @@ redis
 django-bootstrap3
 github3.py
 docker-py
-git+https://github.com/aaSemble/drf-tracking
+git+https://github.com/aaSemble/drf-tracking#egg=drf-tracking
 apache-libcloud
 pycrypto
 paramiko
