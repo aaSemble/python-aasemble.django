@@ -102,7 +102,11 @@ class PackageBuilder(object):
                  '--recursive',
                  '-b', self.build_record['source']['git_branch'],
                  self.builddir], logger=self.logger)
-        run_cmd(['git', 'reset', '--hard', self.build_record['sha']], cwd=self.builddir, logger=self.logger)
+        cmd = ['git', 'reset', '--hard']
+        build_id = self.build_record['sha']
+        if build_id is not None:
+            cmd.append(build_id)
+        run_cmd(cmd, cwd=self.builddir, logger=self.logger)
 
     def build(self):
         self.logger.debug('Using %s to build' % (type(self)))
