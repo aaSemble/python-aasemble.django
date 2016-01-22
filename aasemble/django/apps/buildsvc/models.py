@@ -276,6 +276,21 @@ class NotAValidGithubRepository(Exception):
     pass
 
 
+def get_build_cmd(br_url, settings=settings):
+    build_cmd = ['aasemble-pkgbuild']
+
+    if hasattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'):
+        if settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY:
+            build_cmd += ['--proxy', settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY]
+
+    build_cmd += ['--fullname', settings.BUILDSVC_DEBFULLNAME]
+    build_cmd += ['--email', settings.BUILDSVC_DEBEMAIL]
+    build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
+
+    build_cmd += ['build', br_url]
+    return build_cmd
+
+
 @python_2_unicode_compatible
 class PackageSource(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
@@ -379,17 +394,7 @@ class PackageSource(models.Model):
                 self.last_built_name = name
                 self.save()
 
-                build_cmd = ['aasemble-pkgbuild']
-
-                if hasattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'):
-                    if settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY:
-                        build_cmd += ['--proxy', settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY]
-
-                build_cmd += ['--fullname', settings.BUILDSVC_DEBFULLNAME]
-                build_cmd += ['--email', settings.BUILDSVC_DEBEMAIL]
-                build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
-
-                build_cmd += ['build', br_url]
+                build_cmd = get_build_cmd(br_url)
 
                 executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
 
