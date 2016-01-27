@@ -2,6 +2,9 @@ import os.path
 
 from aasemble.django.apps.buildsvc.pkgbuild import PackageBuilder, PackageBuilderRegistry
 from aasemble.utils import run_cmd
+from django.template.loader import render_to_string
+
+import yaml
 
 
 class PythonBuilder(PackageBuilder):
@@ -41,7 +44,34 @@ class PythonBuilder(PackageBuilder):
 
         return 'python-%s' % (pkgname,)
 
+    def get_pydist_overrides(self):
+        return self.get_aasemble_config().get('pydist_override', {})
+
+    def add_pydist_overrides(self):
+        override_dict = self.get_pydist_overrides()
+        if len(override_dict) == 0:
+            self.logger.info('No pydist-overrides in config')
+            return
+        pydist_overrides_str = (yaml.dump(override_dict, default_flow_style=False)).replace(':', '')
+        self.logger.info('pydist-overrides found in config: %s' % (pydist_overrides_str))
+        pydist_overrides = os.path.join(self.builddir, 'debian', 'pydist-overrides')
+
+        if os.path.exists(pydist_overrides):
+            with open(pydist_overrides, 'r') as fp:
+                pre_pydist_overrides = fp.read()
+            self.logger.info('pre existing pydist-overrides found in repo: %s' % (pre_pydist_overrides))
+        else:
+            pre_pydist_overrides = ''
+
+        with open(pydist_overrides, 'w') as fp:
+            fp.write(pydist_overrides_str)
+            fp.write(pre_pydist_overrides)
+            self.logger.info('Saving pydist-overrides file: %s' % (pydist_overrides))
+            return
+
     def detect_runtime_dependencies(self):
+        super(PythonBuilder, self).populate_debian_dir()
+        self.add_pydist_overrides()
         return ['${python:Depends}']
 
     def detect_build_dependencies(self):
