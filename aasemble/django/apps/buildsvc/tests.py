@@ -16,11 +16,12 @@ import mock
 from six import StringIO
 
 from aasemble.django.apps.buildsvc import executors
+from aasemble.django.apps.buildsvc.models import BuildRecord, PackageSource, Repository, Series
+from aasemble.django.apps.buildsvc.models.package_source import NotAValidGithubRepository
 from aasemble.django.exceptions import CommandFailed
 from aasemble.django.tests import AasembleLiveServerTestCase as LiveServerTestCase
 from aasemble.django.tests import AasembleTestCase as TestCase
 
-from .models import BuildRecord, NotAValidGithubRepository, PackageSource, Repository, Series
 
 try:
     subprocess.check_call(['docker', 'ps'])
@@ -130,7 +131,7 @@ class RepositoryTestCase(TestCase):
 
     def test_ensure_key_noop_when_key_id_set(self):
         repo = Repository.objects.get(id=1)
-        with mock.patch('aasemble.django.apps.buildsvc.models.run_cmd') as run_cmd:
+        with mock.patch('aasemble.django.apps.buildsvc.models.repository.run_cmd') as run_cmd:
             repo.ensure_key()
             self.assertFalse(run_cmd.called)
 
@@ -169,43 +170,43 @@ class RepositoryTestCase(TestCase):
         self.assertRaises(IntegrityError, Repository.objects.create, user_id=5, name='eric4')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     def test_basedir(self):
         repo = Repository.objects.get(id=12)
         self.assertEquals(repo.basedir, '/some/dir/eric/eric5')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     def test_confdir(self):
         repo = Repository.objects.get(id=12)
         self.assertEquals(repo.confdir(), '/some/dir/eric/eric5/conf')
 
     @override_settings(BUILDSVC_REPOS_BASE_PUBLIC_DIR='/some/public/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     def test_outdir(self):
         repo = Repository.objects.get(id=12)
         self.assertEquals(repo.outdir(), '/some/public/dir/eric/eric5')
 
     @override_settings(BUILDSVC_REPOS_BASE_PUBLIC_DIR='/some/public/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     def test_buildlogdir(self):
         repo = Repository.objects.get(id=12)
         self.assertEquals(repo.buildlogdir, '/some/public/dir/eric/eric5/buildlogs')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     def test_gpghome(self):
         repo = Repository.objects.get(id=12)
         self.assertEquals(repo.gpghome(), '/some/dir/eric/eric5/.gnupg')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/public/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     def test_ensure_directory_structure(self):
-        with mock.patch('aasemble.django.apps.buildsvc.models.recursive_render') as recursive_render:
+        with mock.patch('aasemble.django.apps.buildsvc.models.repository.recursive_render') as recursive_render:
             repo = Repository.objects.get(id=12)
             repo.ensure_directory_structure()
 
-            srcdir = os.path.join(os.path.dirname(__file__), 'templates', 'buildsvc', 'reprepro')
+            srcdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates', 'buildsvc', 'reprepro'))
             dstdir = '/some/public/dir/eric/eric5'
             context = {'repository': repo}
             recursive_render.assert_called_with(srcdir, dstdir, context)
@@ -224,7 +225,7 @@ class RepositoryTestCase(TestCase):
             mocks['export_key'].ensure_called_with()
             mocks['_reprepro'].ensure_called_with('export')
 
-    @mock.patch('aasemble.django.apps.buildsvc.models.remove_ddebs_from_changes')
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.remove_ddebs_from_changes')
     def test_process_changes(self, remove_ddebs_from_changes):
         repo = Repository.objects.get(id=2)
         with mock.patch.multiple(repo,
@@ -404,21 +405,21 @@ class PackageSourceTestCase(TestCase):
         self.assertTrue(ps.register_webhook())
         GitHub.assert_not_called()
 
-    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    @mock.patch('aasemble.django.apps.buildsvc.models.package_source.run_cmd')
     def test_poll_no_changes(self, run_cmd):
         run_cmd.return_value = b'cdf46dc0-a49c-11e5-b00a-c712eaff3d7b	refs/heads/master\n'
         ps = PackageSource.objects.get(id=1)
         self.assertFalse(ps.poll())
         run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
 
-    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    @mock.patch('aasemble.django.apps.buildsvc.models.package_source.run_cmd')
     def test_poll_changes(self, run_cmd):
         run_cmd.return_value = b'cdf46dc0-a49c-11e5-b00a-c712eaff3d7c	refs/heads/master\n'
         ps = PackageSource.objects.get(id=1)
         self.assertTrue(ps.poll())
         run_cmd.assert_called_with(['git', 'ls-remote', 'https://github.com/eric/project0', 'refs/heads/master'])
 
-    @mock.patch('aasemble.django.apps.buildsvc.models.run_cmd')
+    @mock.patch('aasemble.django.apps.buildsvc.models.package_source.run_cmd')
     def test_poll_fails(self, run_cmd):
         run_cmd.side_effect = CommandFailed("['git', 'ls-remote', u'https://github.com/eric/project0', u'refs/heads/master'] "
                                             "returned 128. Output: fatal: could not read Username for 'https://github.com': "

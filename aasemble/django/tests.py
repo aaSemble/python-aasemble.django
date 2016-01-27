@@ -22,7 +22,7 @@ echo stderr >&2
 '''
 
 
-@override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.models.FakeDriver')
+@override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.repodrivers.FakeDriver')
 class AasembleTestCase(TestCase):
     fixtures = ['complete.json']
 
