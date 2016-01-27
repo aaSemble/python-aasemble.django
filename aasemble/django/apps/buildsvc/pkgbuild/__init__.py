@@ -222,7 +222,7 @@ class PackageBuilder(object):
 
     @property
     def name(self):
-        return self.build_record['source']['git_url'].split('/')[-1].replace('_', '-')
+        return self.build_record['source']['git_repository'].split('/')[-1].replace('_', '-')
 
     @property
     def package_version(self):
