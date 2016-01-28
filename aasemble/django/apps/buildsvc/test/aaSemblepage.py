@@ -178,10 +178,10 @@ class BuildPage(BasePage):
         '''Finds package source button'''
         return self.driver.find_element(by.By.LINK_TEXT, 'Builds')
 
-    def verify_build_displayed(self, packageName):
+    def verify_build_displayed(self, uuid):
         '''Verify whether the Build has started by package name'''
         try:
-            self.driver.find_element(by.By.CSS_SELECTOR, "a[href*='%s']" % packageName)
+            self.driver.find_element(by.By.CSS_SELECTOR, "a[href*='%s']" % uuid)
         except:
             return False
         else:
