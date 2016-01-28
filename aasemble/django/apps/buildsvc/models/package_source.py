@@ -123,13 +123,17 @@ class PackageSource(models.Model):
         self.build_counter += 1
         self.save()
 
-        br = BuildRecord(source=self, build_counter=self.build_counter, sha=self.last_seen_revision)
+        br = BuildRecord(source=self, build_counter=self.build_counter,
+                         sha=self.last_seen_revision)
         br.save()
 
         try:
             executor_class = executors.get_executor()
 
             with executor_class('br-%s' % (br.uuid,)) as executor:
+                br.state = BuildRecord.BUILDING
+                br.save()
+
                 executor.run_cmd(['timeout', '300', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 5; done'])
                 tmpdir = tempfile.mkdtemp()
                 try:
@@ -151,6 +155,8 @@ class PackageSource(models.Model):
                     build_cmd = get_build_cmd(br_url)
 
                     executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
+                    br.state = br.SUCCESFULLY_BUILT
+                    br.save()
 
                     executor.get('*.*', tmpdir)
 
@@ -168,6 +174,7 @@ class PackageSource(models.Model):
         finally:
             if not br.build_finished:
                 br.build_finished = now()
+                br.state = BuildRecord.FAILED_TO_BUILD
                 br.save()
 
     def delete_on_filesystem(self):

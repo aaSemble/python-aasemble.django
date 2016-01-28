@@ -14,6 +14,28 @@ LOG = logging.getLogger(__name__)
 
 
 class BuildRecord(models.Model):
+    BUILDING = 1
+    SUCCESFULLY_BUILT = 2
+    CHROOT_PROBLEM = 3
+    BUILD_FOR_SUPERSEDED_SOURCE = 4
+    FAILED_TO_BUILD = 5
+    DEPENDENCY_WAIT = 6
+    FAILED_TO_UPLOAD = 7
+    NEEDS_BUILDING = 8
+    UNKNOWN = 9
+
+    BUILD_STATES = (
+        (BUILDING, 'Building'),
+        (SUCCESFULLY_BUILT, 'Succesfully Built'),
+        (CHROOT_PROBLEM, 'Chroot Problem'),
+        (BUILD_FOR_SUPERSEDED_SOURCE, 'Build for superseded source'),
+        (FAILED_TO_BUILD, 'Failed to build'),
+        (DEPENDENCY_WAIT, 'Dependency wait'),
+        (FAILED_TO_UPLOAD, 'Failed to upload'),
+        (NEEDS_BUILDING, 'Needs building'),
+        (UNKNOWN, 'Unknown (predates state tracking)'),
+    )
+
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     source = models.ForeignKey(PackageSource)
     version = models.CharField(max_length=50)
@@ -22,6 +44,8 @@ class BuildRecord(models.Model):
     build_finished = models.DateTimeField(blank=True, null=True)
     sha = models.CharField(max_length=100, null=True, blank=True)
     handler_node = models.CharField(max_length=100, default=socket.getfqdn, null=True)
+    state = models.SmallIntegerField(default=NEEDS_BUILDING,
+                                     choices=BUILD_STATES)
 
     def __init__(self, *args, **kwargs):
         self._logger = None
