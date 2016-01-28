@@ -300,7 +300,6 @@ class aaSembleV1Views(object):
                 @detail_route(permission_classes=[AllowAny])
                 def log(self, request, **kwargs):
                     br = self.get_object()
-                    print br.state, br.BUILDING
                     if br.state == br.BUILDING:
                         if br.handler_node == socket.getfqdn():
                             try:
