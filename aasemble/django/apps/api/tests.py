@@ -1329,11 +1329,11 @@ class APIv3Tests(APIv2Tests):
         authenticate(self.client, 'eric')
         tmpdir = tempfile.mkdtemp()
         try:
-            with open(os.path.join(tmpdir, 'f5575921-c9a1-4cc8-a235-5b1756ca59ef'), 'w') as fp:
-                fp.write('Our lovely, fake log\n')
+            with open(os.path.join(tmpdir, 'f5575921-c9a1-4cc8-a235-5b1756ca59ef'), 'wb') as fp:
+                fp.write(b'Our lovely, fake log\n')
             with override_settings(AASEMBLE_BUILDSVC_BUILDLOG_TMPDIR=tmpdir):
                 response = self.client.get('%s%s/log/' % (self.build_list_url, 'f5575921-c9a1-4cc8-a235-5b1756ca59ef'))
-                self.assertEquals(response.content, 'Our lovely, fake log\n')
+                self.assertEquals(response.content, b'Our lovely, fake log\n')
         finally:
             shutil.rmtree(tmpdir)
 
@@ -1341,11 +1341,11 @@ class APIv3Tests(APIv2Tests):
     def test_build_log_proxies_request_to_handler_node_when_not_finished_and_not_owning_it(self, requests):
         authenticate(self.client, 'eric')
         urlpath = '%s%s/log/' % (self.build_list_url, 'f331c241-7fd6-45ce-8ffb-fcee2b9bbbfc')
-        requests.get.return_value.content = 'Oh, yeah'
+        requests.get.return_value.content = b'Oh, yeah'
 
         response = self.client.get(urlpath)
         requests.get.assert_called_with('http://someothernode.foo.bar.example.com%s' % (urlpath,))
-        self.assertEquals(response.content, 'Oh, yeah')
+        self.assertEquals(response.content, b'Oh, yeah')
 
     def test_build_log_redirects_when_finished(self):
         authenticate(self.client, 'eric')
