@@ -1332,8 +1332,8 @@ class APIv3Tests(APIv2Tests):
             with open(os.path.join(tmpdir, 'f5575921-c9a1-4cc8-a235-5b1756ca59ef'), 'w') as fp:
                 fp.write('Our lovely, fake log\n')
             with override_settings(AASEMBLE_BUILDSVC_BUILDLOG_TMPDIR=tmpdir):
-                 response = self.client.get('%s%s/log/' % (self.build_list_url, 'f5575921-c9a1-4cc8-a235-5b1756ca59ef'))
-                 self.assertEquals(response.content, 'Our lovely, fake log\n')
+                response = self.client.get('%s%s/log/' % (self.build_list_url, 'f5575921-c9a1-4cc8-a235-5b1756ca59ef'))
+                self.assertEquals(response.content, 'Our lovely, fake log\n')
         finally:
             shutil.rmtree(tmpdir)
 
