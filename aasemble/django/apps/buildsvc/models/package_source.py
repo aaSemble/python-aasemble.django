@@ -126,44 +126,49 @@ class PackageSource(models.Model):
         br = BuildRecord(source=self, build_counter=self.build_counter, sha=self.last_seen_revision)
         br.save()
 
-        executor_class = executors.get_executor()
+        try:
+            executor_class = executors.get_executor()
 
-        with executor_class('br-%s' % (br.uuid,)) as executor:
-            executor.run_cmd(['timeout', '300', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 5; done'])
-            tmpdir = tempfile.mkdtemp()
-            try:
-                site = Site.objects.get_current()
-                br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
-                                        site.domain, br.get_absolute_url())
+            with executor_class('br-%s' % (br.uuid,)) as executor:
+                executor.run_cmd(['timeout', '300', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 5; done'])
+                tmpdir = tempfile.mkdtemp()
+                try:
+                    site = Site.objects.get_current()
+                    br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
+                                            site.domain, br.get_absolute_url())
 
-                executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
-                version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
-                name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
+                    executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
+                    version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
+                    name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
 
-                br.version = version
-                br.save()
+                    br.version = version
+                    br.save()
 
-                self.last_built_version = version
-                self.last_built_name = name
-                self.save()
+                    self.last_built_version = version
+                    self.last_built_name = name
+                    self.save()
 
-                build_cmd = get_build_cmd(br_url)
+                    build_cmd = get_build_cmd(br_url)
 
-                executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
+                    executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
 
-                executor.get('*.*', tmpdir)
+                    executor.get('*.*', tmpdir)
 
+                    br.build_finished = now()
+                    br.save()
+
+                    changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
+
+                    for changes_file in changes_files:
+                        self.series.process_changes(os.path.join(tmpdir, changes_file))
+
+                    self.series.export()
+                finally:
+                    shutil.rmtree(tmpdir)
+        finally:
+            if not br.build_finished:
                 br.build_finished = now()
                 br.save()
-
-                changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
-
-                for changes_file in changes_files:
-                    self.series.process_changes(os.path.join(tmpdir, changes_file))
-
-                self.series.export()
-            finally:
-                shutil.rmtree(tmpdir)
 
     def delete_on_filesystem(self):
         if self.last_built_name:
