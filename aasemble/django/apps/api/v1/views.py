@@ -1,10 +1,14 @@
+import socket
+
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
 from django.conf import settings
 from django.conf.urls import include, url
 import django.db.utils
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponsePermanentRedirect
+
+import requests
 
 from rest_auth.registration.views import SocialLoginView
 
@@ -13,7 +17,6 @@ from rest_framework.decorators import detail_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, DjangoObjectPermissions
 from rest_framework.response import Response
-
 
 from rest_framework_nested import routers
 
@@ -292,6 +295,26 @@ class aaSembleV1Views(object):
                     qs = qs.filter(**selff.get_qs_filter(self.kwargs, 'source__series__repository', 'repository'))
 
                 return qs
+
+            if True:
+                @detail_route(permission_classes=[AllowAny])
+                def log(self, request, **kwargs):
+                    br = self.get_object()
+                    if not br.build_finished:
+                        if br.handler_node == socket.getfqdn():
+                            resp = HttpResponse(open(br.temporary_log_path(), 'r'), 'text/plain')
+                            resp.rendered_content = ''
+                            return resp
+                        else:
+                            downstream_resp = requests.get('http://%s%s' % (br.handler_node, request.path))
+                            resp = HttpResponse(downstream_resp.content, 'text/plain')
+                            resp.rendered_content = ''
+                            return resp
+                    else:
+                        url = br.buildlog_url()
+                        resp = HttpResponsePermanentRedirect(br.direct_buildlog_url())
+                        resp.rendered_content = 'REDIRECT:%s' % (url,)
+                        return resp
 
         return BuildViewSet
 

@@ -1,6 +1,7 @@
 These are the Django settings used to configure aaSemble:
 
  * `AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY`: Proxy setting that will get passed to build process. Use this if you're behind a corporate proxy or if you have a caching proxy for speeding up the build process.
+ * `AASEMBLE_BUILDSVC_BUILDLOG_TMPDIR`: Local temporary directory where build logs will be kept until the build finishes (at which point the log will get moved to its final location)
  * `AASEMBLE_BUILDSVC_DEFAULT_PARALLEL`: Level of parallelization to use by default. Individual builds can override this in their `.aasemble.yml`, but this allows you to specify a default. It will get passed to `dpkg-buildpackage` as `-jN` where `N` is the value of `AASEMBLE_BUILDSVC_DEFAULT_PARALLEL`. Defaults to 1.
  * `AASEMBLE_BUILDSVC_GCE_KEY_FILE`: The credentials file (in JSON format) for the service account if using Google Compute Engine for builds, 
  * `AASEMBLE_BUILDSVC_GCE_MACHINE_TYPE`: Desired default machine type on Google Compute Engine. Defaults to `n1-standard-4`.

@@ -880,7 +880,8 @@
         "build_finished": null,
         "sha": "168d229d8b614bae879d19bf324ac623",
         "version": "1.1+2",
-        "build_counter": 2
+        "build_counter": 2,
+        "handler_node": "someothernode.foo.bar.example.com"
     },
     "model": "buildsvc.buildrecord",
     "pk": 3
