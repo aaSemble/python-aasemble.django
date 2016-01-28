@@ -118,6 +118,7 @@ BUILDSVC_REPOS_BASE_URL = 'http://127.0.0.1:8000/apt'
 BUILDSVC_DEFAULT_SERIES_NAME = 'aasemble'
 BUILDSVC_DEBEMAIL = 'pkgbuild@aasemble.com'
 BUILDSVC_DEBFULLNAME = 'aaSemble Package Builder'
+AASEMBLE_BUILDSVC_BUILDLOG_TMPDIR = os.path.join(BASE_DIR, 'buildlogs')
 
 MIRRORSVC_BASE_PATH = os.path.join(BASE_DIR, 'mirrors')
 MIRRORSVC_BASE_URL = 'http://127.0.0.1:8000/mirrors'

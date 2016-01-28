@@ -132,7 +132,8 @@ class RepositoryFunctionalTests(WebObject):
             buildPage = BuildPage(self.driver)
             buildPage.driver.get(self.live_server_url)
             buildPage.build_button.click()
-            self.assertEqual(buildPage.verify_build_displayed(packageName='python-aasemble.django.git'), True, 'Build not started')
+            uuid = str(P.buildrecord_set.first().uuid)
+            self.assertEqual(buildPage.verify_build_displayed(uuid=uuid), True, 'Build not started')
 
     def test_overview_button(self):
         '''This test performs the test for overview button

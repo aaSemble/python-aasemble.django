@@ -201,6 +201,8 @@ class aaSembleAPIv1Serializers(object):
             if selff.build_includes_counter:
                 build_counter = serializers.IntegerField(read_only=True)
 
+            buildlog_url = serializers.HyperlinkedRelatedField(view_name='{0}_buildrecord-log'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
+
             class Meta:
                 model = buildsvc_models.BuildRecord
                 fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
