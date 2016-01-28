@@ -58,7 +58,7 @@ class BuildRecord(models.Model):
         return self._logger
 
     def temporary_log_path(self):
-        return os.path.join(ensure_dir(settings.AASEMBLE_BUILDSVC_BUILDLOG_TMPDIR), str(self.uuid))
+        return os.path.join(ensure_dir(getattr(settings, 'AASEMBLE_BUILDSVC_BUILDLOG_TMPDIR', os.environ.get('TMPDIR', '/tmp'))), str(self.uuid))
 
     def logpath(self):
         LOG.debug('Determining logpath for %s. version = %r' % (self, self.version))
