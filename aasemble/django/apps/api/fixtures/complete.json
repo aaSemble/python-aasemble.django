@@ -867,7 +867,8 @@
         "build_finished": null,
         "sha": "5e1fafbd71e94e58a7280c92550a0be2",
         "version": "1.1+1",
-        "build_counter": 1
+        "build_counter": 1,
+        "state": 1
     },
     "model": "buildsvc.buildrecord",
     "pk": 2
@@ -881,7 +882,8 @@
         "sha": "168d229d8b614bae879d19bf324ac623",
         "version": "1.1+2",
         "build_counter": 2,
-        "handler_node": "someothernode.foo.bar.example.com"
+        "handler_node": "someothernode.foo.bar.example.com",
+        "state": 1
     },
     "model": "buildsvc.buildrecord",
     "pk": 3

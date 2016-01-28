@@ -300,9 +300,12 @@ class aaSembleV1Views(object):
                 @detail_route(permission_classes=[AllowAny])
                 def log(self, request, **kwargs):
                     br = self.get_object()
-                    if not br.build_finished:
+                    if br.state == br.BUILDING:
                         if br.handler_node == socket.getfqdn():
-                            resp = HttpResponse(open(br.temporary_log_path(), 'r'), 'text/plain')
+                            try:
+                                resp = HttpResponse(open(br.temporary_log_path(), 'r'), 'text/plain')
+                            except:
+                                resp = HttpResponse('', 'text/plain')
                             resp.rendered_content = ''
                             return resp
                         else:
