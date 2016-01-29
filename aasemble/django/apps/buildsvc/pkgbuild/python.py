@@ -1,9 +1,9 @@
 import os.path
-import yaml
+
+from django.template.loader import render_to_string
 
 from aasemble.django.apps.buildsvc.pkgbuild import PackageBuilder, PackageBuilderRegistry
 from aasemble.utils import run_cmd
-from django.template.loader import render_to_string
 
 
 class PythonBuilder(PackageBuilder):
@@ -52,8 +52,10 @@ class PythonBuilder(PackageBuilder):
             self.logger.info('No pydist-overrides in config')
             return
         pydist_overrides = os.path.join(self.builddir, 'debian', 'pydist-overrides')
-        pydist_overrides_str = render_to_string(os.path.join(os.path.dirname(__file__), '../templates/buildsvc/pkgbuild/pydist-overrides.tmpl'),
-                                     {'pkglist': pkglist})
+        pydist_overrides_str = render_to_string(
+            os.path.join(os.path.dirname(__file__),
+                         '../templates/buildsvc/pkgbuild/pydist-overrides.tmpl'),
+            {'pkglist': pkglist})
         with open(pydist_overrides, 'a') as fp:
             fp.write(pydist_overrides_str)
             self.logger.info('Saving pydist-overrides file: %s' % (pydist_overrides))
