@@ -39,7 +39,7 @@
                   None
               {% else %}
                   {% with source.git_url|add:"/commit/"|add:source.last_seen_revision as last_commit_url %}
-                  <a href="{{ last_commit_url }}">{{ source.last_seen_revision }}</a>
+                  <a href="{{ last_commit_url }}">{{ source.last_seen_revision|truncatechars:9 }}</a>
                   {% endwith %}
               {% endif %}
           </td>
