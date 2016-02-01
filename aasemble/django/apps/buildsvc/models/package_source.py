@@ -134,7 +134,7 @@ class PackageSource(models.Model):
                 br.state = BuildRecord.BUILDING
                 br.save()
 
-                executor.run_cmd(['timeout', '300', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 5; done'])
+                executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=br.logger)
                 tmpdir = tempfile.mkdtemp()
                 try:
                     site = Site.objects.get_current()

@@ -96,12 +96,16 @@ class BuildRecord(models.Model):
             old = BuildRecord.objects.get(pk=self.pk)
             if not old.build_finished:
                 with open(self.final_log_path(), 'wb') as outfp:
-                    with open(self.temporary_log_path(), 'rb') as infp:
-                        while True:
-                            buf = infp.read(4096)
-                            if not buf:
-                                break
-                            outfp.write(buf)
+                    try:
+                        with open(self.temporary_log_path(), 'rb') as infp:
+                            while True:
+                                buf = infp.read(4096)
+                                if not buf:
+                                    break
+                                outfp.write(buf)
+                    except:
+                        # If this doesn't work out, we should still save the record
+                        pass
         return super(BuildRecord, self).save(*args, **kwargs)
 
     def final_log_path(self):
