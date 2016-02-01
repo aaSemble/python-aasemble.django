@@ -1,3 +1,4 @@
+import errno
 import logging
 import os
 import os.path
@@ -91,21 +92,28 @@ class BuildRecord(models.Model):
         else:
             return os.path.join(self.source.long_name, '%s_%s.tmp.log' % (self.source.long_name, self.build_counter))
 
-    def save(self, *args, **kwargs):
+    def _build_just_finished(self):
         if self.build_finished and self.pk:
             old = BuildRecord.objects.get(pk=self.pk)
-            if not old.build_finished:
-                with open(self.final_log_path(), 'wb') as outfp:
-                    try:
-                        with open(self.temporary_log_path(), 'rb') as infp:
-                            while True:
-                                buf = infp.read(4096)
-                                if not buf:
-                                    break
-                                outfp.write(buf)
-                    except:
-                        # If this doesn't work out, we should still save the record
-                        pass
+            return not old.build_finished
+
+    def _copy_temporary_log_to_final_location(self):
+        try:
+            with open(self.final_log_path(), 'wb') as outfp:
+                with open(self.temporary_log_path(), 'rb') as infp:
+                    while True:
+                        buf = infp.read(4096)
+                        if not buf:
+                            break
+                        outfp.write(buf)
+        except IOError as e:
+            if e.errno == errno.ENOENT:
+                pass
+            raise
+
+    def save(self, *args, **kwargs):
+        if self._build_just_finished():
+            self._copy_temporary_log_to_final_location()
         return super(BuildRecord, self).save(*args, **kwargs)
 
     def final_log_path(self):
