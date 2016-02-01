@@ -60,6 +60,9 @@ class Repository(models.Model):
         if not self.key_id:
             self.key_id = get_repo_driver(self).generate_key()
             self.save()
+        if not self.key_data:
+            self.key_data = self._key_data()
+            self.save()
 
     def first_series(self):
         try:
