@@ -18,9 +18,9 @@ from six import StringIO
 from aasemble.django.apps.buildsvc import executors
 from aasemble.django.apps.buildsvc.models import BuildRecord, PackageSource, Repository, Series
 from aasemble.django.apps.buildsvc.models.package_source import NotAValidGithubRepository
-from aasemble.django.exceptions import CommandFailed
 from aasemble.django.tests import AasembleLiveServerTestCase as LiveServerTestCase
 from aasemble.django.tests import AasembleTestCase as TestCase
+from aasemble.utils.exceptions import CommandFailed
 
 
 try:

@@ -1,3 +1,4 @@
+import json
 import os
 import os.path
 
@@ -6,18 +7,23 @@ from django.conf import settings
 from libcloud.compute.providers import get_driver
 from libcloud.compute.types import Provider
 
-from aasemble.django.utils import run_cmd, ssh_get, ssh_run_cmd
+from aasemble.utils import run_cmd, ssh_get, ssh_run_cmd
 
 
-class Local(object):
+class Executor(object):
     def __init__(self, name):
-        pass
+        self.name = name
 
     def run_cmd(self, *args, **kwargs):
-        return run_cmd(*args, **kwargs)
+        """Run a command in the executor context (i.e. on the remote node,
+        in the container, etc.)"""
+        raise NotImplementedError()
 
-    def get(self, *args, **kwargs):
-        pass
+    def get(self, shell_pattern, destdir):
+        """Fetch files from executor context and store them in destdir.
+
+        Does *not* recurse into subdirectories."""
+        raise NotImplementedError()
 
     def __enter__(self):
         return self
@@ -26,18 +32,34 @@ class Local(object):
         pass
 
 
-class GCENode(object):
+class Local(Executor):
+    def run_cmd(self, *args, **kwargs):
+        return run_cmd(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        pass
+
+
+class GCENode(Executor):
+    provider = Provider.GCE
+
     def __init__(self, name):
-        self.name = name
+        super(GCENode, self).__init__(name)
         self._connection = None
+
+    def _get_driver_args_and_kwargs(self):
+        with open(settings.AASEMBLE_BUILDSVC_GCE_KEY_FILE, 'r') as fp:
+            key_data = json.load(fp)
+        return ((key_data['client_email'], settings.AASEMBLE_BUILDSVC_GCE_KEY_FILE),
+                {'project': key_data['project_id']})
 
     @property
     def connection(self):
         if self._connection is None:
-            driver = get_driver(Provider.GCE)
-            self._connection = driver(settings.AASEMBLE_BUILDSVC_GCE_SERVICE_ACCOUNT,
-                                      settings.AASEMBLE_BUILDSVC_GCE_KEY_FILE,
-                                      project=settings.AASEMBLE_BUILDSVC_GCE_PROJECT)
+            driver = get_driver(self.provider)
+            driver_args, driver_kwargs = self._get_driver_args_and_kwargs()
+            self._connection = driver(*driver_args, **driver_kwargs)
+
         return self._connection
 
     @property

@@ -4,8 +4,8 @@ import os.path
 
 import debian.deb822
 
-from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
-from ....utils import run_cmd
+from aasemble.django.apps.buildsvc.pkgbuild import PackageBuilder, PackageBuilderRegistry
+from aasemble.utils import run_cmd
 
 
 class DebianBuilder(PackageBuilder):

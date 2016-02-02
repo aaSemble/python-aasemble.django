@@ -18,6 +18,17 @@ E003 = Error(
     id='aasemble.buildsvc.E003',
 )
 
+E004 = Error(
+    "You have specified GCENode as your executor, but have not set "
+    "AASEMBLE_BUILDSVC_GCE_KEY_FILE.",
+    id='aasemble.buildsvc.E004',
+)
+
+E005 = Error(
+    "The file provided as AASEMBLE_BUILDSVC_GCE_KEY_FILE is not readable",
+    id='aasemble.buildsvc.E004',
+)
+
 W001 = Error(
     "You have not configured allauth to request access to user's e-mails. "
     "Depending on your authentication config, this may be a problem.",
@@ -54,3 +65,13 @@ def github_email_scope(app_configs, **kwargs):
     if 'user:email' in getattr(settings, 'SOCIALACCOUNT_PROVIDERS', {}).get('github', {}).get('SCOPE', []):
         return []
     return [W001]
+
+
+@register(deploy=True)
+def gce_config_complete(app_configs, **kwargs):
+    if getattr(settings, 'AASEMBLE_BUILDSVC_EXECUTOR') == 'GCENode':
+        if not hasattr(settings, 'AASEMBLE_BUILDSVC_GCE_KEY_FILE'):
+            return [E004]
+        elif not os.access(settings.AASEMBLE_BUILDSVC_GCE_KEY_FILE, os.R_OK):
+            return [E005]
+    return []

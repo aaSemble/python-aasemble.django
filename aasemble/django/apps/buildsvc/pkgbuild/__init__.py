@@ -95,7 +95,7 @@ class PackageBuilder(object):
         return self.build_record['build_counter']
 
     def checkout(self):
-        from aasemble.django.utils import run_cmd
+        from aasemble.utils import run_cmd
 
         run_cmd(['git',
                  'clone', self.build_record['source']['git_repository'],

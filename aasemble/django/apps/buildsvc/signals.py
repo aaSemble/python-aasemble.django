@@ -6,11 +6,15 @@ from django.dispatch import receiver
 from . import models
 
 
+def user_is_not_administrative(user):
+    return user.socialaccount_set.exists()
+
+
 @receiver(post_save, sender=User)
 def user_save_handler(sender, **kwargs):
     """This method gets called each time the user logs in!"""
     user = kwargs['instance']
-    if user.socialaccount_set.exists():
+    if user_is_not_administrative(user):
         if not user.repository_set.exists():
             repository = models.Repository(user=user, name=user.username)
             repository.save()
