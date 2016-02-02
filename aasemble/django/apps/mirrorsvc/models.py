@@ -12,7 +12,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from six.moves.urllib.parse import urlparse
 
 from aasemble.utils import ensure_dir, run_cmd
-from aasemble.django.apps.buildsvc import tasks
+from aasemble.django.apps.mirrorsvc import tasks
 
 LOG = logging.getLogger(__name__)
 
