@@ -10,8 +10,6 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.backends.db import SessionStore
 from django.test import LiveServerTestCase, TestCase, override_settings
 
-import mock
-
 from aasemble.django.utils import recursive_render
 
 

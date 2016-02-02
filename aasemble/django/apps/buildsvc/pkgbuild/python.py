@@ -1,6 +1,6 @@
 import os.path
 
-from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
+from aasemble.django.apps.buildsvc.pkgbuild import PackageBuilder, PackageBuilderRegistry
 from aasemble.utils import run_cmd
 
 

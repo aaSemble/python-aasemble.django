@@ -66,6 +66,7 @@ def github_email_scope(app_configs, **kwargs):
         return []
     return [W001]
 
+
 @register(deploy=True)
 def gce_config_complete(app_configs, **kwargs):
     if getattr(settings, 'AASEMBLE_BUILDSVC_EXECUTOR') == 'GCENode':

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 
+
 class BuildSvcAuthzBackend(object):
     known_actions = ('add', 'delete', 'change')
 
@@ -51,4 +52,4 @@ class BuildSvcAuthzBackend(object):
             if hasattr(obj, 'user_can_modify'):
                 return obj.user_can_modify(user_obj)
             else:
-               return False
+                return False

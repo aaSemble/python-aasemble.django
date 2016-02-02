@@ -1,12 +1,8 @@
 import logging
 import os
 import os.path
-import select
-import subprocess
 
 from django.template.loader import render_to_string
-
-from six import BytesIO
 
 LOG = logging.getLogger(__name__)
 

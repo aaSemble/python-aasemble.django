@@ -10,6 +10,7 @@ from .exceptions import CommandFailed
 
 LOG = logging.getLogger(__name__)
 
+
 def escape_cmd_for_ssh(cmd):
     return ' '.join([shlex_quote(arg) for arg in cmd])
 
