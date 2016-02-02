@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db import models
 
 from aasemble.django.apps.buildsvc.models.package_source import PackageSource
-from aasemble.django.utils import ensure_dir
+from aasemble.utils import ensure_dir
 
 LOG = logging.getLogger(__name__)
 

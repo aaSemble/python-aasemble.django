@@ -18,8 +18,8 @@ from six.moves.urllib.parse import urlparse
 
 from aasemble.django.apps.buildsvc import executors, tasks
 from aasemble.django.apps.buildsvc.models.series import Series
-from aasemble.django.exceptions import CommandFailed
-from aasemble.django.utils import run_cmd
+from aasemble.utils.exceptions import CommandFailed
+from aasemble.utils import run_cmd
 
 LOG = logging.getLogger(__name__)
 

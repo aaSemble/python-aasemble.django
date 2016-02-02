@@ -4,7 +4,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
 
-from aasemble.django.utils import run_cmd
+from aasemble.utils import run_cmd
 
 LOG = logging.getLogger(__name__)
 

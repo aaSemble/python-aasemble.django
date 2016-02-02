@@ -10,7 +10,8 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from aasemble.django.apps.buildsvc import tasks
 from aasemble.django.apps.buildsvc.repodrivers import get_repo_driver
-from aasemble.django.utils import ensure_dir, recursive_render, run_cmd
+from aasemble.django.utils import recursive_render
+from aasemble.utils import ensure_dir, run_cmd
 
 
 def remove_ddebs_from_changes(changes_file):

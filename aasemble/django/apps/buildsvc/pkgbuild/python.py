@@ -1,7 +1,7 @@
 import os.path
 
 from ..pkgbuild import PackageBuilder, PackageBuilderRegistry
-from ....utils import run_cmd
+from aasemble.utils import run_cmd
 
 
 class PythonBuilder(PackageBuilder):

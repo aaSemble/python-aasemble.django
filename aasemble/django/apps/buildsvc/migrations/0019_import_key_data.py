@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from aasemble.django.utils import run_cmd
+from aasemble.utils import run_cmd
 
 
 def import_key_data(apps, schema_editor):
