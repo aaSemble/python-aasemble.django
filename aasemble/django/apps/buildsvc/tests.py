@@ -456,7 +456,7 @@ class RepreproDriverTestCase(TestCase):
             mocks['ensure_directory_structure'].ensure_called_with()
             mocks['_reprepro'].ensure_called_with('--ignore=wrongdistribution', 'include', 'myseries', '/path/to/changes')
 
-    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.repodrivers.ensure_dir', lambda s: s)
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/public/dir')
     def test_ensure_directory_structure(self):
         with mock.patch('aasemble.django.apps.buildsvc.repodrivers.recursive_render') as recursive_render:
@@ -470,7 +470,7 @@ class RepreproDriverTestCase(TestCase):
             recursive_render.assert_called_with(srcdir, dstdir, context)
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
+    @mock.patch('aasemble.django.apps.buildsvc.repodrivers.ensure_dir', lambda s: s)
     def test_gpghome(self):
         repo = Repository.objects.get(id=12)
         repodriver = repodrivers.get_repo_driver(repo)
