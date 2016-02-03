@@ -468,6 +468,7 @@ class RepreproDriverTestCase(TestCase):
             mocks['ensure_directory_structure'].ensure_called_with()
             mocks['_reprepro'].ensure_called_with('--ignore=wrongdistribution', 'include', 'myseries', '/path/to/changes')
 
+    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/public/dir')
     def test_ensure_directory_structure(self):
         with mock.patch('aasemble.django.apps.buildsvc.repodrivers.recursive_render') as recursive_render:
@@ -479,19 +480,6 @@ class RepreproDriverTestCase(TestCase):
             dstdir = '/some/public/dir/eric/eric5'
             context = {'repository': repo}
             recursive_render.assert_called_with(srcdir, dstdir, context)
-
-    def test_ensure_key_generates_when_needed(self):
-        repo = Repository.objects.get(id=13)
-        repodriver = repodrivers.get_repo_driver(repo)
-        repodriver.ensure_key()
-        self.assertEquals(repo.key_id, 'FAKEID')
-
-    def test_ensure_key_noop_when_key_id_set(self):
-        repo = Repository.objects.get(id=1)
-        with mock.patch('aasemble.django.apps.buildsvc.repodrivers.run_cmd') as run_cmd:
-            repodriver = repodrivers.get_repo_driver(repo)
-            repodriver.ensure_key()
-            self.assertFalse(run_cmd.called)
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
