@@ -4,6 +4,7 @@ from aasemble.django.common import models
 from aasemble.django.common.utils import user_has_feature
 from aasemble.django.tests import AasembleTestCase as TestCase
 
+
 class AasembleUserTestCase(TestCase):
     def test_has_feature_that_is_on_by_default(self):
         user = User.objects.get(id=1)

@@ -1,5 +1,6 @@
 from aasemble.django.common import models
 
+
 def user_has_feature(user, feature_name):
     try:
         feature = models.Feature.objects.get(name=feature_name)
