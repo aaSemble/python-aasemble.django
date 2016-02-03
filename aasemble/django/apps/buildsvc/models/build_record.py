@@ -134,3 +134,12 @@ class BuildRecord(models.Model):
     def duration(self):
         if self.build_started and self.build_finished:
             return (self.build_finished - self.build_started).total_seconds()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc, value, tb):
+        if not self.build_finished:
+            self.build_finished = now()
+            self.state = BuildRecord.FAILED_TO_BUILD
+            self.save()

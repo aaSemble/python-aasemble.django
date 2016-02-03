@@ -123,11 +123,7 @@ class PackageSource(models.Model):
         self.build_counter += 1
         self.save()
 
-        br = BuildRecord(source=self, build_counter=self.build_counter,
-                         sha=self.last_seen_revision)
-        br.save()
-
-        try:
+        with self.create_build_record() as br:
             executor_class = executors.get_executor()
 
             with executor_class('br-%s' % (br.uuid,)) as executor:
@@ -168,11 +164,12 @@ class PackageSource(models.Model):
                         self.series.process_changes(os.path.join(tmpdir, changes_file))
 
                     self.series.export()
-        finally:
-            if not br.build_finished:
-                br.build_finished = now()
-                br.state = BuildRecord.FAILED_TO_BUILD
-                br.save()
+
+    def create_build_record(self):
+        from aasemble.django.apps.buildsvc.models.build_record import BuildRecord
+        return BuildRecord.objects.create(source=self,
+                                          build_counter=self.build_counter,
+                                          sha=self.last_seen_revision)
 
     def delete_on_filesystem(self):
         if self.last_built_name:
