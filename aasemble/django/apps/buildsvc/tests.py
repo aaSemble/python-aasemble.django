@@ -158,18 +158,6 @@ class RepositoryTestCase(TestCase):
     def test_unique_reponame_raises_integrity_error(self):
         self.assertRaises(IntegrityError, Repository.objects.create, user_id=5, name='eric4')
 
-    @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
-    def test_basedir(self):
-        repo = Repository.objects.get(id=12)
-        self.assertEquals(repo.basedir, '/some/dir/eric/eric5')
-
-    @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
-    def test_confdir(self):
-        repo = Repository.objects.get(id=12)
-        self.assertEquals(repo.confdir(), '/some/dir/eric/eric5/conf')
-
     @override_settings(BUILDSVC_REPOS_BASE_PUBLIC_DIR='/some/public/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
     def test_outdir(self):
@@ -487,3 +475,10 @@ class RepreproDriverTestCase(TestCase):
         repo = Repository.objects.get(id=12)
         repodriver = repodrivers.get_repo_driver(repo)
         self.assertEquals(repodriver.gpghome(), '/some/dir/eric/eric5/.gnupg')
+
+    @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
+    @mock.patch('aasemble.django.apps.buildsvc.repodrivers.ensure_dir', lambda s: s)
+    def test_basedir(self):
+        repo = Repository.objects.get(id=12)
+        repodriver = repodrivers.get_repo_driver(repo)
+        self.assertEquals(repodriver.basedir, '/some/dir/eric/eric5')

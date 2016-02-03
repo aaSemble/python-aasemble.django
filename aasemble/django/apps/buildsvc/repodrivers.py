@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
 
 from aasemble.django.utils import recursive_render
-from aasemble.utils import run_cmd
+from aasemble.utils import ensure_dir, run_cmd
 
 LOG = logging.getLogger(__name__)
 
@@ -71,7 +71,13 @@ class RepreproDriver(RepositoryDriver):
             return run_cmd(['gpg', '-a', '--export', self.repository.key_id], override_env=env)
 
     def gpghome(self):
-        return os.path.join(self.repository.basedir, '.gnupg')
+        return os.path.join(self.basedir, '.gnupg')
+
+    @property
+    def basedir(self):
+        basedir = os.path.join(settings.BUILDSVC_REPOS_BASE_DIR,
+                               self.repository.user.username, self.repository.name)
+        return ensure_dir(basedir)
 
     def export(self):
         self.ensure_key()
@@ -88,7 +94,7 @@ class RepreproDriver(RepositoryDriver):
     def ensure_directory_structure(self):
         tmpl_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                    'templates/buildsvc/reprepro'))
-        recursive_render(tmpl_dir, self.repository.basedir, {'repository': self.repository})
+        recursive_render(tmpl_dir, self.basedir, {'repository': self.repository})
 
     def export_key(self):
         keypath = os.path.join(self.repository.outdir(), 'repo.key')
@@ -98,7 +104,7 @@ class RepreproDriver(RepositoryDriver):
 
     def _reprepro(self, *args):
         env = {'GNUPG_HOME': self.gpghome()}
-        return run_cmd(['reprepro', '-b', self.repository.basedir, '--waitforlock=10'] + list(args),
+        return run_cmd(['reprepro', '-b', self.basedir, '--waitforlock=10'] + list(args),
                        override_env=env)
 
 

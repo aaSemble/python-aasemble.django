@@ -47,17 +47,9 @@ class Repository(models.Model):
             from aasemble.django.apps.buildsvc.models.series import Series
             return Series.objects.create(name=settings.BUILDSVC_DEFAULT_SERIES_NAME, repository=self)
 
-    @property
-    def basedir(self):
-        basedir = os.path.join(settings.BUILDSVC_REPOS_BASE_DIR, self.user.username, self.name)
-        return ensure_dir(basedir)
-
-    def confdir(self):
-        confdir = os.path.join(self.basedir, 'conf')
-        return ensure_dir(confdir)
-
     def outdir(self):
-        outdir = os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR, self.user.username, self.name)
+        outdir = os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
+                              self.user.username, self.name)
         return ensure_dir(outdir)
 
     @property
