@@ -8,7 +8,7 @@ from allauth.socialaccount.models import SocialToken
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
