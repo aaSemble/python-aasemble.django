@@ -18,7 +18,7 @@ from six.moves.urllib.parse import urlparse
 
 from aasemble.django.apps.buildsvc import executors, tasks
 from aasemble.django.apps.buildsvc.models.series import Series
-from aasemble.utils import run_cmd
+from aasemble.utils import run_cmd, TemporaryDirectory
 from aasemble.utils.exceptions import CommandFailed
 
 LOG = logging.getLogger(__name__)
@@ -135,8 +135,7 @@ class PackageSource(models.Model):
                 br.save()
 
                 executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=br.logger)
-                tmpdir = tempfile.mkdtemp()
-                try:
+                with TemporaryDirectory as tmpdir:
                     site = Site.objects.get_current()
                     br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
                                             site.domain, br.get_absolute_url())
@@ -169,8 +168,6 @@ class PackageSource(models.Model):
                         self.series.process_changes(os.path.join(tmpdir, changes_file))
 
                     self.series.export()
-                finally:
-                    shutil.rmtree(tmpdir)
         finally:
             if not br.build_finished:
                 br.build_finished = now()

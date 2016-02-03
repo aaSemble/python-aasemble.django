@@ -126,3 +126,22 @@ def ensure_dir(d):
     if not os.path.isdir(d):
         os.makedirs(d)
     return d
+
+try:
+    from tempfile import TemporaryDirectory
+except ImportError:
+    import tempfile
+    import shutil
+
+    class TemporaryDirectory(object):
+        def __init__(self, *args, **kwargs):
+            self.name = tempfile.mkdtemp(*args, **kwargs)
+
+        def cleanup(self):
+            shutil.rmtree(self.name)
+
+        def __enter__(self):
+            return self.name
+
+        def __exit__(self, exc, value, tb):
+            self.cleanup()
