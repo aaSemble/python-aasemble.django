@@ -9,6 +9,7 @@ from allauth.socialaccount.models import SocialToken
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import models
+from django.db.models import F
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
@@ -120,11 +121,9 @@ class PackageSource(models.Model):
 
     def build_real(self):
         from aasemble.django.apps.buildsvc.models.build_record import BuildRecord
-        self.build_counter += 1
-        self.save()
+        self.increment_build_counter()
 
         with self.create_build_record() as br, executors.get_executor('br-%s' % (br.uuid,)) as executor, TemporaryDirectory() as tmpdir:
-
             br.state = BuildRecord.BUILDING
             br.save()
 
@@ -161,6 +160,12 @@ class PackageSource(models.Model):
                 self.series.process_changes(os.path.join(tmpdir, changes_file))
 
             self.series.export()
+
+    def increment_build_counter(self):
+        with transaction.atomic():
+            self.build_counter = F('build_counter') + 1
+            self.save()
+            self.refresh_from_db()
 
     def create_build_record(self):
         from aasemble.django.apps.buildsvc.models.build_record import BuildRecord
