@@ -6,7 +6,7 @@ from unittest import TestCase
 
 import mock
 
-from aasemble.utils import ensure_dir, escape_cmd_for_ssh, run_cmd, ssh_get, ssh_run_cmd, TemporaryDirectory
+from aasemble.utils import TemporaryDirectory, ensure_dir, escape_cmd_for_ssh, run_cmd, ssh_get, ssh_run_cmd
 from aasemble.utils.exceptions import CommandFailed
 
 stdout_stderr_script = '''#!/bin/sh

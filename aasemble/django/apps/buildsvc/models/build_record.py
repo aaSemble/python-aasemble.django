@@ -7,6 +7,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.timezone import now
 
 from aasemble.django.apps.buildsvc.models.package_source import PackageSource
 from aasemble.utils import ensure_dir

@@ -18,7 +18,7 @@ from six.moves.urllib.parse import urlparse
 
 from aasemble.django.apps.buildsvc import executors, tasks
 from aasemble.django.apps.buildsvc.models.series import Series
-from aasemble.utils import run_cmd, TemporaryDirectory
+from aasemble.utils import TemporaryDirectory, run_cmd
 from aasemble.utils.exceptions import CommandFailed
 
 LOG = logging.getLogger(__name__)
@@ -123,47 +123,44 @@ class PackageSource(models.Model):
         self.build_counter += 1
         self.save()
 
-        with self.create_build_record() as br:
-            executor_class = executors.get_executor()
+        with self.create_build_record() as br, executors.get_executor('br-%s' % (br.uuid,)) as executor, TemporaryDirectory() as tmpdir:
 
-            with executor_class('br-%s' % (br.uuid,)) as executor:
-                br.state = BuildRecord.BUILDING
-                br.save()
+            br.state = BuildRecord.BUILDING
+            br.save()
 
-                executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=br.logger)
-                with TemporaryDirectory as tmpdir:
-                    site = Site.objects.get_current()
-                    br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
-                                            site.domain, br.get_absolute_url())
+            executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=br.logger)
+            site = Site.objects.get_current()
+            br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
+                                    site.domain, br.get_absolute_url())
 
-                    executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
-                    version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
-                    name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
+            executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
+            version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
+            name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
 
-                    br.version = version
-                    br.save()
+            br.version = version
+            br.save()
 
-                    self.last_built_version = version
-                    self.last_built_name = name
-                    self.save()
+            self.last_built_version = version
+            self.last_built_name = name
+            self.save()
 
-                    build_cmd = get_build_cmd(br_url)
+            build_cmd = get_build_cmd(br_url)
 
-                    executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
-                    br.state = br.SUCCESFULLY_BUILT
-                    br.save()
+            executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
+            br.state = br.SUCCESFULLY_BUILT
+            br.save()
 
-                    executor.get('*.*', tmpdir)
+            executor.get('*.*', tmpdir)
 
-                    br.build_finished = now()
-                    br.save()
+            br.build_finished = now()
+            br.save()
 
-                    changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
+            changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
 
-                    for changes_file in changes_files:
-                        self.series.process_changes(os.path.join(tmpdir, changes_file))
+            for changes_file in changes_files:
+                self.series.process_changes(os.path.join(tmpdir, changes_file))
 
-                    self.series.export()
+            self.series.export()
 
     def create_build_record(self):
         from aasemble.django.apps.buildsvc.models.build_record import BuildRecord

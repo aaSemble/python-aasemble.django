@@ -406,15 +406,15 @@ class ExecutorTestCase(TestCase):
         destroy.assert_called_with()
 
     def test_get_executor_default(self):
-        self.assertEquals(executors.get_executor(), executors.Local)
+        self.assertEquals(executors.get_executor_class(), executors.Local)
 
     def test_get_executor_specific(self):
-        self.assertEquals(executors.get_executor('GCENode'), executors.GCENode)
+        self.assertEquals(executors.get_executor_class('GCENode'), executors.GCENode)
 
     def test_get_executor_override_default(self):
         class Settings(object):
             AASEMBLE_BUILDSVC_EXECUTOR = 'GCENode'
-        self.assertEquals(executors.get_executor(settings=Settings()), executors.GCENode)
+        self.assertEquals(executors.get_executor_class(settings=Settings()), executors.GCENode)
 
 
 @override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.repodrivers.RepreproDriver')
