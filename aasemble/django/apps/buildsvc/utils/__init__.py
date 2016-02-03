@@ -1,4 +1,24 @@
+import hashlib
+
 from . import github
+
+
+def get_fileinfo(fpath):
+    md5 = hashlib.md5()
+    sha1 = hashlib.sha1()
+    sha256 = hashlib.sha256()
+    size = 0
+    with open(fpath, 'rb') as fp:
+        while True:
+            buf = fp.read(4 * 1024 * 1024)
+            md5.update(buf)
+            sha1.update(buf)
+            sha256.update(buf)
+            size += len(buf)
+    return {'md5': md5.hexdigest(),
+            'sha1': sha1.hexdigest(),
+            'sha256': sha256.hexdigest(),
+            'size': size}
 
 
 def sync_sources_from_github(user):

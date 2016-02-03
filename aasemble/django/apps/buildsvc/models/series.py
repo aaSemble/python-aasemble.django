@@ -3,14 +3,14 @@ import uuid
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
-from aasemble.django.apps.buildsvc.models.repository import Repository
-
 
 @python_2_unicode_compatible
 class Series(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
-    repository = models.ForeignKey(Repository, related_name='series')
+    repository = models.ForeignKey('Repository', related_name='series')
+    source_package_versions = models.ManyToManyField('SourcePackageVersion')
+    binary_package_versions = models.ManyToManyField('BinaryPackageVersion')
 
     def __str__(self):
         return '%s/%s' % (self.repository.name, self.name)
@@ -36,6 +36,12 @@ class Series(models.Model):
 
     def process_changes(self, changes_file):
         self.repository.process_changes(self.name, changes_file)
+
+    def import_deb(self, path):
+        self.repository.import_deb(self.name, path)
+
+    def import_dsc(self, path):
+        self.repository.import_dsc(self.name, path)
 
     def build_sources_list(self):
         sources = []

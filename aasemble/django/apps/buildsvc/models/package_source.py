@@ -1,13 +1,10 @@
 import logging
 import os.path
-import shutil
-import tempfile
 import uuid
 
 from allauth.socialaccount.models import SocialToken
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.db import models, transaction
 from django.db.models import F
 from django.utils.encoding import python_2_unicode_compatible
@@ -18,7 +15,6 @@ import github3
 from six.moves.urllib.parse import urlparse
 
 from aasemble.django.apps.buildsvc import executors, tasks
-from aasemble.django.apps.buildsvc.models.series import Series
 from aasemble.utils import TemporaryDirectory, run_cmd
 from aasemble.utils.exceptions import CommandFailed
 
@@ -49,7 +45,7 @@ class PackageSource(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     git_url = models.URLField()
     branch = models.CharField(max_length=100)
-    series = models.ForeignKey(Series, related_name='sources')
+    series = models.ForeignKey('Series', related_name='sources')
     last_seen_revision = models.CharField(max_length=64, null=True, blank=True)
     last_built_version = models.CharField(max_length=64, null=True, blank=True)
     last_built_name = models.CharField(max_length=64, null=True, blank=True)
@@ -88,26 +84,6 @@ class PackageSource(models.Model):
         self.save()
         return True
 
-    def checkout(self, sha=None, logger=LOG):
-        tmpdir = tempfile.mkdtemp()
-        builddir = os.path.join(tmpdir, 'build')
-        try:
-            run_cmd(['git',
-                     'clone', self.git_url,
-                     '--recursive',
-                     '-b', self.branch,
-                     'build'],
-                    cwd=tmpdir, logger=logger)
-
-            if sha:
-                run_cmd(['git', 'reset', '--hard', sha], cwd=builddir, logger=logger)
-
-            stdout = run_cmd(['git', 'rev-parse', 'HEAD'], cwd=builddir, logger=logger)
-            return tmpdir, builddir, stdout.strip()
-        except:
-            shutil.rmtree(tmpdir)
-            raise
-
     @property
     def long_name(self):
         return '_'.join(filter(bool, urlparse(self.git_url).path.split('/')))
@@ -120,46 +96,53 @@ class PackageSource(models.Model):
         tasks.build.delay(self.id)
 
     def build_real(self):
-        from aasemble.django.apps.buildsvc.models.build_record import BuildRecord
         self.increment_build_counter()
 
         with self.create_build_record() as br, executors.get_executor('br-%s' % (br.uuid,)) as executor, TemporaryDirectory() as tmpdir:
-            br.state = BuildRecord.BUILDING
-            br.save()
+            br.update_state(br.BUILDING)
 
-            executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=br.logger)
-            site = Site.objects.get_current()
-            br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
-                                    site.domain, br.get_absolute_url())
+            self.wait_until_pkgbuild_is_installed(executor, logger=br.logger)
+
+            br_url = br.get_full_absolute_url()
 
             executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
             version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
             name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
 
             br.version = version
-            br.save()
+            br.save(update_fields=['version'])
 
             self.last_built_version = version
             self.last_built_name = name
-            self.save()
+            self.save(update_fields=['last_built_version', 'last_built_name'])
 
             build_cmd = get_build_cmd(br_url)
 
             executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
             br.state = br.SUCCESFULLY_BUILT
+            br.build_finished = now()
             br.save()
 
             executor.get('*.*', tmpdir)
 
-            br.build_finished = now()
             br.save()
 
             changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
-
             for changes_file in changes_files:
                 self.series.process_changes(os.path.join(tmpdir, changes_file))
 
+            dsc_files = filter(lambda s: s.endswith('.dsc'), os.listdir(tmpdir))
+            for dsc_file in dsc_files:
+                self.series.import_dsc(self.series, dsc_file)
+
+            deb_files = filter(lambda s: s.endswith('.deb'), os.listdir(tmpdir))
+            for deb_file in deb_files:
+                self.series.import_deb(self.series, dsc_file)
+
             self.series.export()
+
+    def wait_until_pkgbuild_is_installed(self, executor, logger=LOG):
+        executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=logger)
 
     def increment_build_counter(self):
         with transaction.atomic():

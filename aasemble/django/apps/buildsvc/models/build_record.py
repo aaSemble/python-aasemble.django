@@ -6,10 +6,10 @@ import socket
 import uuid
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.db import models
 from django.utils.timezone import now
 
-from aasemble.django.apps.buildsvc.models.package_source import PackageSource
 from aasemble.utils import ensure_dir
 
 LOG = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class BuildRecord(models.Model):
     )
 
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    source = models.ForeignKey(PackageSource)
+    source = models.ForeignKey('PackageSource')
     version = models.CharField(max_length=50)
     build_counter = models.IntegerField(default=0)
     build_started = models.DateTimeField(auto_now_add=True)
@@ -57,6 +57,11 @@ class BuildRecord(models.Model):
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
         return reverse('v3_buildrecord-detail', args=[str(self.uuid)])
+
+    def get_full_absolute_url(self):
+        site = Site.objects.get_current()
+        return '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
+                              site.domain, self.get_absolute_url())
 
     def buildlog_url(self):
         from django.core.urlresolvers import reverse
@@ -135,6 +140,10 @@ class BuildRecord(models.Model):
     def duration(self):
         if self.build_started and self.build_finished:
             return (self.build_finished - self.build_started).total_seconds()
+
+    def update_state(self, state):
+        self.state = state
+        self.save(update_fields=['state'])
 
     def __enter__(self):
         return self
