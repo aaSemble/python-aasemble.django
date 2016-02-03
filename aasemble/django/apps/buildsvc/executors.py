@@ -136,7 +136,11 @@ class GCENode(Executor):
         self.destroy()
 
 
-def get_executor(name=None, settings=settings):
+def get_executor_class(name=None, settings=settings):
     if name is None:
         name = getattr(settings, 'AASEMBLE_BUILDSVC_EXECUTOR', 'Local')
     return globals()[name]
+
+
+def get_executor(*args, **kwargs):
+    return get_executor_class()(*args, **kwargs)

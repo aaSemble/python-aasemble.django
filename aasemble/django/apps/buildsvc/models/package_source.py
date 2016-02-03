@@ -8,7 +8,8 @@ from allauth.socialaccount.models import SocialToken
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db import models
+from django.db import models, transaction
+from django.db.models import F
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 
@@ -18,7 +19,7 @@ from six.moves.urllib.parse import urlparse
 
 from aasemble.django.apps.buildsvc import executors, tasks
 from aasemble.django.apps.buildsvc.models.series import Series
-from aasemble.utils import run_cmd
+from aasemble.utils import TemporaryDirectory, run_cmd
 from aasemble.utils.exceptions import CommandFailed
 
 LOG = logging.getLogger(__name__)
@@ -120,62 +121,57 @@ class PackageSource(models.Model):
 
     def build_real(self):
         from aasemble.django.apps.buildsvc.models.build_record import BuildRecord
-        self.build_counter += 1
-        self.save()
+        self.increment_build_counter()
 
-        br = BuildRecord(source=self, build_counter=self.build_counter,
-                         sha=self.last_seen_revision)
-        br.save()
+        with self.create_build_record() as br, executors.get_executor('br-%s' % (br.uuid,)) as executor, TemporaryDirectory() as tmpdir:
+            br.state = BuildRecord.BUILDING
+            br.save()
 
-        try:
-            executor_class = executors.get_executor()
+            executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=br.logger)
+            site = Site.objects.get_current()
+            br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
+                                    site.domain, br.get_absolute_url())
 
-            with executor_class('br-%s' % (br.uuid,)) as executor:
-                br.state = BuildRecord.BUILDING
-                br.save()
+            executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
+            version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
+            name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
 
-                executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=br.logger)
-                tmpdir = tempfile.mkdtemp()
-                try:
-                    site = Site.objects.get_current()
-                    br_url = '%s://%s%s' % (getattr(settings, 'AASEMBLE_DEFAULT_PROTOCOL', 'http'),
-                                            site.domain, br.get_absolute_url())
+            br.version = version
+            br.save()
 
-                    executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
-                    version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
-                    name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
+            self.last_built_version = version
+            self.last_built_name = name
+            self.save()
 
-                    br.version = version
-                    br.save()
+            build_cmd = get_build_cmd(br_url)
 
-                    self.last_built_version = version
-                    self.last_built_name = name
-                    self.save()
+            executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
+            br.state = br.SUCCESFULLY_BUILT
+            br.save()
 
-                    build_cmd = get_build_cmd(br_url)
+            executor.get('*.*', tmpdir)
 
-                    executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
-                    br.state = br.SUCCESFULLY_BUILT
-                    br.save()
+            br.build_finished = now()
+            br.save()
 
-                    executor.get('*.*', tmpdir)
+            changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
 
-                    br.build_finished = now()
-                    br.save()
+            for changes_file in changes_files:
+                self.series.process_changes(os.path.join(tmpdir, changes_file))
 
-                    changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
+            self.series.export()
 
-                    for changes_file in changes_files:
-                        self.series.process_changes(os.path.join(tmpdir, changes_file))
+    def increment_build_counter(self):
+        with transaction.atomic():
+            self.build_counter = F('build_counter') + 1
+            self.save()
+            self.refresh_from_db()
 
-                    self.series.export()
-                finally:
-                    shutil.rmtree(tmpdir)
-        finally:
-            if not br.build_finished:
-                br.build_finished = now()
-                br.state = BuildRecord.FAILED_TO_BUILD
-                br.save()
+    def create_build_record(self):
+        from aasemble.django.apps.buildsvc.models.build_record import BuildRecord
+        return BuildRecord.objects.create(source=self,
+                                          build_counter=self.build_counter,
+                                          sha=self.last_seen_revision)
 
     def delete_on_filesystem(self):
         if self.last_built_name:

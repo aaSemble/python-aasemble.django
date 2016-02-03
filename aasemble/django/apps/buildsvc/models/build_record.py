@@ -7,6 +7,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils.timezone import now
 
 from aasemble.django.apps.buildsvc.models.package_source import PackageSource
 from aasemble.utils import ensure_dir
@@ -134,3 +135,12 @@ class BuildRecord(models.Model):
     def duration(self):
         if self.build_started and self.build_finished:
             return (self.build_finished - self.build_started).total_seconds()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc, value, tb):
+        if not self.build_finished:
+            self.build_finished = now()
+            self.state = BuildRecord.FAILED_TO_BUILD
+            self.save()

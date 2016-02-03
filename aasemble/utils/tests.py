@@ -6,7 +6,7 @@ from unittest import TestCase
 
 import mock
 
-from aasemble.utils import ensure_dir, escape_cmd_for_ssh, run_cmd, ssh_get, ssh_run_cmd
+from aasemble.utils import TemporaryDirectory, ensure_dir, escape_cmd_for_ssh, run_cmd, ssh_get, ssh_run_cmd
 from aasemble.utils.exceptions import CommandFailed
 
 stdout_stderr_script = '''#!/bin/sh
@@ -130,3 +130,11 @@ class UtilsTestCase(TestCase):
 
         finally:
             os.unlink(tmpfile)
+
+    def test_TemporaryDirectory(self):
+        with TemporaryDirectory() as tmpdir:
+            self.assertTrue(tmpdir.startswith('/tmp'))
+            fpath = os.path.join(tmpdir, 'foobar')
+            with open(fpath, 'w') as fp:
+                fp.write('foo')
+        self.assertFalse(os.path.exists(tmpdir))
