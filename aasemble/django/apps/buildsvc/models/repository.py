@@ -1,8 +1,6 @@
 import os.path
 import uuid
 
-import deb822
-
 from django.conf import settings
 from django.contrib.auth import models as auth_models
 from django.db import models
@@ -10,22 +8,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from aasemble.django.apps.buildsvc import tasks
 from aasemble.django.apps.buildsvc.repodrivers import get_repo_driver
-from aasemble.django.utils import recursive_render
-from aasemble.utils import ensure_dir, run_cmd
-
-
-def remove_ddebs_from_changes(changes_file):
-    with open(changes_file, 'r') as fp:
-        changes = deb822.Changes(fp)
-
-    for section in ('Checksums-Sha1', 'Checksums-Sha256', 'Files'):
-        if section not in changes:
-            continue
-        new_section = [f for f in changes[section] if not f['name'].endswith('.ddeb')]
-        changes[section] = new_section
-
-    with open(changes_file, 'w') as fp:
-        fp.write(changes.dump())
+from aasemble.utils import ensure_dir
 
 
 @python_2_unicode_compatible
@@ -57,14 +40,6 @@ class Repository(models.Model):
             return cls.objects.all()
         return cls.objects.filter(user=user) | cls.objects.filter(extra_admins__in=user.groups.all())
 
-    def ensure_key(self):
-        if not self.key_id:
-            self.key_id = get_repo_driver(self).generate_key()
-            self.save()
-        if not self.key_data:
-            self.key_data = self._key_data()
-            self.save()
-
     def first_series(self):
         try:
             return self.series.all()[0]
@@ -89,43 +64,18 @@ class Repository(models.Model):
     def buildlogdir(self):
         return ensure_dir(os.path.join(self.outdir(), 'buildlogs'))
 
-    def gpghome(self):
-        return os.path.join(self.basedir, '.gnupg')
-
-    def ensure_directory_structure(self):
-        tmpl_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                   '..', 'templates/buildsvc/reprepro'))
-        recursive_render(tmpl_dir, self.basedir, {'repository': self})
-
-    def _reprepro(self, *args):
-        env = {'GNUPG_HOME': self.gpghome()}
-        return run_cmd(['reprepro', '-b', self.basedir, '--waitforlock=10'] + list(args),
-                       override_env=env)
-
     def _key_data(self):
         return get_repo_driver(self).key_data()
 
     def key_url(self):
         return '%s/repo.key' % (self.base_url,)
 
-    def export_key(self):
-        keypath = os.path.join(self.outdir(), 'repo.key')
-        if not os.path.exists(keypath):
-            with open(keypath, 'w') as fp:
-                fp.write(self.key_data)
-
     def export(self):
         self.first_series()
-        self.ensure_key()
-        self.ensure_directory_structure()
-        self.export_key()
-        self._reprepro('export')
+        return get_repo_driver(self).export()
 
     def process_changes(self, series_name, changes_file):
-        self.ensure_directory_structure()
-        remove_ddebs_from_changes(changes_file)
-        self._reprepro('--ignore=wrongdistribution', 'include', series_name, changes_file)
-        self.export()
+        return get_repo_driver(self).process_changes(series_name, changes_file)
 
     def save(self, *args, **kwargs):
         super(Repository, self).save(*args, **kwargs)
