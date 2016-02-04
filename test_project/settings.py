@@ -26,6 +26,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.humanize',
     'aasemble.django.apps.main',
+    'aasemble.django.common',
     'aasemble.django.apps.api',
     'aasemble.django.apps.buildsvc',
     'aasemble.django.apps.mirrorsvc',
