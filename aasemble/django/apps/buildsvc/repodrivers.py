@@ -272,7 +272,7 @@ class RepreproDriver(RepositoryDriver):
         keypath = os.path.join(self.outdir, 'repo.key')
         if not os.path.exists(keypath):
             with open(keypath, 'wb') as fp:
-                fp.write(self.repository.key_data)
+                fp.write(self.repository.key_data.encode('utf-8'))
 
     @property
     def basedir(self):
