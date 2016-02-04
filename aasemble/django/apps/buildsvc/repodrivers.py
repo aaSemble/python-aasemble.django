@@ -108,6 +108,7 @@ class RepreproDriver(RepositoryDriver):
     def _reprepro(self, *args):
         return run_cmd(['reprepro', '-b', self.basedir, '--waitforlock=10'] + list(args))
 
+
 def get_repo_driver(repository):
     driver_name = getattr(settings, 'BUILDSVC_REPODRIVER', 'aasemble.django.apps.buildsvc.repodrivers.RepreproDriver')
     driver = import_string(driver_name)
