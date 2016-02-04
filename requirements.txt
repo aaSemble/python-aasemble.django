@@ -21,3 +21,4 @@ git+https://github.com/aaSemble/drf-tracking#egg=drf-tracking
 apache-libcloud
 pycrypto
 paramiko
+python-gnupg

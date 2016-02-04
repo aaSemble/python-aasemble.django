@@ -7,10 +7,38 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
 
+import gnupg
+
 from aasemble.django.utils import recursive_render
 from aasemble.utils import ensure_dir, run_cmd
 
 LOG = logging.getLogger(__name__)
+
+
+class RepositorySignatureDriver(object):
+    EXPIRE_DATE_NEVER_EXPIRES = 0
+
+    def __init__(self, home=None):
+        if home is None:
+            home = self.get_default_gpghome()
+
+        self.gnupg = gnupg.GPG(gnupghome=home)
+
+    def get_default_gpghome(self):
+        return getattr(settings, 'BUILDSVC_GPGHOME', None)
+
+    def key_generation_data_for_repository(self, repository):
+        return render_to_string('buildsvc/gpg-keygen-input.tmpl',
+                                {'repository': repository})
+
+    def generate_key(self, repository):
+        input_data = self.key_generation_data_for_repository(repository)
+        generated_key = self.gnupg.gen_key(input_data)
+        return generated_key.fingerprint[-8:]
+
+    def key_data(self, repository):
+        if repository.key_id:
+            return self.gnupg.export_keys([repository.key_id])
 
 
 def remove_ddebs_from_changes(changes_file):
@@ -30,6 +58,7 @@ def remove_ddebs_from_changes(changes_file):
 class RepositoryDriver(object):
     def __init__(self, repository):
         self.repository = repository
+        self.reposity_signature_driver = RepositorySignatureDriver()
 
     def ensure_key(self):
         if not self.repository.key_id:
@@ -40,38 +69,12 @@ class RepositoryDriver(object):
             self.repository.save()
 
 
-class FakeDriver(RepositoryDriver):
-    def generate_key(self):
-        return 'FAKEID'
-
-    def key_data(self):
-        return self.repository.key_id * 50
-
-    def export(self):
-        pass
-
-    def process_changes(self, series_name, changes_file):
-        pass
-
-
 class RepreproDriver(RepositoryDriver):
     def generate_key(self):
-        LOG.info('Generating key for %s' % (self.repository))
-        gpg_input = render_to_string('buildsvc/gpg-keygen-input.tmpl',
-                                     {'repository': self.repository})
-        output = run_cmd(['gpg', '--batch', '--gen-key'], input=gpg_input)
-
-        for l in output.split('\n'):
-            if l.startswith('gpg: key '):
-                return l.split(' ')[2]
+        return self.reposity_signature_driver.generate_key(self.repository)
 
     def key_data(self):
-        if self.repository.key_id:
-            env = {'GNUPG_HOME': self.gpghome()}
-            return run_cmd(['gpg', '-a', '--export', self.repository.key_id], override_env=env)
-
-    def gpghome(self):
-        return os.path.join(self.basedir, '.gnupg')
+        return self.reposity_signature_driver.key_data(self.repository)
 
     @property
     def basedir(self):
@@ -103,9 +106,7 @@ class RepreproDriver(RepositoryDriver):
                 fp.write(self.repository.key_data)
 
     def _reprepro(self, *args):
-        env = {'GNUPG_HOME': self.gpghome()}
-        return run_cmd(['reprepro', '-b', self.basedir, '--waitforlock=10'] + list(args),
-                       override_env=env)
+        return run_cmd(['reprepro', '-b', self.basedir, '--waitforlock=10'] + list(args))
 
 
 def get_repo_driver(repository):

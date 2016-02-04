@@ -392,7 +392,7 @@ class PackageSourceTestCase(TestCase):
             raise Exception('Unexpected command')
 
         run_cmd.side_effect = run_cmd_side_effect
-        ps = PackageSource.objects.get(id=1)
+        ps = PackageSource.objects.get(id=7)
         ps.build_real()
 
 
@@ -468,13 +468,6 @@ class RepreproDriverTestCase(TestCase):
             dstdir = '/some/public/dir/eric/eric5'
             context = {'repository': repo}
             recursive_render.assert_called_with(srcdir, dstdir, context)
-
-    @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.repodrivers.ensure_dir', lambda s: s)
-    def test_gpghome(self):
-        repo = Repository.objects.get(id=12)
-        repodriver = repodrivers.get_repo_driver(repo)
-        self.assertEquals(repodriver.gpghome(), '/some/dir/eric/eric5/.gnupg')
 
     @override_settings(BUILDSVC_REPOS_BASE_DIR='/some/dir')
     @mock.patch('aasemble.django.apps.buildsvc.repodrivers.ensure_dir', lambda s: s)

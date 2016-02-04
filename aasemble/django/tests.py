@@ -13,7 +13,6 @@ from django.test import LiveServerTestCase, TestCase, override_settings
 from aasemble.django.utils import recursive_render
 
 
-@override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.repodrivers.FakeDriver')
 class AasembleTestCase(TestCase):
     fixtures = ['complete.json']
 
