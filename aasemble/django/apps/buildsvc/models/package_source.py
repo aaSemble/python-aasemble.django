@@ -133,11 +133,11 @@ class PackageSource(models.Model):
 
             dsc_files = filter(lambda s: s.endswith('.dsc'), os.listdir(tmpdir))
             for dsc_file in dsc_files:
-                self.series.import_dsc(self.series, dsc_file)
+                self.series.import_dsc(dsc_file)
 
             deb_files = filter(lambda s: s.endswith('.deb'), os.listdir(tmpdir))
             for deb_file in deb_files:
-                self.series.import_deb(self.series, dsc_file)
+                self.series.import_deb(dsc_file)
 
             self.series.export()
 
