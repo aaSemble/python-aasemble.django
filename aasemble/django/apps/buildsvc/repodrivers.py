@@ -45,7 +45,7 @@ class RepositorySignatureDriver(object):
 
     def key_data(self, repository):
         if repository.key_id:
-            return self.gnupg.export_keys([repository.key_id])
+            return self.gnupg.export_keys([repository.key_id]).encode('utf-8')
 
     def sign_inline(self, contents):
         return str(self.gnupg.sign(contents)).encode('utf-8')
@@ -99,7 +99,7 @@ class RepositoryDriver(object):
             self.repository.key_id = self.generate_key()
             self.repository.save()
         if not self.repository.key_data:
-            self.repository.key_data = self.key_data()
+            self.repository.key_data = self.key_data().decode('utf-8')
             self.repository.save()
 
     def generate_key(self):
