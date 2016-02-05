@@ -13,7 +13,7 @@ matrix:
         - sudo apt-get install -qq -y mysql-server
         - sudo mysql --defaults-extra-file=/etc/mysql/debian.cnf -e'GRANT ALL ON test_aasemble.* TO test@localhost'
         - sudo apt-get install -y haveged
-        - DEBIAN_FRONTEND=noninteractive sudo apt-get install -y docker-engine
+        - DEBIAN_FRONTEND=noninteractive sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y docker-engine
 language: python
 services:
   - mysql
