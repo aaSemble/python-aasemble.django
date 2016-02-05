@@ -47,6 +47,7 @@ class Repository(models.Model):
             from aasemble.django.apps.buildsvc.models.series import Series
             return Series.objects.create(name=settings.BUILDSVC_DEFAULT_SERIES_NAME, repository=self)
 
+    @property
     def outdir(self):
         outdir = os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
                               self.user.username, self.name)
@@ -54,7 +55,7 @@ class Repository(models.Model):
 
     @property
     def buildlogdir(self):
-        return ensure_dir(os.path.join(self.outdir(), 'buildlogs'))
+        return ensure_dir(os.path.join(self.outdir, 'buildlogs'))
 
     def _key_data(self):
         return get_repo_driver(self).key_data()

@@ -1,0 +1,2 @@
+{% for bpv in series.binary_package_versions.all %}{{ bpv.format_for_packages|safe }}
+{% endfor %}

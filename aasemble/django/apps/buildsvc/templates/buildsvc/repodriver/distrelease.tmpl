@@ -1,0 +1,14 @@
+Origin: {{ series.repository.name.capitalize }}
+Label: {{ series.repository.name.capitalize }}
+Suite: {{ series.name }}
+Codename:  {{ series.name }}
+Date: Wed, 20 Jan 2016 08:55:57 UTC
+Architectures: amd64 source
+Components: main
+Description: {{ series.repository.name }} {{ series.series.name }}
+MD5Sum: {% for f in files %}
+  {{ f.md5 }} {{ f.size }} {{ f.path }}{% endfor %}
+SHA1: {% for f in files %}
+  {{ f.sha1 }} {{ f.size }} {{ f.path }}{% endfor %}
+SHA256: {% for f in files %}
+  {{ f.sha256 }} {{ f.size }} {{ f.path }}{% endfor %}

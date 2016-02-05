@@ -1,9 +1,13 @@
+import gzip
 import os.path
 import shutil
 import subprocess
 import sys
 import tempfile
 
+import deb822
+
+from django.conf import settings
 from django.contrib.auth import models as auth_models
 from django.db.utils import IntegrityError
 from django.test import override_settings
@@ -16,10 +20,12 @@ import mock
 from six import StringIO
 
 from aasemble.django.apps.buildsvc import executors, repodrivers
-from aasemble.django.apps.buildsvc.models import BuildRecord, PackageSource, Repository, Series
+from aasemble.django.apps.buildsvc.models import BinaryPackage, BinaryPackageVersion, BuildRecord, PackageSource, Repository, Series, SourcePackage, SourcePackageVersion, SourcePackageVersionFile
 from aasemble.django.apps.buildsvc.models.package_source import NotAValidGithubRepository
+from aasemble.django.apps.buildsvc.models.source_package_version_file import SOURCE_PACKAGE_FILE_TYPE_DSC, SOURCE_PACKAGE_FILE_TYPE_NATIVE
 from aasemble.django.tests import AasembleLiveServerTestCase as LiveServerTestCase
 from aasemble.django.tests import AasembleTestCase as TestCase
+from aasemble.utils import run_cmd
 from aasemble.utils.exceptions import CommandFailed
 
 
@@ -32,7 +38,7 @@ except:
 
 class PkgBuildTestCase(LiveServerTestCase):
     @skipIf(not docker_available, 'Docker unavailable')
-    def test_build_debian(self):
+    def _test_build_debian(self):
         from . import pkgbuild
 
         tmpdir = tempfile.mkdtemp()
@@ -157,12 +163,6 @@ class RepositoryTestCase(TestCase):
 
     def test_unique_reponame_raises_integrity_error(self):
         self.assertRaises(IntegrityError, Repository.objects.create, user_id=5, name='eric4')
-
-    @override_settings(BUILDSVC_REPOS_BASE_PUBLIC_DIR='/some/public/dir')
-    @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
-    def test_outdir(self):
-        repo = Repository.objects.get(id=12)
-        self.assertEquals(repo.outdir(), '/some/public/dir/eric/eric5')
 
     @override_settings(BUILDSVC_REPOS_BASE_PUBLIC_DIR='/some/public/dir')
     @mock.patch('aasemble.django.apps.buildsvc.models.repository.ensure_dir', lambda s: s)
@@ -417,27 +417,102 @@ class ExecutorTestCase(TestCase):
         self.assertEquals(executors.get_executor_class(settings=Settings()), executors.GCENode)
 
 
-@override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.repodrivers.RepreproDriver')
-class RepreproDriverTestCase(TestCase):
-    def test_export(self):
-        repo = mock.MagicMock()
-        repodriver = repodrivers.get_repo_driver(repo)
-        with mock.patch.multiple(repodriver,
-                                 ensure_key=mock.DEFAULT,
-                                 ensure_directory_structure=mock.DEFAULT,
-                                 export_key=mock.DEFAULT,
-                                 _reprepro=mock.DEFAULT) as mocks:
-            repodriver.export()
+class RepoDriverTestCase(object):
+    @mock.patch('aasemble.django.apps.buildsvc.repodrivers.RepositorySignatureDriver.generate_key')
+    def test_ensure_key_noop_when_key_id_set(self, generate_key):
+        repo = Repository.objects.get(id=1)
+        self.driver(repo).ensure_key()
+        assert not generate_key.called
 
-            mocks['ensure_key'].ensure_called_with()
-            mocks['ensure_directory_structure'].ensure_called_with()
-            mocks['export_key'].ensure_called_with()
-            mocks['_reprepro'].ensure_called_with('export')
+    @override_settings(AASEMBLE_BUILDSVC_USE_FAKE_SIGNATURE_DRIVER=True)
+    def test_export(self):
+        tmpdir = tempfile.mkdtemp()
+        try:
+            privatedir = os.path.join(tmpdir, 'private')
+            publicdir = os.path.join(tmpdir, 'public')
+            with self.settings(BUILDSVC_REPOS_BASE_DIR=privatedir,
+                               BUILDSVC_REPOS_BASE_PUBLIC_DIR=publicdir):
+                repo = Repository.objects.get(id=13)
+                self.driver(repo).export()
+
+                base_dir = os.path.join(publicdir, 'eric', 'eric6')
+                assert os.path.isdir(base_dir)
+
+                dists_dir = os.path.join(base_dir, 'dists')
+                assert os.path.isdir(dists_dir)
+
+                binary_amd64_dir = os.path.join(dists_dir, 'aasemble', 'main', 'binary-amd64')
+                assert os.path.isdir(binary_amd64_dir)
+
+                packages_file = os.path.join(binary_amd64_dir, 'Packages')
+
+                with open(packages_file, 'r') as fp:
+                    self.assertEquals(fp.read(), '')
+
+                packages_gz_file = os.path.join(binary_amd64_dir, 'Packages.gz')
+                with gzip.open(packages_gz_file, 'rb') as fp:
+                    self.assertEquals(fp.read(), b'')
+
+                binary_amd64_release_file = os.path.join(binary_amd64_dir, 'Release')
+                with open(binary_amd64_release_file, 'r') as fp:
+                    self.assertEquals(fp.read(), '''Archive: aasemble
+Component: main
+Origin: Eric6
+Label: Eric6
+Architecture: amd64
+Description: eric6 aasemble
+''')
+                sources_dir = os.path.join(dists_dir, 'aasemble', 'main', 'source')
+                assert os.path.isdir(sources_dir)
+
+                sources_gz_file = os.path.join(sources_dir, 'Sources.gz')
+                with gzip.open(sources_gz_file, 'rb') as fp:
+                    self.assertEquals(fp.read(), b'')
+
+                sources_release_file = os.path.join(sources_dir, 'Release')
+                with open(sources_release_file, 'r') as fp:
+                    self.assertEquals(fp.read(), '''Archive: aasemble
+Component: main
+Origin: Eric6
+Label: Eric6
+Architecture: source
+Description: eric6 aasemble
+''')
+
+                gpghome = self.driver(repo).reposity_signature_driver.get_default_gpghome()
+                inrelease_file = os.path.join(dists_dir, 'aasemble', 'InRelease')
+                run_cmd(['gpg', '--verify', inrelease_file],
+                        override_env={'GNUPGHOME': gpghome})
+
+                with open(inrelease_file, 'r') as fp:
+                    lines = [l.rstrip('\n') for l in fp.readlines()]
+
+                sepline = lines.index('-----BEGIN PGP SIGNATURE-----')
+                body = '\n'.join(lines[3:sepline]) + '\n'
+
+                release_file = os.path.join(dists_dir, 'aasemble', 'Release')
+                with open(release_file, 'r') as fp:
+                    self.assertEquals(fp.read(), body)
+
+                release_gpg_file = os.path.join(dists_dir, 'aasemble', 'Release.gpg')
+
+                run_cmd(['gpg', '--verify', release_gpg_file, release_file],
+                        override_env={'GNUPGHOME': gpghome})
+
+                with open(os.path.join(base_dir, 'repo.key'), 'r') as fp1:
+                    with open(os.path.join(os.path.dirname(__file__), 'test_data', 'eric6.public.key')) as fp2:
+                        self.assertEquals(fp1.read(), fp2.read())
+        finally:
+            shutil.rmtree(tmpdir)
+
+
+class RepreproRepoDriverTestCase(TestCase, RepoDriverTestCase):
+    driver = repodrivers.RepreproDriver
 
     @mock.patch('aasemble.django.apps.buildsvc.repodrivers.remove_ddebs_from_changes')
     def test_process_changes(self, remove_ddebs_from_changes):
         repo = mock.MagicMock()
-        repodriver = repodrivers.get_repo_driver(repo)
+        repodriver = self.driver(repo)
         with mock.patch.multiple(repodriver,
                                  export=mock.DEFAULT,
                                  ensure_directory_structure=mock.DEFAULT,
@@ -461,7 +536,7 @@ class RepreproDriverTestCase(TestCase):
     def test_ensure_directory_structure(self):
         with mock.patch('aasemble.django.apps.buildsvc.repodrivers.recursive_render') as recursive_render:
             repo = Repository.objects.get(id=12)
-            repodriver = repodrivers.get_repo_driver(repo)
+            repodriver = self.driver(repo)
             repodriver.ensure_directory_structure()
 
             srcdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates', 'buildsvc', 'reprepro'))
@@ -473,5 +548,112 @@ class RepreproDriverTestCase(TestCase):
     @mock.patch('aasemble.django.apps.buildsvc.repodrivers.ensure_dir', lambda s: s)
     def test_basedir(self):
         repo = Repository.objects.get(id=12)
-        repodriver = repodrivers.get_repo_driver(repo)
+        repodriver = self.driver(repo)
         self.assertEquals(repodriver.basedir, '/some/dir/eric/eric5')
+
+
+class AasembleRepoDriverTestCase(TestCase, RepoDriverTestCase):
+    driver = repodrivers.AasembleDriver
+
+
+class ImportDscTestCase(TestCase):
+    @override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.repodrivers.AasembleDriver')
+    def test_native(self):
+        from aasemble.django.apps.buildsvc.management.commands.import_dsc import Command as ImportDsc
+        dsc_path = os.path.join(os.path.dirname(__file__), 'test_data', 'import_dsc', 'native', 'hello_1.0-1.dsc')
+        ImportDsc().handle(user='brandon', repository='brandon', path=dsc_path)
+
+        sp = SourcePackage.objects.get(name='hello')
+        spv = SourcePackageVersion.objects.get(source_package=sp, version='1.0-1')
+        SourcePackageVersionFile.objects.get(source_package_version=spv, file_type=SOURCE_PACKAGE_FILE_TYPE_DSC)
+        SourcePackageVersionFile.objects.get(source_package_version=spv, file_type=SOURCE_PACKAGE_FILE_TYPE_NATIVE)
+
+        sources_entry = deb822.Deb822(spv.format_for_sources())
+        self.assertEquals(list(sources_entry.keys()),
+                          ['Package',
+                           'Binary',
+                           'Version',
+                           'Maintainer',
+                           'Standards-Version',
+                           'Architecture',
+                           'Homepage',
+                           'Format',
+                           'Directory',
+                           'Files',
+                           'Checksums-Sha1',
+                           'Checksums-Sha256'])
+        self.assertEquals(sources_entry['Package'], 'hello')
+        self.assertEquals(sources_entry['Version'], '1.0-1')
+        self.assertEquals(sources_entry['Maintainer'], 'Soren Hansen <soren@aasemble.com>')
+        self.assertEquals(sources_entry['Standards-Version'], '3.9.2')
+        self.assertEquals(sources_entry['Architecture'], 'any')
+        self.assertEquals(sources_entry['Homepage'], 'http://example.com/hello/')
+        self.assertEquals(sources_entry['Format'], '3.0 (native)')
+        self.assertEquals(sources_entry['Directory'], 'pool/main/h/hello')
+        self.assertEquals(sources_entry['Files'], '\n baaf58ea1635765ed569231ae478350e 484 hello_1.0-1.dsc'
+                                                  '\n 098b9b276c9b1da964e021b71414c998 673 hello_1.0-1.tar.gz')
+        self.assertEquals(sources_entry['Checksums-Sha1'], '\n 1b946853f1eea400ad6fd25ca46a8802a40d200c 484 hello_1.0-1.dsc'
+                                                           '\n 24f3bf00b0037dd216cdad785cdc07c8a7f7db62 673 hello_1.0-1.tar.gz')
+        self.assertEquals(sources_entry['Checksums-Sha256'], '\n a9c5ba1e786b5d4703d99df1378152456c84399fe1eb63e293d696540965f978 484 hello_1.0-1.dsc'
+                                                             '\n 7d2897859802ed68e771958655960d81d2b985fb23fc11ec129234804f22cf04 673 hello_1.0-1.tar.gz')
+        self.assertTrue(os.path.exists(os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
+                                                    'brandon', 'brandon',
+                                                    'pool/main/h/hello/hello_1.0-1.dsc')),
+                        'dsc was not copied into the pool dir')
+        self.assertTrue(os.path.exists(os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
+                                                    'brandon', 'brandon',
+                                                    'pool/main/h/hello/hello_1.0-1.tar.gz')),
+                        'Tarball was not copied into the pool dir')
+        with open(os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
+                               'brandon/brandon/dists/aasemble/main/source/Sources'), 'r') as fp:
+            self.assertIn(spv.format_for_sources(), fp.read())
+
+
+class ImportDebTestCase(TestCase):
+    @override_settings(BUILDSVC_REPODRIVER='aasemble.django.apps.buildsvc.repodrivers.AasembleDriver')
+    def test_simple(self):
+        from aasemble.django.apps.buildsvc.management.commands.import_deb import Command as ImportDeb
+        deb_path = os.path.join(os.path.dirname(__file__), 'test_data/import_deb/pool/main/h/hello/hello_1.0-1_amd64.deb')
+        ImportDeb().handle(user='brandon', repository='brandon', path=deb_path)
+
+        bp = BinaryPackage.objects.get(name='hello')
+        bpv = BinaryPackageVersion.objects.get(binary_package=bp, version='1.0-1')
+
+        packages_entry = deb822.Deb822(bpv.format_for_packages())
+        self.assertEquals(list(packages_entry.keys()),
+                          ['Package',
+                           'Source',
+                           'Version',
+                           'Architecture',
+                           'Maintainer',
+                           'Installed-Size',
+                           'Priority',
+                           'Section',
+                           'Homepage',
+                           'Filename',
+                           'Size',
+                           'MD5sum',
+                           'SHA1',
+                           'SHA256',
+                           'Description'])
+        self.assertEquals(packages_entry['Package'], 'hello')
+        self.assertEquals(packages_entry['Source'], 'hello')
+        self.assertEquals(packages_entry['Version'], '1.0-1')
+        self.assertEquals(packages_entry['Architecture'], 'amd64')
+        self.assertEquals(packages_entry['Maintainer'], 'Soren Hansen <soren@aasemble.com>')
+        self.assertEquals(packages_entry['Installed-Size'], '25')
+        self.assertEquals(packages_entry['Priority'], 'optional')
+        self.assertEquals(packages_entry['Section'], 'misc')
+        self.assertEquals(packages_entry['Homepage'], 'http://example.com/hello/')
+        self.assertEquals(packages_entry['Filename'], 'pool/main/h/hello/hello_1.0-1_amd64.deb')
+        self.assertEquals(packages_entry['Size'], '1070')
+        self.assertEquals(packages_entry['MD5sum'], 'f2451350cde2bec3cd6b7d39b89a5270')
+        self.assertEquals(packages_entry['SHA1'], '7efd808803711d5cec23424ccf805289b47d2b55')
+        self.assertEquals(packages_entry['SHA256'], '1ea0262ecdca1bfdd3d6c0b4844d4a7aa6f441bd5c58e972012578ac9ba246db')
+        self.assertTrue(os.path.exists(os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
+                                                    'brandon', 'brandon',
+                                                    'pool/main/h/hello/hello_1.0-1_amd64.deb')),
+                        'Deb was not copied into the pool dir')
+        with open(os.path.join(settings.BUILDSVC_REPOS_BASE_PUBLIC_DIR,
+                               'brandon/brandon/dists/aasemble/main/binary-amd64/Packages'), 'r') as fp:
+            self.assertIn(bpv.format_for_packages(), fp.read())

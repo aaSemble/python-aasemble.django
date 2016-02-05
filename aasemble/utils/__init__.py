@@ -41,8 +41,9 @@ def run_cmd(cmd, input=None, cwd=None, override_env=None,
     stdout = stdout or BytesIO()
 
     for k in override_env or []:
-        if override_env[k] is None and k in environ:
-            del environ[k]
+        if override_env[k] is None:
+            if k in environ:
+                del environ[k]
         else:
             environ[k] = override_env[k]
 
