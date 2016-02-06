@@ -212,7 +212,13 @@ class SourcePackageVersion(models.Model):
                                                               kwargs['version']):
             return 'Newer version already exists in repository'
 
-        spv, _ = cls.objects.get_or_create(**kwargs)
+        sp = kwargs.pop('source_package')
+        version = kwargs.pop('version')
+        spv, created = cls.objects.get_or_create(source_package=sp, version=version, defaults=kwargs)
+        if created:
+            for k in kwargs:
+                setattr(spv, k, kwargs[k])
+            spv.save()
 
         for f in fileobjs:
             f.source_package_version = spv
