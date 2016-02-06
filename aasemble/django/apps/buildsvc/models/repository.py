@@ -70,6 +70,12 @@ class Repository(models.Model):
     def process_changes(self, series_name, changes_file):
         return get_repo_driver(self).process_changes(series_name, changes_file)
 
+    def import_deb(self, series_name, deb_file):
+        return get_repo_driver(self).import_deb(series_name, deb_file)
+
+    def import_dsc(self, series_name, dsc_file):
+        return get_repo_driver(self).import_dsc(series_name, dsc_file)
+
     def save(self, *args, **kwargs):
         super(Repository, self).save(*args, **kwargs)
         tasks.export.delay(self.id)
