@@ -47,14 +47,14 @@ class RepositorySignatureDriver(object):
         if repository.key_id:
             return self.gnupg.export_keys([repository.key_id]).encode('utf-8')
 
-    def sign_inline(self, contents):
-        return str(self.gnupg.sign(contents)).encode('utf-8')
+    def sign_inline(self, contents, key_id):
+        return str(self.gnupg.sign(contents, keyid=key_id)).encode('utf-8')
 
-    def get_signature(self, contents):
+    def get_signature(self, contents, key_id):
         fd, tmpfile = tempfile.mkstemp()
         try:
             os.close(fd)
-            self.gnupg.sign(contents, detach=True, output=tmpfile)
+            self.gnupg.sign(contents, detach=True, output=tmpfile, keyid=key_id)
             with open(tmpfile, 'rb') as fp:
                 return fp.read()
         finally:
@@ -240,11 +240,11 @@ class AasembleDriver(RepositoryDriver):
             release_data = self.render_to_bytes('distrelease.tmpl', series=series, files=files)
 
             self.store(os.path.join(series_dir, 'InRelease'),
-                       self.reposity_signature_driver.sign_inline(release_data), metadata)
+                       self.reposity_signature_driver.sign_inline(release_data, series.repository.key_id), metadata)
             self.store(os.path.join(series_dir, 'Release'),
                        release_data, metadata)
             self.store(os.path.join(series_dir, 'Release.gpg'),
-                       self.reposity_signature_driver.get_signature(release_data), metadata)
+                       self.reposity_signature_driver.get_signature(release_data, series.repository.key_id), metadata)
             repo_file = os.path.join(repo_dir, 'repo.key')
             if not self.storage.exists(repo_file):
                 self.storage.save(repo_file, ContentFile(self.repository.key_data))
