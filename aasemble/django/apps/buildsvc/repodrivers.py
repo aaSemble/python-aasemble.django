@@ -160,8 +160,7 @@ class AasembleDriver(RepositoryDriver):
 
     def store(self, path, contents, metadata, gzip=False, bzip2=False):
         metadata[path] = self.get_metadata(contents)
-        self.storage.delete(path)
-        self.storage.save(path, ContentFile(contents))
+        self.storage.save(path, ContentFile(contents), overwrite=True)
         if gzip:
             gzpath = path + '.gz'
             fp = BytesIO()
@@ -169,14 +168,12 @@ class AasembleDriver(RepositoryDriver):
                 gzfp.write(contents)
                 gzfp.close()
             metadata[gzpath] = self.get_metadata(fp.getvalue())
-            self.storage.delete(gzpath)
-            self.storage.save(gzpath, ContentFile(fp.getvalue()))
+            self.storage.save(gzpath, ContentFile(fp.getvalue()), overwrite=True)
         if bzip2:
             bzpath = path + '.bz2'
             bzdata = bzip2.compress(contents)
             metadata[bzpath] = self.get_metadata(bzdata)
-            self.storage.delete(bzpath)
-            self.storage.save(bzpath, ContentFile(bzdata))
+            self.storage.save(bzpath, ContentFile(bzdata), overwrite=True)
 
     def render_to_bytes(self, tmpl, **context):
         return render_to_string(os.path.join(os.path.dirname(__file__),
