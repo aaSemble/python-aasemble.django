@@ -15,7 +15,7 @@ from aasemble.utils import ensure_dir
 LOG = logging.getLogger(__name__)
 
 
-class BuildRecord(models.Model):
+class Build(models.Model):
     BUILDING = 1
     SUCCESFULLY_BUILT = 2
     CHROOT_PROBLEM = 3
@@ -52,11 +52,11 @@ class BuildRecord(models.Model):
     def __init__(self, *args, **kwargs):
         self._logger = None
         self._saved_logpath = None
-        return super(BuildRecord, self).__init__(*args, **kwargs)
+        return super(Build, self).__init__(*args, **kwargs)
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
-        return reverse('v3_buildrecord-detail', args=[str(self.uuid)])
+        return reverse('v3_build-detail', args=[str(self.uuid)])
 
     def get_full_absolute_url(self):
         site = Site.objects.get_current()
@@ -65,7 +65,7 @@ class BuildRecord(models.Model):
 
     def buildlog_url(self):
         from django.core.urlresolvers import reverse
-        return reverse('v3_buildrecord-log', args=[str(self.uuid)])
+        return reverse('v3_build-log', args=[str(self.uuid)])
 
     @property
     def logger(self):
@@ -100,7 +100,7 @@ class BuildRecord(models.Model):
 
     def _build_just_finished(self):
         if self.build_finished and self.pk:
-            old = BuildRecord.objects.get(pk=self.pk)
+            old = Build.objects.get(pk=self.pk)
             return not old.build_finished
 
     def _copy_temporary_log_to_final_location(self):
@@ -120,7 +120,7 @@ class BuildRecord(models.Model):
     def save(self, *args, **kwargs):
         if self._build_just_finished():
             self._copy_temporary_log_to_final_location()
-        return super(BuildRecord, self).save(*args, **kwargs)
+        return super(Build, self).save(*args, **kwargs)
 
     def final_log_path(self):
         path = os.path.join(self.source.series.repository.buildlogdir,
@@ -151,5 +151,5 @@ class BuildRecord(models.Model):
     def __exit__(self, exc, value, tb):
         if not self.build_finished:
             self.build_finished = now()
-            self.state = BuildRecord.FAILED_TO_BUILD
+            self.state = Build.FAILED_TO_BUILD
             self.save()

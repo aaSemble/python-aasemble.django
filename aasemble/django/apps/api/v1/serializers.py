@@ -27,7 +27,7 @@ class aaSembleAPIv1Serializers(object):
         self.RepositorySerializer = self.RepositorySerializerFactory()
         self.PackageSourceSerializer = self.PackageSourceSerializerFactory()
         self.SeriesSerializer = self.SeriesSerializerFactory()
-        self.BuildRecordSerializer = self.BuildRecordSerializerFactory()
+        self.BuildSerializer = self.BuildSerializerFactory()
         self.ExternalDependencySerializer = self.ExternalDependencySerializerFactory()
 
     class SimpleListField(serializers.ListField):
@@ -189,9 +189,9 @@ class aaSembleAPIv1Serializers(object):
 
         return SeriesSerializer
 
-    def BuildRecordSerializerFactory(selff):
-        class BuildRecordSerializer(serializers.HyperlinkedModelSerializer):
-            self = serializers.HyperlinkedRelatedField(view_name='{0}_buildrecord-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
+    def BuildSerializerFactory(selff):
+        class BuildSerializer(serializers.HyperlinkedModelSerializer):
+            self = serializers.HyperlinkedRelatedField(view_name='{0}_build-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
 
             if selff.builds_nest_source:
                 source = selff.PackageSourceSerializer()
@@ -201,17 +201,17 @@ class aaSembleAPIv1Serializers(object):
             if selff.build_includes_counter:
                 build_counter = serializers.IntegerField(read_only=True)
 
-            buildlog_url = serializers.HyperlinkedRelatedField(view_name='{0}_buildrecord-log'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
+            buildlog_url = serializers.HyperlinkedRelatedField(view_name='{0}_build-log'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
 
             class Meta:
-                model = buildsvc_models.BuildRecord
+                model = buildsvc_models.Build
                 fields = ('self', 'source', 'version', 'build_started', 'sha', 'buildlog_url')
                 if selff.include_build_duration:
                     fields += ('duration', 'build_finished')
                 if selff.build_includes_counter:
                     fields += ('build_counter',)
 
-        return BuildRecordSerializer
+        return BuildSerializer
 
     def ExternalDependencySerializerFactory(selff):
         class ExternalDependencySerializer(serializers.HyperlinkedModelSerializer):

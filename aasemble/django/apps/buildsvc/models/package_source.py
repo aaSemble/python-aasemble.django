@@ -21,7 +21,7 @@ from aasemble.utils.exceptions import CommandFailed
 LOG = logging.getLogger(__name__)
 
 
-def get_build_cmd(br_url, settings=settings):
+def get_build_cmd(b_url, settings=settings):
     build_cmd = ['aasemble-pkgbuild']
 
     if hasattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'):
@@ -32,7 +32,7 @@ def get_build_cmd(br_url, settings=settings):
     build_cmd += ['--email', settings.BUILDSVC_DEBEMAIL]
     build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
 
-    build_cmd += ['build', br_url]
+    build_cmd += ['build', b_url]
     return build_cmd
 
 
@@ -98,34 +98,34 @@ class PackageSource(models.Model):
     def build_real(self):
         self.increment_build_counter()
 
-        with self.create_build_record() as br, executors.get_executor('br-%s' % (br.uuid,)) as executor, TemporaryDirectory() as tmpdir:
-            br.update_state(br.BUILDING)
+        with self.create_build() as b, executors.get_executor('b-%s' % (b.uuid,)) as executor, TemporaryDirectory() as tmpdir:
+            b.update_state(b.BUILDING)
 
-            self.wait_until_pkgbuild_is_installed(executor, logger=br.logger)
+            self.wait_until_pkgbuild_is_installed(executor, logger=b.logger)
 
-            br_url = br.get_full_absolute_url()
+            b_url = b.get_full_absolute_url()
 
-            executor.run_cmd(['aasemble-pkgbuild', 'checkout', br_url], cwd=tmpdir, logger=br.logger)
-            version = executor.run_cmd(['aasemble-pkgbuild', 'version', br_url], cwd=tmpdir, logger=br.logger)
-            name = executor.run_cmd(['aasemble-pkgbuild', 'name', br_url], cwd=tmpdir, logger=br.logger)
+            executor.run_cmd(['aasemble-pkgbuild', 'checkout', b_url], cwd=tmpdir, logger=b.logger)
+            version = executor.run_cmd(['aasemble-pkgbuild', 'version', b_url], cwd=tmpdir, logger=b.logger)
+            name = executor.run_cmd(['aasemble-pkgbuild', 'name', b_url], cwd=tmpdir, logger=b.logger)
 
-            br.version = version
-            br.save(update_fields=['version'])
+            b.version = version
+            b.save(update_fields=['version'])
 
             self.last_built_version = version
             self.last_built_name = name
             self.save(update_fields=['last_built_version', 'last_built_name'])
 
-            build_cmd = get_build_cmd(br_url)
+            build_cmd = get_build_cmd(b_url)
 
-            executor.run_cmd(build_cmd, cwd=tmpdir, logger=br.logger)
-            br.state = br.SUCCESFULLY_BUILT
-            br.build_finished = now()
-            br.save()
+            executor.run_cmd(build_cmd, cwd=tmpdir, logger=b.logger)
+            b.state = b.SUCCESFULLY_BUILT
+            b.build_finished = now()
+            b.save()
 
             executor.get('*.*', tmpdir)
 
-            br.save()
+            b.save()
 
             changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
             for changes_file in changes_files:
@@ -150,11 +150,11 @@ class PackageSource(models.Model):
             self.save()
             self.refresh_from_db()
 
-    def create_build_record(self):
-        from aasemble.django.apps.buildsvc.models.build_record import BuildRecord
-        return BuildRecord.objects.create(source=self,
-                                          build_counter=self.build_counter,
-                                          sha=self.last_seen_revision)
+    def create_build(self):
+        from aasemble.django.apps.buildsvc.models.build import Build
+        return Build.objects.create(source=self,
+                                    build_counter=self.build_counter,
+                                    sha=self.last_seen_revision)
 
     def delete_on_filesystem(self):
         if self.last_built_name:
