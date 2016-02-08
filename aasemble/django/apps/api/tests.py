@@ -1362,6 +1362,11 @@ class APIv3Tests(APIv2Tests):
                 self.assertEquals(result['duration'], None)
 
 
+class APIDevelTests(APIv3Tests):
+    base_url = '/api/devel/'
+    view_prefix = 'devel'
+
+
 class GithubHookViewTestCase(APITestCase):
     fixtures = ['complete.json']
 
