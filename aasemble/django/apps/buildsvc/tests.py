@@ -20,7 +20,7 @@ import mock
 from six import StringIO
 
 from aasemble.django.apps.buildsvc import executors, repodrivers
-from aasemble.django.apps.buildsvc.models import BinaryPackage, BinaryPackageVersion, BuildRecord, PackageSource, Repository, Series, SourcePackage, SourcePackageVersion, SourcePackageVersionFile
+from aasemble.django.apps.buildsvc.models import BinaryPackage, BinaryPackageVersion, Build, PackageSource, Repository, Series, SourcePackage, SourcePackageVersion, SourcePackageVersionFile
 from aasemble.django.apps.buildsvc.models.package_source import NotAValidGithubRepository
 from aasemble.django.apps.buildsvc.models.source_package_version_file import SOURCE_PACKAGE_FILE_TYPE_DSC, SOURCE_PACKAGE_FILE_TYPE_NATIVE
 from aasemble.django.tests import AasembleLiveServerTestCase as LiveServerTestCase
@@ -44,8 +44,8 @@ class PkgBuildTestCase(LiveServerTestCase):
         tmpdir = tempfile.mkdtemp()
         try:
             source = PackageSource.objects.get(id=1)
-            br = BuildRecord(source=source, build_counter=10, sha='e65b55054c5220321c56bb3dfa96fbe5199f329c')
-            br.save()
+            b = Build(source=source, build_counter=10, sha='e65b55054c5220321c56bb3dfa96fbe5199f329c')
+            b.save()
 
             basedir = os.path.join(tmpdir, 'd')
             shutil.copytree(os.path.join(os.path.dirname(__file__), 'test_data', 'debian'), basedir)
@@ -53,14 +53,14 @@ class PkgBuildTestCase(LiveServerTestCase):
             orig_stdout = sys.stdout
             sys.stdout = StringIO()
             try:
-                pkgbuild.main(['--basedir', basedir, 'version', self.live_server_url + br.get_absolute_url()])
+                pkgbuild.main(['--basedir', basedir, 'version', self.live_server_url + b.get_absolute_url()])
                 self.assertEquals(sys.stdout.getvalue(), '0.1+10')
                 sys.stdout = StringIO()
 
-                pkgbuild.main(['--basedir', basedir, 'name', self.live_server_url + br.get_absolute_url()])
+                pkgbuild.main(['--basedir', basedir, 'name', self.live_server_url + b.get_absolute_url()])
                 self.assertEquals(sys.stdout.getvalue(), 'buildsvctest')
 
-                pkgbuild.main(['--basedir', basedir, 'build', self.live_server_url + br.get_absolute_url()])
+                pkgbuild.main(['--basedir', basedir, 'build', self.live_server_url + b.get_absolute_url()])
             finally:
                 sys.stdout = orig_stdout
 

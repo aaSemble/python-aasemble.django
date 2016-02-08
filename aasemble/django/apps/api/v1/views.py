@@ -279,8 +279,8 @@ class aaSembleV1Views(object):
             """
             lookup_field = selff.default_lookup_field
             lookup_value_regex = selff.default_lookup_value_regex
-            queryset = buildsvc_models.BuildRecord.objects.all().select_related('source__series__repository__user').prefetch_related('source__series__repository__series')
-            serializer_class = selff.serializers.BuildRecordSerializer
+            queryset = buildsvc_models.Build.objects.all().select_related('source__series__repository__user').prefetch_related('source__series__repository__series')
+            serializer_class = selff.serializers.BuildSerializer
             permission_classes = (DjangoObjectPermissionsOrAnonReadOnly,)
 
             def get_queryset(self):
@@ -299,23 +299,23 @@ class aaSembleV1Views(object):
             if True:
                 @detail_route(permission_classes=[AllowAny])
                 def log(self, request, **kwargs):
-                    br = self.get_object()
-                    if br.state == br.BUILDING:
-                        if br.handler_node == socket.getfqdn():
+                    b = self.get_object()
+                    if b.state == b.BUILDING:
+                        if b.handler_node == socket.getfqdn():
                             try:
-                                resp = HttpResponse(open(br.temporary_log_path(), 'r'), 'text/plain')
+                                resp = HttpResponse(open(b.temporary_log_path(), 'r'), 'text/plain')
                             except:
                                 resp = HttpResponse('', 'text/plain')
                             resp.rendered_content = ''
                             return resp
                         else:
-                            downstream_resp = requests.get('http://%s%s' % (br.handler_node, request.path))
+                            downstream_resp = requests.get('http://%s%s' % (b.handler_node, request.path))
                             resp = HttpResponse(downstream_resp.content, 'text/plain')
                             resp.rendered_content = ''
                             return resp
                     else:
-                        url = br.buildlog_url()
-                        resp = HttpResponsePermanentRedirect(br.direct_buildlog_url())
+                        url = b.buildlog_url()
+                        resp = HttpResponsePermanentRedirect(b.direct_buildlog_url())
                         resp.rendered_content = 'REDIRECT:%s' % (url,)
                         return resp
 
@@ -326,7 +326,7 @@ class aaSembleV1Views(object):
         router.register(r'repositories', self.RepositoryViewSet, base_name='{0}_repository'.format(self.view_prefix))
         router.register(r'external_dependencies', self.ExternalDependencyViewSet, base_name='{0}_externaldependency'.format(self.view_prefix))
         router.register(r'sources', self.PackageSourceViewSet, base_name='{0}_packagesource'.format(self.view_prefix))
-        router.register(r'builds', self.BuildViewSet, base_name='{0}_buildrecord'.format(self.view_prefix))
+        router.register(r'builds', self.BuildViewSet, base_name='{0}_build'.format(self.view_prefix))
         router.register(r'mirrors', self.MirrorViewSet, base_name='{0}_mirror'.format(self.view_prefix))
         router.register(r'mirror_sets', self.MirrorSetViewSet, base_name='{0}_mirrorset'.format(self.view_prefix))
         router.register(r'snapshots', self.SnapshotViewSet, base_name='{0}_snapshot'.format(self.view_prefix))

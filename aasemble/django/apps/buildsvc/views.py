@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from .forms import ExternalDependencyForm, PackageSourceForm
-from .models import BuildRecord, ExternalDependency, PackageSource, Repository, Series
+from .models import Build, ExternalDependency, PackageSource, Repository, Series
 
 LOG = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ def sources(request):
 
 @login_required
 def builds(request):
-    builds = BuildRecord.objects.filter(source__series__repository__in=Repository.lookup_by_user(request.user)).order_by('-build_started')
+    builds = Build.objects.filter(source__series__repository__in=Repository.lookup_by_user(request.user)).order_by('-build_started')
     return render(request, 'buildsvc/html/builds.html', {'builds': builds})
 
 

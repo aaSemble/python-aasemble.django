@@ -132,7 +132,7 @@ class RepositoryFunctionalTests(WebObject):
             buildPage = BuildPage(self.driver)
             buildPage.driver.get(self.live_server_url)
             buildPage.build_button.click()
-            uuid = str(P.buildrecord_set.first().uuid)
+            uuid = str(P.build_set.first().uuid)
             self.assertEqual(buildPage.verify_build_displayed(uuid=uuid), True, 'Build not started')
 
     def test_overview_button(self):
