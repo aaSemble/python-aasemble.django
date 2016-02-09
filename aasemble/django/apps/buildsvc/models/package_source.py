@@ -88,8 +88,6 @@ class PackageSource(models.Model):
 
             executor.get('*.*', tmpdir)
 
-            b.save()
-
             changes_files = filter(lambda s: s.endswith('.changes'), os.listdir(tmpdir))
             for changes_file in changes_files:
                 self.series.process_changes(os.path.join(tmpdir, changes_file))

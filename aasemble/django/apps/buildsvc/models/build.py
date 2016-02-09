@@ -171,9 +171,12 @@ class Build(models.Model):
         self.source.last_built_name = name
         self.source.save(update_fields=['last_built_version', 'last_built_name'])
 
-        build_cmd = get_build_cmd(url)
+        source_build_cmd = get_source_build_cmd(url)
+        executor.run_cmd(source_build_cmd, cwd=tmpdir, logger=self.logger)
 
-        executor.run_cmd(build_cmd, cwd=tmpdir, logger=self.logger)
+        binary_build_cmd = get_binary_build_cmd(url)
+        executor.run_cmd(binary_build_cmd, cwd=tmpdir, logger=self.logger)
+
         self.update_state(self.SUCCESFULLY_BUILT)
 
         self.build_finished = now()
@@ -183,7 +186,20 @@ class Build(models.Model):
         executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=self.logger)
 
 
-def get_build_cmd(b_url, settings=settings):
+def get_binary_build_cmd(b_url, settings=settings):
+    build_cmd = ['aasemble-pkgbuild']
+
+    if hasattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'):
+        if settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY:
+            build_cmd += ['--proxy', settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY]
+
+    build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
+    build_cmd += ['binary-build', b_url]
+
+    return build_cmd
+
+
+def get_source_build_cmd(b_url, settings=settings):
     build_cmd = ['aasemble-pkgbuild']
 
     if hasattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'):
@@ -194,6 +210,6 @@ def get_build_cmd(b_url, settings=settings):
     build_cmd += ['--email', settings.BUILDSVC_DEBEMAIL]
     build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
 
-    build_cmd += ['build', b_url]
+    build_cmd += ['source-build', b_url]
 
     return build_cmd

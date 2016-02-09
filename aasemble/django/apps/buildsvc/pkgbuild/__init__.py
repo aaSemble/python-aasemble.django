@@ -108,7 +108,7 @@ class PackageBuilder(object):
             cmd.append(build_id)
         run_cmd(cmd, cwd=self.builddir, logger=self.logger)
 
-    def build(self):
+    def source_build(self):
         self.logger.debug('Using %s to build' % (type(self)))
 
         self.logger.debug('Detecting Build dependencies')
@@ -126,6 +126,8 @@ class PackageBuilder(object):
         self.build_external_dependency_repo_keys()
         self.build_external_dependency_repo_sources()
         self.docker_build_source_package()
+
+    def binary_build(self):
         self.docker_build_binary_package()
 
     def build_external_dependency_repo_keys(self):
@@ -307,8 +309,10 @@ def main(argv=sys.argv[1:]):
         sys.stdout.write(builder.package_version)
     elif options.action == 'name':
         sys.stdout.write(builder.sanitized_package_name)
-    elif options.action == 'build':
-        builder.build()
+    elif options.action == 'source-build':
+        builder.source_build()
+    elif options.action == 'binary-build':
+        builder.binary_build()
     elif options.action == 'checkout':
         builder.checkout()
     else:
