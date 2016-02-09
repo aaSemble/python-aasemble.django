@@ -2,6 +2,7 @@ import logging
 import os
 import select
 import subprocess
+import time
 
 from six import BytesIO
 from six.moves import shlex_quote
@@ -29,6 +30,26 @@ def ssh_run_cmd(connect_string, cmd, remote_cwd=None, *args, **kwargs):
 def ssh_get(connect_string, remote_pattern, destdir):
     cmd = ['scp', '-q', '-oStrictHostKeyChecking=no', '-oUserKnownHostsFile=/dev/null', '{0}:{1}'.format(connect_string, remote_pattern), '.']
     run_cmd(cmd, cwd=destdir)
+
+
+def retry_for_duration_wrapper(seconds, interval, exception, func, *args, **kwargs):
+    expiration = time.time() + seconds
+
+    def timeout_expired():
+        return expiration < time.time()
+
+    while True:
+        try:
+            return func(*args, **kwargs)
+        except exception:
+            if timeout_expired():
+                raise
+            LOG.debug('function failed: %r(args=%r, kwargs=%r)' % (func, args, kwargs))
+            time.sleep(interval)
+
+
+def run_cmd_until_succesful_or_timeout(duration, interval, *args, **kwargs):
+    return retry_for_duration_wrapper(duration, interval, CommandFailed, run_cmd, *args, **kwargs)
 
 
 def run_cmd(cmd, input=None, cwd=None, override_env=None,
