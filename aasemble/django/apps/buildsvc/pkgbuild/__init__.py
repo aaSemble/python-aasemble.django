@@ -289,7 +289,7 @@ def main(argv=sys.argv[1:]):
     parser.add_argument('--fullname', default='aaSemble Build Service', help='Full name to use in changelog')
     parser.add_argument('--email', default='autobuild@aasemble.com', help='E-mail to use in changelog')
     parser.add_argument('--backend', default='dbuild', help='Builder backend [default=dbuild]')
-    parser.add_argument('action', choices=['build', 'name', 'version', 'checkout'])
+    parser.add_argument('action', choices=['source-build', 'binary-build', 'name', 'version', 'checkout'])
     parser.add_argument('build_record', help='build_record ID (URL)')
 
     options = parser.parse_args(argv)
