@@ -21,21 +21,6 @@ from aasemble.utils.exceptions import CommandFailed
 LOG = logging.getLogger(__name__)
 
 
-def get_build_cmd(b_url, settings=settings):
-    build_cmd = ['aasemble-pkgbuild']
-
-    if hasattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'):
-        if settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY:
-            build_cmd += ['--proxy', settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY]
-
-    build_cmd += ['--fullname', settings.BUILDSVC_DEBFULLNAME]
-    build_cmd += ['--email', settings.BUILDSVC_DEBEMAIL]
-    build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
-
-    build_cmd += ['build', b_url]
-    return build_cmd
-
-
 class NotAValidGithubRepository(Exception):
     pass
 
@@ -96,32 +81,10 @@ class PackageSource(models.Model):
         tasks.build.delay(self.id)
 
     def build_real(self):
-        self.increment_build_counter()
-
-        with self.create_build() as b, executors.get_executor('b-%s' % (b.uuid,)) as executor, TemporaryDirectory() as tmpdir:
-            b.update_state(b.BUILDING)
-
-            self.wait_until_pkgbuild_is_installed(executor, logger=b.logger)
-
-            b_url = b.get_full_absolute_url()
-
-            executor.run_cmd(['aasemble-pkgbuild', 'checkout', b_url], cwd=tmpdir, logger=b.logger)
-            version = executor.run_cmd(['aasemble-pkgbuild', 'version', b_url], cwd=tmpdir, logger=b.logger)
-            name = executor.run_cmd(['aasemble-pkgbuild', 'name', b_url], cwd=tmpdir, logger=b.logger)
-
-            b.version = version
-            b.save(update_fields=['version'])
-
-            self.last_built_version = version
-            self.last_built_name = name
-            self.save(update_fields=['last_built_version', 'last_built_name'])
-
-            build_cmd = get_build_cmd(b_url)
-
-            executor.run_cmd(build_cmd, cwd=tmpdir, logger=b.logger)
-            b.state = b.SUCCESFULLY_BUILT
-            b.build_finished = now()
-            b.save()
+        timestamp = now().strftime('%s%f')
+        with executors.get_executor('b-%s-%s' % (self.uuid, timestamp)) as executor, TemporaryDirectory() as tmpdir:
+            with self.create_build() as b:
+                b.run(tmpdir, executor)
 
             executor.get('*.*', tmpdir)
 
@@ -141,9 +104,6 @@ class PackageSource(models.Model):
 
             self.series.export()
 
-    def wait_until_pkgbuild_is_installed(self, executor, logger=LOG):
-        executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=logger)
-
     def increment_build_counter(self):
         with transaction.atomic():
             self.build_counter = F('build_counter') + 1
@@ -151,6 +111,8 @@ class PackageSource(models.Model):
             self.refresh_from_db()
 
     def create_build(self):
+        self.increment_build_counter()
+
         from aasemble.django.apps.buildsvc.models.build import Build
         return Build.objects.create(source=self,
                                     build_counter=self.build_counter,
