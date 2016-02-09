@@ -385,7 +385,9 @@ class PackageSourceTestCase(TestCase):
                     return '124'
                 if cmd[1] == 'name':
                     return 'detectedname'
-                if 'build' in cmd[1:]:
+                if 'source-build' in cmd[1:]:
+                    return ''
+                if 'binary-build' in cmd[1:]:
                     return ''
                 if cmd[1] == 'checkout':
                     return ''
