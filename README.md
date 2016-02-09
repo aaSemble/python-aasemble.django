@@ -1,5 +1,4 @@
 [![Travis-CI Status](https://travis-ci.org/aaSemble/python-aasemble.django.svg)](https://travis-ci.org/aaSemble/python-aasemble.django)
-[![Circle CI Status](https://circleci.com/gh/aaSemble/python-aasemble.django.svg?style=svg)](https://circleci.com/gh/aaSemble/python-aasemble.django)
 [![codecov.io](https://codecov.io/github/aaSemble/python-aasemble.django/coverage.svg?branch=master)](https://codecov.io/github/aaSemble/python-aasemble.django?branch=master)
 
 # aaSemble web services
