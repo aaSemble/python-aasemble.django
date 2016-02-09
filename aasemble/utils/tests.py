@@ -6,7 +6,17 @@ from unittest import TestCase
 
 import mock
 
-from aasemble.utils import TemporaryDirectory, ensure_dir, escape_cmd_for_ssh, run_cmd, ssh_get, ssh_run_cmd
+from six import assertRaisesRegex
+
+from aasemble.utils import (TemporaryDirectory,
+                            ensure_dir,
+                            escape_cmd_for_ssh,
+                            retry_for_duration_wrapper,
+                            run_cmd,
+                            run_cmd_until_succesful_or_timeout,
+                            ssh_get,
+                            ssh_run_cmd)
+
 from aasemble.utils.exceptions import CommandFailed
 
 stdout_stderr_script = '''#!/bin/sh
@@ -74,8 +84,15 @@ class UtilsTestCase(TestCase):
         self.assertEquals(stdout, b'foo')
         logger.log.assert_called_with(20, 'foo')
 
-    def test_run_cmd_fail_raises_exception(self):
-        self.assertRaises(CommandFailed, run_cmd, ['false'])
+    def test_run_cmd_fail_raises_exception_and_includes_stderr(self):
+        assertRaisesRegex(self, CommandFailed, 'STDERR', run_cmd, ['bash', '-c', 'echo STDOUT; echo STDERR >&2; false'])
+
+    def test_run_cmd_fail_raises_exception_and_includes_stdout(self):
+        assertRaisesRegex(self, CommandFailed, 'STDOUT', run_cmd, ['bash', '-c', 'echo STDOUT; echo STDERR >&2; false'])
+
+    def test_run_cmd_with_logger_fail_raises_exception_and_includes_stderr(self):
+        logger = mock.MagicMock()
+        assertRaisesRegex(self, CommandFailed, 'STDERR', run_cmd, ['bash', '-c', 'echo STDOUT; echo STDERR >&2; false'], logger=logger)
 
     def test_run_cmd_override_env(self):
         os.environ['TESTVAR'] = 'foo'
@@ -130,6 +147,48 @@ class UtilsTestCase(TestCase):
 
         finally:
             os.unlink(tmpfile)
+
+    def test_run_cmd_retries(self):
+        with TemporaryDirectory() as tmpdir:
+            run_cmd_until_succesful_or_timeout(5, 3, ['bash', '-c', 'test -f foo || (touch foo; exit 1)'], cwd=tmpdir)
+
+    @mock.patch('aasemble.utils.time')
+    def test_retry_for_duration_wrapper_retries(self, time):
+        self._setup_mock_time(time)
+
+        func = mock.MagicMock()
+        func.side_effect = self.FakeException('oh, dear')
+
+        self.assertRaises(self.FakeException, retry_for_duration_wrapper, 20, 10, self.FakeException, func, 1, 2, foo='bar')
+
+        self.assertEquals(len(func.call_args_list), 4)
+
+    @mock.patch('aasemble.utils.time')
+    def test_retry_for_duration_wrapper_retries_and_eventually_returns(self, time):
+        self._setup_mock_time(time)
+
+        func = mock.MagicMock()
+        func.side_effect = [self.FakeException('oh, dear'),
+                            self.FakeException('oh, dear2'),
+                            'oh, this time it worked']
+
+        self.assertEquals(retry_for_duration_wrapper(20, 10, self.FakeException, func, 1, 2, foo='bar'),
+                          'oh, this time it worked')
+
+    def _setup_mock_time(self, time):
+        self.fake_timestamp = 0
+
+        def fake_sleep(t):
+            self.fake_timestamp += t
+
+        def fake_time():
+            return self.fake_timestamp
+
+        time.time.side_effect = fake_time
+        time.sleep.side_effect = fake_sleep
+
+    class FakeException(Exception):
+        pass
 
     def test_TemporaryDirectory(self):
         with TemporaryDirectory() as tmpdir:
