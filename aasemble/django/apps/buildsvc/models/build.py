@@ -153,3 +153,47 @@ class Build(models.Model):
             self.build_finished = now()
             self.state = Build.FAILED_TO_BUILD
             self.save()
+
+    def run(self, tmpdir, executor):
+        self.update_state(self.BUILDING)
+        self.wait_until_pkgbuild_is_installed(executor)
+
+        url = self.get_full_absolute_url()
+
+        executor.run_cmd(['aasemble-pkgbuild', 'checkout', url], cwd=tmpdir, logger=self.logger)
+        version = executor.run_cmd(['aasemble-pkgbuild', 'version', url], cwd=tmpdir, logger=self.logger)
+        name = executor.run_cmd(['aasemble-pkgbuild', 'name', url], cwd=tmpdir, logger=self.logger)
+
+        self.version = version
+        self.save(update_fields=['version'])
+
+        self.source.last_built_version = version
+        self.source.last_built_name = name
+        self.source.save(update_fields=['last_built_version', 'last_built_name'])
+
+        build_cmd = get_build_cmd(url)
+
+        executor.run_cmd(build_cmd, cwd=tmpdir, logger=self.logger)
+        self.update_state(self.SUCCESFULLY_BUILT)
+
+        self.build_finished = now()
+        self.save()
+
+    def wait_until_pkgbuild_is_installed(self, executor):
+        executor.run_cmd(['timeout', '500', 'bash', '-c', 'while ! aasemble-pkgbuild --help; do sleep 20; done'], logger=self.logger)
+
+
+def get_build_cmd(b_url, settings=settings):
+    build_cmd = ['aasemble-pkgbuild']
+
+    if hasattr(settings, 'AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY'):
+        if settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY:
+            build_cmd += ['--proxy', settings.AASEMBLE_BUILDSVC_BUILDER_HTTP_PROXY]
+
+    build_cmd += ['--fullname', settings.BUILDSVC_DEBFULLNAME]
+    build_cmd += ['--email', settings.BUILDSVC_DEBEMAIL]
+    build_cmd += ['--parallel', str(getattr(settings, 'AASEMBLE_BUILDSVC_DEFAULT_PARALLEL', 1))]
+
+    build_cmd += ['build', b_url]
+
+    return build_cmd
