@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import os.path
 
@@ -7,7 +8,10 @@ from django.conf import settings
 from libcloud.compute.providers import get_driver
 from libcloud.compute.types import Provider
 
-from aasemble.utils import run_cmd, ssh_get, ssh_run_cmd
+from aasemble.utils import retry_for_duration_wrapper, run_cmd, ssh_get, ssh_run_cmd
+from aasemble.utils.exceptions import CommandFailed
+
+LOG = logging.getLogger(__name__)
 
 
 class Executor(object):
@@ -114,6 +118,7 @@ class GCENode(Executor):
                                                 location=self._zone,
                                                 ex_disks_gce_struct=self._disks,
                                                 ex_metadata=self._metadata)
+        self.wait_until_is_usable()
 
     @property
     def _ssh_connect_string(self):
@@ -131,6 +136,9 @@ class GCENode(Executor):
     def __enter__(self):
         self.launch()
         return self
+
+    def wait_until_is_usable(self, logger=LOG):
+        retry_for_duration_wrapper(120, 10, CommandFailed, self.run_cmd, ['true'], logger=LOG)
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.destroy()
