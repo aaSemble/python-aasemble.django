@@ -22,6 +22,7 @@ from rest_framework_nested import routers
 
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
+from aasemble.django.apps.nodes import models as nodes_models
 from aasemble.django.exceptions import DuplicateResourceException
 
 from . import serializers as serializers_
@@ -76,6 +77,9 @@ class aaSembleV1Views(object):
         self.PackageSourceViewSet = self.PackageSourceViewSetFactory()
         self.ExternalDependencyViewSet = self.ExternalDependencyViewSetFactory()
         self.BuildViewSet = self.BuildViewSetFactory()
+        if self.serializers.has_nodes:
+            self.ClusterViewSet = self.ClusterViewSetFactory()
+            self.NodeViewSet = self.NodeViewSetFactory()
         self.urls = self.build_urls()
 
     def MirrorViewSetFactory(selff):
@@ -321,6 +325,57 @@ class aaSembleV1Views(object):
 
         return BuildViewSet
 
+    def ClusterViewSetFactory(selff):
+        class ClusterViewSet(aaSembleV1ViewSet):
+            """
+            API endpoint that allows listing and creation of builds
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = nodes_models.Cluster.objects.all()
+            serializer_class = selff.serializers.ClusterSerializer
+            permission_classes = (AllowAny,)
+
+            def get_queryset(self):
+                if 'uuid' in self.kwargs:
+                    return self.queryset.filter(uuid=self.kwargs['uuid'])
+
+                if not self.request.user.is_active:
+                    return self.queryset.none()
+
+                qs = self.queryset.filter(user=self.request.user)
+
+                return qs
+
+        return ClusterViewSet
+
+    def NodeViewSetFactory(selff):
+        class NodeViewSet(aaSembleV1ViewSet):
+            """
+            API endpoint that allows listing and creation of builds
+            """
+            lookup_field = selff.default_lookup_field
+            lookup_value_regex = selff.default_lookup_value_regex
+            queryset = nodes_models.Node.objects.all()
+            serializer_class = selff.serializers.NodeSerializer
+            permission_classes = (AllowAny,)
+
+            def get_queryset(self):
+                if 'uuid' in self.kwargs:
+                    return self.queryset.filter(uuid=self.kwargs['uuid'])
+
+                if 'cluster_{0}'.format(selff.default_lookup_field) in self.kwargs:
+                    qs = self.queryset.filter(**selff.get_qs_filter(self.kwargs, 'cluster', 'cluster'))
+                else:
+                    if not self.request.user.is_active:
+                        qs = self.queryset.none()
+                    else:
+                        qs = self.queryset.filter(cluster__user=self.request.user)
+
+                return qs
+
+        return NodeViewSet
+
     def build_urls(self):
         router = routers.DefaultRouter()
         router.register(r'repositories', self.RepositoryViewSet, base_name='{0}_repository'.format(self.view_prefix))
@@ -330,6 +385,13 @@ class aaSembleV1Views(object):
         router.register(r'mirrors', self.MirrorViewSet, base_name='{0}_mirror'.format(self.view_prefix))
         router.register(r'mirror_sets', self.MirrorSetViewSet, base_name='{0}_mirrorset'.format(self.view_prefix))
         router.register(r'snapshots', self.SnapshotViewSet, base_name='{0}_snapshot'.format(self.view_prefix))
+
+        if self.serializers.has_nodes:
+            router.register(r'clusters', self.ClusterViewSet, base_name='{0}_cluster'.format(self.view_prefix))
+            router.register(r'nodes', self.NodeViewSet, base_name='{0}_node'.format(self.view_prefix))
+
+            cluster_router = routers.NestedSimpleRouter(router, r'clusters', lookup='cluster')
+            cluster_router.register(r'nodes', self.NodeViewSet, base_name='{0}_node'.format(self.view_prefix))
 
         source_router = routers.NestedSimpleRouter(router, r'sources', lookup='source')
         source_router.register(r'builds', self.BuildViewSet, base_name='{0}_build'.format(self.view_prefix))
@@ -344,6 +406,9 @@ class aaSembleV1Views(object):
                 url(r'^', include(source_router.urls)),
                 url(r'^auth/', include('rest_auth.urls')),
                 url(r'^auth/github/$', GithubLogin.as_view(), name='github_login')]
+
+        if self.serializers.has_nodes:
+            urls += [url(r'^', include(cluster_router.urls))]
 
         if getattr(settings, 'SIGNUP_OPEN', False):
             urls += [url(r'^auth/registration/', include('rest_auth.registration.urls'))]

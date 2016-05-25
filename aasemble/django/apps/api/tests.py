@@ -49,6 +49,8 @@ class APIv1Tests(APITestCase):
         self.self_url = self.base_url + 'auth/user/'
         self.source_list_url = self.base_url + 'sources/'
         self.build_list_url = self.base_url + 'builds/'
+        self.cluster_list_url = self.base_url + 'clusters/'
+        self.node_list_url = self.base_url + 'nodes/'
 
     ####################
     # Repository tests #
@@ -1365,6 +1367,13 @@ class APIv3Tests(APIv2Tests):
 class APIDevelTests(APIv3Tests):
     base_url = '/api/devel/'
     view_prefix = 'devel'
+
+    def test_create_cluster_and_create_node(self):
+        response = self.client.post(self.cluster_list_url)
+        self.assertEquals(response.status_code, 201)
+        response2 = self.client.post(self.node_list_url, {'internal_ip': '192.168.2.1',
+                                                          'cluster': response.data['self']})
+        self.assertEquals(response2.status_code, 201)
 
 
 class GithubHookViewTestCase(APITestCase):

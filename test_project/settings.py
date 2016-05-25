@@ -30,6 +30,7 @@ INSTALLED_APPS = (
     'aasemble.django.apps.api',
     'aasemble.django.apps.buildsvc',
     'aasemble.django.apps.mirrorsvc',
+    'aasemble.django.apps.nodes',
     'bootstrap3',
     'djcelery',
     'rest_framework',
