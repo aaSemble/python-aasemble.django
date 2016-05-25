@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
+from aasemble.django.apps.nodes import models as nodes_models
 
 
 class aaSembleAPIv1Serializers(object):
@@ -19,6 +20,7 @@ class aaSembleAPIv1Serializers(object):
     repo_has_series_name = False
     source_includes_last_built_version = False
     build_includes_counter = False
+    has_nodes = False
 
     def __init__(self):
         self.MirrorSerializer = self.MirrorSerializerFactory()
@@ -29,6 +31,9 @@ class aaSembleAPIv1Serializers(object):
         self.SeriesSerializer = self.SeriesSerializerFactory()
         self.BuildSerializer = self.BuildSerializerFactory()
         self.ExternalDependencySerializer = self.ExternalDependencySerializerFactory()
+        if self.has_nodes:
+            self.ClusterSerializer = self.ClusterSerializerFactory()
+            self.NodeSerializer = self.NodeSerializerFactory()
 
     class SimpleListField(serializers.ListField):
         child = serializers.CharField()
@@ -271,3 +276,25 @@ class aaSembleAPIv1Serializers(object):
                     fields += ('series_name',)
 
         return RepositorySerializer
+
+    def ClusterSerializerFactory(selff):
+        class ClusterSerializer(serializers.HyperlinkedModelSerializer):
+            self = serializers.HyperlinkedRelatedField(view_name='{0}_cluster-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
+            nodes = serializers.HyperlinkedIdentityField(view_name='{0}_node-list'.format(selff.view_prefix), lookup_url_kwarg='cluster_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
+
+            class Meta:
+                model = nodes_models.Cluster
+                fields = ('self', 'nodes')
+
+        return ClusterSerializer
+
+    def NodeSerializerFactory(selff):
+        class NodeSerializer(serializers.HyperlinkedModelSerializer):
+            self = serializers.HyperlinkedRelatedField(view_name='{0}_node-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
+            cluster = serializers.HyperlinkedRelatedField(view_name='{0}_cluster-detail'.format(selff.view_prefix), queryset=nodes_models.Cluster.objects.all(), lookup_field=selff.default_lookup_field)
+
+            class Meta:
+                model = nodes_models.Node
+                fields = ('self', 'internal_ip', 'cluster')
+
+        return NodeSerializer
