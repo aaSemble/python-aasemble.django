@@ -8,6 +8,7 @@ from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.apps.nodes import models as nodes_models
 
+
 class JSONField(serializers.JSONField):
     def to_internal_value(self, data):
         try:
@@ -18,6 +19,7 @@ class JSONField(serializers.JSONField):
 
     def to_representation(self, value):
         return value.decode('utf-8')
+
 
 class aaSembleAPIv1Serializers(object):
     view_prefix = 'v1'
