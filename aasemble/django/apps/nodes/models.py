@@ -1,6 +1,8 @@
+import json
 import uuid
 
 from django.contrib.auth import models as auth_models
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -9,9 +11,17 @@ from django.utils.encoding import python_2_unicode_compatible
 class Cluster(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(auth_models.User, null=True)
+    json = models.BinaryField(null=True, blank=True)
 
     def __str__(self):
         return str(self.uuid)
+
+    def clean_fields(self):
+        try:
+            json.loads(self.json)
+        except ValueError:
+            raise ValidationError('JSON field not valid JSON')
+        return super(Cluster, self).clean_fields()
 
 
 @python_2_unicode_compatible

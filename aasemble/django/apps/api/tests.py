@@ -1,3 +1,4 @@
+import json
 import os.path
 import shutil
 import tempfile
@@ -1369,8 +1370,9 @@ class APIDevelTests(APIv3Tests):
     view_prefix = 'devel'
 
     def test_create_cluster_and_create_node(self):
-        response = self.client.post(self.cluster_list_url)
+        response = self.client.post(self.cluster_list_url, {'json': '{"foo": "bar"}'})
         self.assertEquals(response.status_code, 201)
+        self.assertEquals(json.loads(response.data['json']), {'foo': 'bar'})
         response2 = self.client.post(self.node_list_url, {'internal_ip': '192.168.2.1',
                                                           'cluster': response.data['self']})
         self.assertEquals(response2.status_code, 201)
