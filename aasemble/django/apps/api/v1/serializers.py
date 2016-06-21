@@ -1,8 +1,24 @@
+import json
+
 from rest_framework import serializers
+
+import six
 
 from aasemble.django.apps.buildsvc import models as buildsvc_models
 from aasemble.django.apps.mirrorsvc import models as mirrorsvc_models
 from aasemble.django.apps.nodes import models as nodes_models
+
+
+class JSONField(serializers.JSONField):
+    def to_internal_value(self, data):
+        try:
+            json.loads(data)
+        except ValueError:
+            self.fail('invalid')
+        return six.b(data)
+
+    def to_representation(self, value):
+        return value.decode('utf-8')
 
 
 class aaSembleAPIv1Serializers(object):
@@ -281,10 +297,11 @@ class aaSembleAPIv1Serializers(object):
         class ClusterSerializer(serializers.HyperlinkedModelSerializer):
             self = serializers.HyperlinkedRelatedField(view_name='{0}_cluster-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
             nodes = serializers.HyperlinkedIdentityField(view_name='{0}_node-list'.format(selff.view_prefix), lookup_url_kwarg='cluster_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
+            json = JSONField(binary=True)
 
             class Meta:
                 model = nodes_models.Cluster
-                fields = ('self', 'nodes')
+                fields = ('self', 'nodes', 'json')
 
         return ClusterSerializer
 
