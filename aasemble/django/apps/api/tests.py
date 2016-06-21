@@ -1377,6 +1377,10 @@ class APIDevelTests(APIv3Tests):
                                                           'cluster': response.data['self']})
         self.assertEquals(response2.status_code, 201)
 
+    def test_create_cluster_without_json(self):
+        response = self.client.post(self.cluster_list_url)
+        self.assertEquals(response.status_code, 201)
+
 
 class GithubHookViewTestCase(APITestCase):
     fixtures = ['complete.json']

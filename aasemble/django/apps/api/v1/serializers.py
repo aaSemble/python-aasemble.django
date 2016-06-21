@@ -297,7 +297,7 @@ class aaSembleAPIv1Serializers(object):
         class ClusterSerializer(serializers.HyperlinkedModelSerializer):
             self = serializers.HyperlinkedRelatedField(view_name='{0}_cluster-detail'.format(selff.view_prefix), read_only=True, source='*', lookup_field=selff.default_lookup_field)
             nodes = serializers.HyperlinkedIdentityField(view_name='{0}_node-list'.format(selff.view_prefix), lookup_url_kwarg='cluster_{0}'.format(selff.default_lookup_field), read_only=True, lookup_field=selff.default_lookup_field)
-            json = JSONField(binary=True)
+            json = JSONField(binary=True, required=False)
 
             class Meta:
                 model = nodes_models.Cluster
