@@ -22,3 +22,5 @@ apache-libcloud
 pycrypto
 paramiko
 python-gnupg
+anyjson
+amqp
