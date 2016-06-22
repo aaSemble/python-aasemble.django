@@ -10,14 +10,17 @@
 Install dependencies:
 
 ```
-apt-get install libmysqlclient-dev python-dev
+apt-get install libmysqlclient-dev python-dev libffi-dev
+
+apt-get install docker.io
+docker pull ubuntu
 ```
 
 Setup a working environment:
 
 ```
 git clone https://github.com/aaSemble/python-aasemble.django.git
-cd python-assemble.django/
+cd python-aasemble.django/
 virtualenv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
