@@ -11,7 +11,7 @@ chardet
 pytz
 mysqlclient
 django-cors-headers
-git+https://github.com/Tivix/django-rest-auth@3189a5c7a0be6540f8b57642cce71176879205e2#egg=rest-auth
+git+https://github.com/Tivix/django-rest-auth@3189a5c7a0be6540f8b57642cce71176879205e2#egg=django-rest-auth
 django-allauth
 redis
 django-bootstrap3
