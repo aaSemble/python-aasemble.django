@@ -10,10 +10,15 @@
 Install dependencies:
 
 ```
-apt-get install libmysqlclient-dev python-dev libffi-dev
+apt-get install libmysqlclient-dev python-dev libffi-dev reprepro
 
-apt-get install docker.io
+# Get docker from docker.io since the one from Ubuntu repos is older than version 1.22
+wget -qO- https://get.docker.com/ | sh
 docker pull ubuntu
+
+# ensure that the user which runs the webservice (in particular *build api*)
+# is part of docker group
+usermod -aG docker vagrant
 ```
 
 Setup a working environment:
@@ -23,9 +28,56 @@ git clone https://github.com/aaSemble/python-aasemble.django.git
 cd python-aasemble.django/
 virtualenv .venv
 . .venv/bin/activate
-pip install -r requirements.txt
+pip install -U pip wheel
+pip install -U -r requirements.txt
 python manage.py migrate
+python setup.py install
 ```
+
+Get Celery running in the background
+
+```
+apt-get install redis-server
+
+redis-cli ping
+
+celery worker --detach
+```
+
+or
+
+```
+$ python manage.py celeryd_detach -B --logfile celery_logs.log
+```
+
+Update environment variables to match your setup
+
+```
+vi test_project/settings.py
+
+BUILDSVC_REPOS_BASE_URL = 'http://x.x.x.x:8000/apt'
+MIRRORSVC_BASE_URL = 'http://x.x.x.x:8000/mirrors'
+GITHUB_AUTH_CALLBACK = 'http://x.x.x.x:8000/accounts/github/login/callback/'
+AASEMBLE_BUILDSVC_EXECUTOR = 'Local'
+```
+
+
+In the case you want to use the superuser for testing, you will need to create the resouces manually
+
+```
+(.venv)vagrant@aasemble-build:~/python-aasemble.django$ python manage.py shell
+>>>
+from aasemble.django.apps.buildsvc import models as build_models
+from django.contrib.auth import models as auth_models
+u = auth_models.User.objects.get(username='vagrant')
+r = build_models.Repository(user=u, name=u.username)
+r.save()
+s = build_models.Series(repository=r, name='aasemble')
+s.save()
+```
+
+Now, goto http://x.x.x.x:8000/admin/sites/site/1/change/
+and change example.com to x.x.x.x:8000
 
 To run the web service:
 

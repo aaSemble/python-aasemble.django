@@ -23,4 +23,4 @@ pycrypto
 paramiko
 python-gnupg
 anyjson
-amqp
+amqp==1.4.9
